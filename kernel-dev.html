@@ -1,0 +1,521 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid for Kernel Devs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;--ink-2:#0a1614;--panel:#162824;--panel-2:#1d332e;--line:#2a463f;
+    --text:#efe7d8;--text-dim:#b9c4ba;--text-faint:#7f9189;
+    --gold:#f0b35e;--gold-soft:#caa066;--green:#62cf94;--coral:#e8896b;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+  header{display:flex;gap:18px;align-items:center;margin-bottom:8px}
+  .rings{flex:0 0 auto}.rings svg{display:block}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:2.2}
+  .ring-on{fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;
+    filter:drop-shadow(0 0 4px rgba(240,179,94,.45));transition:stroke .5s ease, opacity .5s ease}
+  .ring-count{font-family:var(--display);font-size:14px;fill:var(--text);font-weight:600}
+  .ring-label{font-family:var(--mono);font-size:6px;fill:var(--text-faint);letter-spacing:.06em}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    color:var(--gold);border:1px solid var(--gold-soft);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+  .titles h1{font-family:var(--display);font-weight:600;font-size:clamp(25px,5.6vw,36px);
+    line-height:1.02;margin:0 0 4px;letter-spacing:-.01em}
+  .titles h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .titles p{margin:0;color:var(--text-dim);font-size:14.5px}
+  .xp{font-family:var(--mono);font-size:12px;color:var(--gold-soft);margin-top:6px}
+  .xp b{color:var(--gold)}
+  .lede{margin:22px 0 10px;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;background:var(--panel);font-family:var(--display);font-size:17.5px;line-height:1.45;color:var(--text)}
+  .lede span{color:var(--gold)}
+  .map{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 22px}
+  .dot{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--panel);
+    color:var(--text-faint);font-family:var(--mono);font-size:12px;display:grid;place-items:center;cursor:pointer;transition:.18s;padding:0}
+  .dot:hover{border-color:var(--gold-soft);color:var(--text)}
+  .dot.done{background:linear-gradient(180deg,#26443b,#1c352e);border-color:var(--gold);color:var(--gold)}
+  .dot.active{outline:2px solid var(--gold);outline-offset:2px;color:var(--text)}
+  .card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:26px 24px;
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8);animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--gold-soft);letter-spacing:.1em;
+    text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+  .eyebrow .n{color:var(--text-faint)}
+  .card h2{font-family:var(--display);font-weight:600;font-size:clamp(21px,4.6vw,28px);line-height:1.08;margin:10px 0 2px;letter-spacing:-.01em}
+  .plainline{color:var(--gold);font-size:15px;margin:0 0 16px;font-weight:500}
+  .body p{font-size:15.5px;color:var(--text);margin:0 0 14px}
+  .term{font-family:var(--mono);font-size:.85em;color:var(--gold);background:rgba(240,179,94,.1);
+    padding:1px 6px;border-radius:5px;border:1px solid rgba(240,179,94,.22)}
+  .analogy{display:flex;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin:4px 0 22px}
+  .analogy .ic{font-size:20px;line-height:1.2;flex:0 0 auto}
+  .analogy div p{margin:0;font-size:14.5px;color:var(--text-dim)}
+  .analogy b{color:var(--text);font-weight:600}
+  .quiz-q{margin:0 0 12px}
+  .quiz-q .lab{color:var(--gold-soft);font-family:var(--mono);font-size:11px;letter-spacing:.12em;display:block;margin-bottom:4px}
+  .quiz-q .qt{font-weight:600;font-size:15.5px;color:var(--text)}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{text-align:left;border:1px solid var(--line);background:var(--ink-2);color:var(--text);border-radius:10px;padding:13px 15px;
+    font:inherit;font-size:15px;cursor:pointer;transition:.14s;display:flex;gap:10px;align-items:flex-start}
+  .opt:hover:not(:disabled){border-color:var(--gold-soft);transform:translateX(2px)}
+  .opt:disabled{cursor:default}
+  .opt .k{font-family:var(--mono);font-size:13px;color:var(--text-faint);flex:0 0 auto;margin-top:1px}
+  .opt.correct{border-color:var(--green);background:rgba(98,207,148,.14)}
+  .opt.correct .k{color:var(--green)}
+  .opt.wrong{border-color:var(--coral);background:rgba(232,137,107,.12)}
+  .opt.wrong .k{color:var(--coral)}
+  .feedback{margin:16px 0 0;padding:14px 16px;border-radius:11px;font-size:15px;display:none}
+  .feedback.show{display:block;animation:pop .35s ease}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+  .feedback.good{background:rgba(98,207,148,.12);border:1px solid rgba(98,207,148,.4)}
+  .feedback.bad{background:rgba(232,137,107,.1);border:1px solid rgba(232,137,107,.35)}
+  .feedback .hd{font-family:var(--display);font-size:17px;font-weight:600;display:block;margin-bottom:3px}
+  .feedback.good .hd{color:var(--green)}.feedback.bad .hd{color:var(--coral)}
+  .streak{font-family:var(--mono);font-size:12px;color:var(--gold);margin-left:8px}
+  .nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+  .btn{font:inherit;font-size:15px;font-weight:600;border-radius:10px;padding:12px 20px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--text);transition:.15s}
+  .btn:hover:not(:disabled){border-color:var(--gold-soft)}
+  .btn:disabled{opacity:.35;cursor:default}
+  .btn.primary{background:linear-gradient(180deg,#f0b35e,#d9974a);color:#241405;border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .decoder{margin-top:14px}
+  .decoder h3{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 4px}
+  .decoder .sub{color:var(--text-dim);font-size:14.5px;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .flip{height:108px;perspective:900px;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+  .flip-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flip.on .flip-in{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;padding:12px;
+    display:flex;flex-direction:column;justify-content:center;text-align:left}
+  .front{background:var(--panel-2)}
+  .front .t{font-family:var(--mono);font-size:13.5px;color:var(--gold);margin-bottom:4px;word-break:break-word}
+  .front .h{font-size:11px;color:var(--text-faint);font-family:var(--mono)}
+  .back{background:linear-gradient(180deg,#22403a,#1a322c);transform:rotateY(180deg);border-color:var(--gold-soft)}
+  .back p{margin:0;font-size:11.5px;color:var(--text);line-height:1.4}
+  .finale{text-align:center;padding:34px 24px}
+  .finale .big{font-family:var(--display);font-size:36px;font-weight:600;margin:0 0 6px;color:var(--gold)}
+  .finale p{color:var(--text-dim);font-size:16px;max-width:48ch;margin:0 auto 10px}
+  .finale .next{margin-top:18px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);text-align:left}
+  .finale .next b{color:var(--text)}
+  .footer{margin-top:30px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint)}
+  .reset{background:none;border:0;color:var(--text-faint);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+  .reset:hover{color:var(--coral)}
+  @media (max-width:480px){ .lede{font-size:16px} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="rings" id="rings" aria-hidden="true"></div>
+    <div class="titles">
+      <span class="pill">LEVEL 3 · KERNEL DEV</span>
+      <h1>Porting the <em>grid</em></h1>
+      <p>Thirteen disciplines for hosting PromiseGrid on a new platform.</p>
+      <div class="xp" id="xp">0 XP · 0 of 13 mastered</div>
+    </div>
+  </header>
+
+  <div class="lede">
+    The whole job in one sentence: <span>don't clone wire-lab \u2014 satisfy the layers and frozen specs your
+    platform can honestly host, and say exactly what you host.</span> The kernel is a role, not a binary.
+  </div>
+
+  <div class="map" id="map" role="tablist" aria-label="Concept progress"></div>
+  <div id="stage"></div>
+
+  <div class="footer">
+    Kernel Dev primer · this is the most provisional section \u2014 porting is still blocked under DR-davod ·
+    <button class="reset" id="reset">reset my progress</button>
+  </div>
+</div>
+
+<script>
+const LESSONS = [
+  {
+    tag:"Reframe", icon:"\uD83E\uDDE9",
+    title:"\u201cKernel\u201d is a role, not a binary",
+    plain:"It's the infrastructure role that hosts the protocol stack and dispatches to handlers \u2014 not a program or an OS kernel.",
+    body:[
+      "Forget the OS-kernel image. In PromiseGrid, <b>kernel</b> means the infrastructure <i>role</i> that hosts the protocol stack, accepts the binding, session, and message responsibilities your port claims, and dispatches work to the handlers that implement those protocols.",
+      "Any runtime that can carry those responsibilities coherently can play the role. So the kernel is best understood as a <b>porting boundary and a hosting responsibility</b> \u2014 not one mandatory binary, and not one fixed machine shape."
+    ],
+    analogy:"Like \u201cthe host\u201d of an event \u2014 it's a job (greet, route guests, keep things running), not a specific person. Anyone who does the job is the host.",
+    q:"In PromiseGrid, what is the \u201ckernel\u201d?",
+    opts:["A specific wire-lab program you must run","An operating-system kernel",
+      "The hosting role that runs the protocol stack and dispatches to handlers","A central server everyone connects to"],
+    correct:2,
+    why:"Right \u2014 it's a <b>role and a boundary</b>, not a binary. Any runtime that carries the responsibilities coherently can be the kernel.",
+    nudge:"Drop the OS image. It's a job description \u2014 host the stack, dispatch to handlers \u2014 that many runtimes could fill."
+  },
+  {
+    tag:"The target", icon:"\uD83C\uDFAF",
+    title:"Don't clone wire-lab \u2014 satisfy the contracts",
+    plain:"The porting target is the layers and frozen specs, not the wire-lab directory tree.",
+    body:[
+      "The wrong question is \u201chow do I reproduce the exact wire-lab tree?\u201d The right one is <b>\u201cwhich PromiseGrid layers and contracts must this platform satisfy?\u201d</b> wire-lab is where boundaries are <i>studied</i> \u2014 apparatus and specimens \u2014 not the thing to clone literally.",
+      "So conformance is tested against <b>frozen specs by pCID</b>, not against whatever the harness happened to do in one run. Your port should name which binding, session, and message specs it implements, exercise itself against those frozen contracts, and record those conformance claims. Specimens and traces are evidence, never a substitute for naming the exact specs."
+    ],
+    analogy:"Building a bridge to the engineering spec \u2014 not by photographing someone else's bridge and copying every bolt. The spec is the contract; their bridge was just one build.",
+    q:"What's the actual porting target for a kernel dev?",
+    opts:["Reproducing the wire-lab directory tree exactly",
+      "Satisfying the PromiseGrid layers and frozen specs, tested by pCID",
+      "Matching one harness run's behavior","Copying the latest POC code"],
+    correct:1,
+    why:"Yes \u2014 satisfy the <b>contracts</b> (layers + frozen specs by pCID) and record conformance claims. wire-lab is a lab, not a blueprint to clone.",
+    nudge:"Don't chase the directory tree. Ask which layers and frozen specs your platform must satisfy \u2014 that's the target."
+  },
+  {
+    tag:"The layered model", icon:"\uD83E\uDD5E",
+    title:"Keep the layers straight",
+    plain:"Substrate, feed, group, CAS, session, message \u2014 each is a distinct obligation. Don't collapse them into one vague \u201ckernel support.\u201d",
+    body:[
+      "The upstream direction is a <b>layered model</b> that separates substrate/binding concerns from session and message semantics, with protocol handlers owning the interpretation of their own data. The labels \u2014 substrate, feed, group, CAS, session, message \u2014 each point at a different obligation a port may need to satisfy.",
+      "The discipline: <b>don't collapse all of that into one vague \u201ckernel support\u201d claim.</b> A careful port says which layer assumptions it actually fulfills, which it delegates, and where one level's guarantees stop before the next level's protocol rules begin."
+    ],
+    analogy:"A postal system has distinct layers \u2014 roads, trucks, sorting centers, addresses, the letter itself. \u201cWe do mail\u201d hides which parts you actually run. Name the layers.",
+    q:"What's the discipline around PromiseGrid's layers?",
+    opts:["Bundle them all into one \u201ckernel support\u201d feature","Implement only the message layer",
+      "Say which layers you fulfill, which you delegate, and where each layer's guarantees stop","Ignore layering \u2014 it isn't frozen yet"],
+    correct:2,
+    why:"Right \u2014 make the layer boundaries <b>legible</b>. Each is a distinct obligation; don't smear them into one vague claim.",
+    nudge:"Layers = separate obligations. The job is to say which ones you host, which you delegate, and where each stops."
+  },
+  {
+    tag:"Binding", icon:"\uD83D\uDD0C",
+    title:"Binding turns raw transport into clean sessions",
+    plain:"A transport carrying bytes isn't a session yet \u2014 binding bridges transport behavior to the session assumptions handlers expect.",
+    body:[
+      "A real transport \u2014 UDP, TCP, a file-backed feed, some host channel \u2014 does <b>not</b> become a PromiseGrid session just by carrying bytes. Something in your port has to <b>bind</b> that transport behavior to the session assumptions the hosted protocols rely on.",
+      "That means deciding where transport quirks, addressing, delivery boundaries, and connection lifecycle end, and where session semantics begin. The exact contract is still open, so <span class='term'>L4</span> isn't a frozen label \u2014 but the orientation holds: binding is the bridge that turns messy real-world transport into the clean session context your handlers expect, explicit enough that conformance claims don't quietly depend on transport folklore."
+    ],
+    analogy:"A power adapter between the wall and your laptop. The wall has raw, messy voltage; the adapter delivers the clean, predictable supply your device assumes. Binding is that adapter.",
+    q:"What's the job of the binding layer?",
+    opts:["To encrypt all traffic","To bridge raw transport behavior into the clean session assumptions handlers expect",
+      "To store messages permanently","To assign global addresses"],
+    correct:1,
+    why:"Yes \u2014 carrying bytes isn't a session. Binding is the <b>bridge</b> from transport quirks to clean session semantics.",
+    nudge:"Think adapter. Raw transport in, clean session context out \u2014 that conversion is what binding does."
+  },
+  {
+    tag:"CAS layer", icon:"\uD83D\uDDC4\uFE0F",
+    title:"Content storage is a contract, not a side cache",
+    plain:"Chunks live by their bytes under a named CAS protocol \u2014 uniform, not \u201csmall inline, big in storage.\u201d",
+    body:[
+      "Content-addressed storage isn't \u201csome cache off to the side.\u201d It's where chunks live under a named CAS protocol, typically shaped like <span class='term'>cas/&lt;cas-pCID&gt;/&lt;chunk-cid&gt;</span> \u2014 addressed by their bytes, under that protocol's rules.",
+      "Preserve the CAS discipline the chosen layer claims: don't quietly make some payloads content-addressed and others just convenient local files. Once the <span class='term'>L6</span> CAS layer is in force, the tree shape and pointer indirection should be <b>uniform</b>, not split into \u201csmall messages inline, large messages in CAS.\u201d Treat the CAS subtree as a real contract boundary, not a per-host implementation detail."
+    ],
+    analogy:"A library where every book is filed by a fingerprint of its exact contents \u2014 not \u201cthin pamphlets on this shelf, thick ones in the basement.\u201d One consistent filing rule for everything.",
+    q:"How should a port treat the CAS layer?",
+    opts:["As an optional cache it can vary per host",
+      "As a real contract: chunks addressed by their bytes under a named protocol, with a uniform shape",
+      "Only for large files; small ones go inline","As app-private storage the kernel ignores"],
+    correct:1,
+    why:"Right \u2014 CAS is a <b>contract boundary</b>. Uniform, content-addressed, named by protocol \u2014 not a special-cased local cache.",
+    nudge:"It's not a cache you can vary. Everything is addressed by its bytes under the named CAS protocol, with one uniform shape."
+  },
+  {
+    tag:"Ingress", icon:"\uD83D\uDEAA",
+    title:"Make your ingress assumptions explicit",
+    plain:"Different hosts admit work differently \u2014 that choice decides buffering, trust, and what crashes together.",
+    body:[
+      "Ports face meaningfully different ingress situations: one model hands work to handlers inside a more centralized host boundary, another exposes a thinner or more distributed path, another assumes there's effectively no heavyweight kernel at all.",
+      "Those differences change <b>where buffering lives, where trust is placed, what crashes can take down together, and how much context the runtime has before dispatch</b>. The <span class='term'>K1\u2013K5</span> taxonomy isn't five frozen commandments \u2014 but the point stands: a port must make its ingress assumptions explicit, because they shape the real responsibility boundary the hosted protocols depend on."
+    ],
+    analogy:"A building's entrance design \u2014 one guarded lobby, many side doors, or no doors at all \u2014 decides where security sits, where crowds queue, and what a break-in reaches. Same for how messages enter your port.",
+    q:"Why does the ingress shape matter for a port?",
+    opts:["It sets the app's color scheme",
+      "It decides buffering, where trust sits, what crashes together, and context before dispatch",
+      "It must be exactly K3","It only affects performance, nothing else"],
+    correct:1,
+    why:"Right \u2014 ingress shapes the <b>responsibility boundary</b>. There's no frozen menu, but you must state your assumptions.",
+    nudge:"Ingress = how work enters. That choice ripples into buffering, trust, blast radius, and available context. Make it explicit."
+  },
+  {
+    tag:"Runtime surface", icon:"\u2699\uFE0F",
+    title:"Model the responsibility shape, not a fixed ABI",
+    plain:"A port needs a way to accept work, route to handlers, give them context, and return effects \u2014 but there's no frozen ABI.",
+    body:[
+      "A port needs some host-facing way to <b>accept incoming work, route it to the right protocol handlers, give those handlers the context they require, and return or persist the resulting effects</b>.",
+      "But that does <b>not</b> imply one frozen handler ABI, one callback signature, or one mandatory hosting API for every platform. What matters today is the <i>responsibility shape</i>: make dispatch, context, and effect boundaries explicit enough that your port can say what it hosts and how those handlers satisfy the named specs. Model it clearly; don't copy an interface verbatim out of wire-lab."
+    ],
+    analogy:"A restaurant kitchen needs a way to take orders, route them to stations, give cooks what they need, and send out dishes. The roles are universal; the exact layout isn't standardized across kitchens.",
+    q:"What does the runtime surface require today?",
+    opts:["A single frozen handler ABI copied from wire-lab",
+      "Clear dispatch, context, and effect boundaries \u2014 the responsibility shape, not a fixed interface",
+      "No structure at all","One mandatory callback signature for all platforms"],
+    correct:1,
+    why:"Yes \u2014 model the <b>responsibility shape</b> (dispatch / context / effects). The exact ABI isn't frozen yet.",
+    nudge:"There's no official ABI to copy. Nail the boundaries \u2014 how work dispatches, what context handlers get, where effects go."
+  },
+  {
+    tag:"The core boundary", icon:"\uD83D\uDCEC",
+    title:"The kernel moves bytes; apps judge promises",
+    plain:"A kernel receives, routes, or refuses envelopes and records that. Whether a promise was kept is the app's call.",
+    body:[
+      "This is the load-bearing distinction. <b>Kernel-local evidence</b> is about kernel actions \u2014 receiving, routing, or refusing bytes. <b>Keep-or-break judgment</b> on an application-level promise belongs to the promisee <b>app</b>.",
+      "Concretely (from the POC evidence): the kernel parses <b>slot 0</b>, remembers which apps registered receive-promises for which pCIDs, forwards the <b>exact bytes</b>, and records delivery / non-delivery evidence. It does <i>not</i> decide whether Alice, Bob, or Carol kept their promise. Workflow state, trust updates, and keep/break verdicts live in the apps, outside the kernel."
+    ],
+    analogy:"The postal service delivers your letter and can log that it arrived or bounced \u2014 but it doesn't rule on whether you kept the promise written inside. That's between you and the recipient.",
+    q:"Who decides whether an application-level promise was kept?",
+    opts:["The kernel, when it routes the message",
+      "The promisee app \u2014 the kernel only moves bytes and records delivery",
+      "A central authority","Whichever peer has the higher trust score"],
+    correct:1,
+    why:"Exactly. Kernel = receive / route / refuse + delivery evidence. <b>Keep/break is the app's judgment</b>, not the kernel's.",
+    nudge:"Split it: the kernel handles bytes (route, refuse, log delivery). Whether a promise held is the app's call."
+  },
+  {
+    tag:"What it isn't", icon:"\uD83D\uDEA6",
+    title:"The kernel isn't a router, registry, or RPC authority",
+    plain:"Each kernel is a local app/kernel boundary. Relay apps own their own hop promises \u2014 the kernel isn't the network's brain.",
+    body:[
+      "It's tempting to grow the kernel into a router, service registry, or RPC authority. Resist it. Each kernel is a <b>local app/kernel promise boundary</b> \u2014 and across containers, each relay <b>app</b> owns its own neighbor transport and hop promises.",
+      "App promisees judge results (hello, compute, storage, echo) locally. The kernel and relays only carry bytes and record their own observations. The kernel is deliberately <i>not</i> the place where global routing, discovery, or authorization decisions get centralized."
+    ],
+    analogy:"A mail carrier isn't the phone directory, the switchboard, or the judge. They carry mail on their route. Routing decisions and disputes live elsewhere.",
+    q:"Across multiple containers, who owns neighbor transport and hop promises?",
+    opts:["The kernel, acting as a central router",
+      "Each relay app owns its own hop promises; the kernel just carries bytes",
+      "A global service registry","Whichever kernel has the most uptime"],
+    correct:1,
+    why:"Right \u2014 relay <b>apps</b> own hops. The kernel stays a local boundary, not a router / registry / RPC authority.",
+    nudge:"Don't centralize routing in the kernel. Relay apps own their hops; the kernel just moves and observes bytes."
+  },
+  {
+    tag:"Trust", icon:"\uD83D\uDEAB",
+    title:"The kernel holds no global trust score",
+    plain:"Record local promise-accounting evidence \u2014 but never hardcode one cross-context reputation number.",
+    body:[
+      "A port must <b>not</b> introduce one global trust score for peers, operators, or runtimes. Trust is local and per-burden: a peer can be reliable for one promise type and unreliable for another, and each agent or community keeps its own accounting.",
+      "A port may help record and expose <b>local</b> promise-accounting evidence, but it shouldn't act as one authoritative trust ledger. Related rules: local <b>resource exhaustion is local app evidence, not peer-trust evidence</b>, and negative ACKs \u2014 broken, malformed, refusal, cache miss, price/capacity refusal, unsupported variant \u2014 stay evidence records <i>without</i> increasing local trust."
+    ],
+    analogy:"A credit bureau handing everyone one universal score is exactly what this avoids. Instead, each party keeps their own notes on who's reliable, and for what.",
+    q:"What's the kernel's role in trust?",
+    opts:["Compute and publish one global reputation score",
+      "Record local promise-accounting evidence without being an authoritative trust ledger",
+      "Ban peers below a trust threshold","Inherit trust scores from the network"],
+    correct:1,
+    why:"Right \u2014 <b>local evidence, no global score</b>. And resource exhaustion or a negative ACK is evidence, not a trust penalty by itself.",
+    nudge:"No universal score lives in the kernel. It can record local evidence; it can't be the one authoritative ledger."
+  },
+  {
+    tag:"Signing", icon:"\uD83D\uDD11",
+    title:"Stay crypto-agile",
+    plain:"The durable anchor is the signing key and its replacement history \u2014 not one forever algorithm or library.",
+    body:[
+      "Kernel ports need a long-horizon view of signing and verification. The durable anchor is the <b>signing key and its replacement history</b> \u2014 not one forever algorithm choice, one library, or one platform credential store.",
+      "So a port should be <b>crypto-agile</b> enough to survive key rotation, retirement, and later algorithm change \u2014 without pretending the protocol itself became a different thing just because one cryptographic primitive aged out. (This mirrors the app-dev identity rule, one layer down.)"
+    ],
+    analogy:"Locks on a building get rekeyed and upgraded over decades \u2014 it doesn't become a different building each time. Plan for the rekey; don't weld one lock in forever.",
+    q:"What should a kernel port treat as the durable anchor for identity?",
+    opts:["One permanent cryptographic algorithm","The platform's credential store",
+      "The signing key and its replacement history, with room to rotate and change algorithms","The hostname"],
+    correct:2,
+    why:"Yes \u2014 <b>key continuity over time</b>, crypto-agile by design. A primitive aging out is a lifecycle event, not a new protocol.",
+    nudge:"Anchor on the key and its history, not one algorithm. Build to survive rotation and algorithm change."
+  },
+  {
+    tag:"The honest port", icon:"\uD83D\uDCCB",
+    title:"State your envelope honestly",
+    plain:"The minimum credible port is the smallest honest one \u2014 declare what you host, what's delegated, what's out of scope.",
+    body:[
+      "Ports live under wildly different constraints \u2014 a browser tab, an MCU-class device, bare metal, a JS-on-server host \u2014 each forcing different storage, scheduling, connectivity, and memory choices. There's no fixed menu of approved targets.",
+      "So the minimum credible port is the <b>smallest honest port, not the smallest demo</b>. Host the handlers you claim, name the frozen specs they conform to, exercise against those contracts, and be explicit about what's out of scope, delegated, or host-dependent. Be ready to declare: the app-facing promises you make, your host/runtime assumptions, unsupported features, which pCIDs you cover, what evidence you emit, and what <b>profile</b> you're claiming. No hand-waving \u2014 if transport setup, storage durability, signing, or companion processes are required, say so."
+    ],
+    analogy:"An honest contractor's bid lists exactly what's included, what's subcontracted, and what's not covered \u2014 instead of a vague \u201cwe do everything.\u201d That honesty is the deliverable here.",
+    q:"What is a \u201cminimum credible port\u201d?",
+    opts:["The smallest possible demo that runs once",
+      "The smallest honest port: hosts what it claims, names its specs, and states what's delegated or out of scope",
+      "A port that implements every layer fully","Whatever passes one harness run"],
+    correct:1,
+    why:"Right \u2014 smallest <b>honest</b> port. Declare your promises, assumptions, unsupported features, pCID coverage, and profile. No hand-waving.",
+    nudge:"Not the smallest demo \u2014 the smallest honest one. Say what you host, what you delegate, and what you don't do."
+  },
+  {
+    tag:"Guardrails", icon:"\uD83E\uDDED",
+    title:"Borrow ideas, not assumptions",
+    plain:"Prior art (Plan 9, Hurd, Amoeba, V) can inspire \u2014 but don't import their global namespaces or permissions as PromiseGrid rules.",
+    body:[
+      "Prior systems \u2014 V, Amoeba, Plan 9 / 9P, GNU Hurd \u2014 can be useful comparisons, but <b>don't import their transparency, global-permission, or filesystem-authority assumptions as if they were already PromiseGrid requirements</b>.",
+      "\u201cDecentralized mainframe\u201d or file-like language is only safe if it preserves <b>local, trust-filtered views</b> and distinguishes imposed universal namespaces from <b>voluntary group-consensus namespaces</b>. Alice's pathname stays local; Bob consumes a CID-rooted, promise-bound reference through <i>his own</i> view or a voluntary group namespace maintained by reciprocal promises \u2014 not one global namespace handed down by the infrastructure."
+    ],
+    analogy:"You can admire another city's subway map for ideas without assuming its fares and zoning laws apply to yours. Take the design insight; leave the baked-in assumptions.",
+    q:"How should a port use prior art like Plan 9 or Hurd?",
+    opts:["Adopt their global namespaces and permission models as PromiseGrid requirements",
+      "Borrow useful ideas, but keep local trust-filtered views and voluntary (not imposed) namespaces",
+      "Ignore all prior art completely","Replace pCIDs with their filesystem paths"],
+    correct:1,
+    why:"Right \u2014 borrow <b>ideas, not assumptions</b>. Keep views local and trust-filtered; namespaces are voluntary, not infrastructure-imposed.",
+    nudge:"Inspiration yes, imported assumptions no. Local views and voluntary namespaces are the lines you don't cross."
+  }
+];
+
+const N = LESSONS.length;
+const KEY = "pg_kerneldev_v1";
+let state = { done:{}, xp:0, streak:0, best:0 };
+let current = 0;
+let memoryFallback = {};
+
+async function load(){
+  try{
+    if(window.storage && window.storage.get){
+      const r = await window.storage.get(KEY);
+      if(r && r.value) state = JSON.parse(r.value);
+    } else if(memoryFallback[KEY]){ state = memoryFallback[KEY]; }
+  }catch(e){}
+  if(!state.done) state = { done:{}, xp:0, streak:0, best:0 };
+}
+async function save(){
+  try{
+    if(window.storage && window.storage.set){ await window.storage.set(KEY, JSON.stringify(state)); }
+    else { memoryFallback[KEY] = state; }
+  }catch(e){ memoryFallback[KEY] = state; }
+}
+function drawRings(){
+  const size=92, cx=size/2, cy=size/2;
+  const doneCount = Object.keys(state.done).length;
+  let circles="";
+  for(let i=0;i<N;i++){
+    const r = 7 + i*2.9;
+    const on = i < doneCount;
+    circles += `<circle class="${on?'ring-on':'ring-bg'}" cx="${cx}" cy="${cy}" r="${r}" ${on?'':'opacity=".55"'} />`;
+  }
+  document.getElementById('rings').innerHTML =
+    `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${circles}
+       <text class="ring-count" x="${cx}" y="${cy-1}" text-anchor="middle" dominant-baseline="middle">${doneCount}/${N}</text>
+       <text class="ring-label" x="${cx}" y="${cy+10}" text-anchor="middle">MASTERED</text></svg>`;
+}
+function updateMeta(){
+  drawRings();
+  const c = Object.keys(state.done).length;
+  document.getElementById('xp').innerHTML = `<b>${state.xp}</b> XP · ${c} of ${N} mastered` + (state.best>1?` · best streak ${state.best}`:``);
+  drawMap();
+}
+function drawMap(){
+  const m=document.getElementById('map'); m.innerHTML="";
+  for(let i=0;i<N;i++){
+    const b=document.createElement('button');
+    b.className="dot"+(state.done[i]?" done":"")+(i===current?" active":"");
+    b.textContent = state.done[i] ? "\u2713" : (i+1);
+    b.title = LESSONS[i].title; b.setAttribute('role','tab');
+    b.onclick=()=>{ current=i; render(); };
+    m.appendChild(b);
+  }
+  const d=document.createElement('button');
+  d.className="dot"+(current===N?" active":"");
+  d.textContent="\u2726"; d.title="Jargon decoder";
+  d.onclick=()=>{ current=N; render(); };
+  m.appendChild(d);
+}
+function render(){
+  updateMeta();
+  const stage=document.getElementById('stage');
+  if(current>=N){ return renderDecoder(); }
+  const L=LESSONS[current];
+  const answered = state.done[current];
+  stage.innerHTML = `
+    <div class="card">
+      <div class="eyebrow"><span>${L.tag}</span><span class="n">${String(current+1).padStart(2,'0')} / ${String(N).padStart(2,'0')}</span></div>
+      <h2>${L.title}</h2>
+      <div class="plainline">${L.plain}</div>
+      <div class="body">${L.body.map(p=>`<p>${p}</p>`).join("")}</div>
+      <div class="analogy"><div class="ic">${L.icon}</div><div><p><b>Picture it:</b> ${L.analogy}</p></div></div>
+      <div class="quiz">
+        <p class="quiz-q"><span class="lab">QUICK CHECK</span><span class="qt">${L.q}</span></p>
+        <div class="opts" id="opts">
+          ${L.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${String.fromCharCode(65+i)}</span><span>${o}</span></button>`).join("")}
+        </div>
+        <div class="feedback" id="fb"></div>
+      </div>
+      <div class="nav">
+        <button class="btn" id="prev" ${current===0?'disabled':''}>\u2190 Back</button>
+        <button class="btn primary" id="next">${current===N-1?'Finish \u2192':'Next \u2192'}</button>
+      </div>
+    </div>`;
+  const opts=[...stage.querySelectorAll('.opt')];
+  const fb=stage.querySelector('#fb');
+  if(answered){
+    opts.forEach(b=>b.disabled=true);
+    opts[L.correct].classList.add('correct');
+    fb.className="feedback good show";
+    fb.innerHTML=`<span class="hd">Mastered \u2713</span>${L.why}`;
+  }
+  opts.forEach(btn=>btn.onclick=()=>{
+    const i=+btn.dataset.i; const right=i===L.correct;
+    opts.forEach(b=>b.disabled=true);
+    btn.classList.add(right?'correct':'wrong');
+    if(!right) opts[L.correct].classList.add('correct');
+    if(right){
+      const firstTime=!state.done[current];
+      if(firstTime){ state.done[current]=true; state.xp+=10; state.streak+=1; state.best=Math.max(state.best,state.streak); save(); }
+      const streakTxt = state.streak>=2 ? ` <span class="streak">\uD83D\uDD25 ${state.streak} in a row</span>`:``;
+      fb.className="feedback good show";
+      fb.innerHTML=`<span class="hd">Nice.${firstTime?` +10 XP`:``}</span>${L.why}${streakTxt}`;
+      updateMeta();
+    } else {
+      state.streak=0; save();
+      fb.className="feedback bad show";
+      fb.innerHTML=`<span class="hd">Not quite \u2014 try again</span>${L.nudge}`;
+      setTimeout(()=>{ opts.forEach((b,bi)=>{ if(bi!==L.correct){ b.disabled=false; b.classList.remove('wrong'); }}); },1100);
+      opts[L.correct].classList.remove('correct');
+    }
+  });
+  stage.querySelector('#prev').onclick=()=>{ if(current>0){current--;render();} };
+  stage.querySelector('#next').onclick=()=>{ current++; render(); };
+}
+const TERMS=[
+  ["kernel","the host role","The infrastructure role that hosts the protocol stack and dispatches to handlers. Not a binary."],
+  ["port","a build of the role","An implementation of the kernel role on a specific platform or runtime."],
+  ["binding / L4","transport \u2192 session","Turns raw transport behavior into the clean session context handlers expect."],
+  ["session","interaction context","The layer holding ongoing state, membership, and sequencing assumptions."],
+  ["substrate","the ground it runs on","The underlying host or transport a feed or port relies on."],
+  ["feed / L5","delivery lane","Moves authenticated chunks or messages over some substrate."],
+  ["CAS / L6","content store","Content-addressed storage: chunks filed and found by their bytes, under a named protocol."],
+  ["chunk","a stored piece","One content-addressed unit of message data inside CAS."],
+  ["handler","protocol code","The unit that implements a protocol's rules for incoming and outgoing work."],
+  ["dispatch","routing to handlers","Inspecting slot 0's pCID and handing the work to the matching handler."],
+  ["ingress / K1\u2013K5","the front door","How and where work enters the host that will dispatch it."],
+  ["profile","what a port claims","A port's honest declaration of which layers, specs, and features it hosts."],
+  ["receive-promise","'send me these'","An app registering with the kernel to receive messages for a given pCID."],
+  ["DR-davod","the open question","The upstream kernel decision still open \u2014 why porting instructions aren't final."]
+];
+function renderDecoder(){
+  const stage=document.getElementById('stage');
+  const mastered = Object.keys(state.done).length===N;
+  stage.innerHTML=`
+    <div class="card decoder">
+      ${mastered?`<div class="finale" style="padding-top:8px">
+          <div class="big">All three levels \uD83C\uDF33\uD83C\uDF33\uD83C\uDF33</div>
+          <p>Layperson, App Dev, and now Kernel Dev. You can follow PromiseGrid from \u201cwhy a community would want this\u201d all the way down to \u201cwhat a port must honestly host.\u201d</p>
+          <div class="next"><b>The honest caveat for this level:</b> the Kernel Dev section is the <i>most</i> provisional in the guide \u2014 it says plainly that porting is <b>still blocked</b> while <b>DR-davod</b> is open. There's no frozen kernel boundary, required runtime surface, or conformance checklist yet. Treat everything here as orientation about the boundary, not a porting contract. When you actually port, work from frozen specs by pCID and state your profile honestly.</div>
+        </div>`:''}
+      <h3>Jargon decoder</h3>
+      <p class="sub">Tap any term to flip it into plain words. These are the kernel-dev ones the full guide leans on.</p>
+      <div class="grid">
+        ${TERMS.map((t,i)=>`
+          <button class="flip" data-i="${i}" aria-label="Flip ${t[0]}">
+            <div class="flip-in">
+              <div class="face front"><div class="t">${t[0]}</div><div class="h">tap to decode</div></div>
+              <div class="face back"><p><b>${t[1]}.</b><br>${t[2]}</p></div>
+            </div>
+          </button>`).join("")}
+      </div>
+      <div class="nav"><button class="btn" id="back">\u2190 Back to concepts</button><span></span></div>
+    </div>`;
+  stage.querySelectorAll('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+  stage.querySelector('#back').onclick=()=>{ current=N-1; render(); };
+}
+document.getElementById('reset').onclick=async()=>{ state={done:{},xp:0,streak:0,best:0}; current=0; await save(); render(); };
+(async()=>{ await load(); render(); })();
+</script>

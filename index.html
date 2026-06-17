@@ -1,0 +1,118 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid — Learn It by Level</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;--ink-2:#0a1614;--panel:#162824;--panel-2:#1d332e;--line:#2a463f;
+    --text:#efe7d8;--text-dim:#b9c4ba;--text-faint:#7f9189;
+    --gold:#f0b35e;--gold-soft:#caa066;--green:#62cf94;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+
+  .hero{display:flex;gap:20px;align-items:center;margin-bottom:14px}
+  .emblem{flex:0 0 auto}
+  .ring-a{fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(240,179,94,.45))}
+  .ring-b{fill:none;stroke:var(--line);stroke-width:2}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,7vw,48px);line-height:1.0;margin:0 0 8px;letter-spacing:-.015em}
+  h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .tag{color:var(--text-dim);font-size:16px;margin:0;max-width:54ch}
+
+  .intro{margin:26px 0 30px;padding:20px 22px;border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;background:var(--panel);font-family:var(--display);font-size:18px;line-height:1.45}
+  .intro span{color:var(--gold)}
+
+  .levels{display:flex;flex-direction:column;gap:14px}
+  a.level{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:16px;
+    background:var(--panel);padding:22px 24px;transition:.16s;box-shadow:0 18px 50px -34px rgba(0,0,0,.8);position:relative;overflow:hidden}
+  a.level:hover{border-color:var(--gold-soft);transform:translateY(-2px)}
+  a.level:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .lv-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .lv-num{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--gold-soft)}
+  .lv-count{font-family:var(--mono);font-size:12px;color:var(--text-faint)}
+  .lv-title{font-family:var(--display);font-weight:600;font-size:23px;margin:0 0 4px}
+  .lv-desc{color:var(--text-dim);font-size:15px;margin:0 0 12px}
+  .lv-go{font-family:var(--mono);font-size:13px;color:var(--gold);display:inline-flex;align-items:center;gap:6px}
+  a.level:hover .lv-go{gap:10px}
+  .lv-rail{position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--gold),transparent)}
+
+  .note{margin-top:30px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel-2);
+    font-size:13.5px;color:var(--text-dim)}
+  .note b{color:var(--text)}
+  .note code{font-family:var(--mono);font-size:.9em;color:var(--gold);background:rgba(240,179,94,.1);
+    padding:1px 5px;border-radius:4px}
+
+  .foot{margin-top:28px;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);text-align:center}
+
+  @media (max-width:520px){ .hero{flex-direction:row;gap:14px} .intro{font-size:16px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <svg class="emblem" width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
+      <circle class="ring-b" cx="42" cy="42" r="10"/>
+      <circle class="ring-a" cx="42" cy="42" r="17"/>
+      <circle class="ring-b" cx="42" cy="42" r="24"/>
+      <circle class="ring-a" cx="42" cy="42" r="31"/>
+      <circle class="ring-b" cx="42" cy="42" r="38"/>
+    </svg>
+    <div>
+      <h1>PromiseGrid, <em>by level</em></h1>
+      <p class="tag">A self-paced way into PromiseGrid — built for understanding before acronyms. Pick the level that matches what you're doing.</p>
+    </div>
+  </div>
+
+  <div class="intro">
+    The heart of it: a way to build a community's shared tools and records so they
+    <span>survive for decades</span> — through founders leaving, companies dying, platforms shutting down,
+    even the group splitting in two — without depending on any single company, server, or boss.
+  </div>
+
+  <div class="levels">
+    <a class="level" href="layperson.html">
+      <div class="lv-rail"></div>
+      <div class="lv-top"><span class="lv-num">LEVEL 1 · LAYPERSON</span><span class="lv-count">9 concepts</span></div>
+      <h2 class="lv-title">The plain-English picture</h2>
+      <p class="lv-desc">What PromiseGrid is and why a community would want it — no jargon. The big idea, the 100-year horizon, no central authority, forking, content-addressed identity, and trust.</p>
+      <span class="lv-go">Start here →</span>
+    </a>
+
+    <a class="level" href="app-dev.html">
+      <div class="lv-rail"></div>
+      <div class="lv-top"><span class="lv-num">LEVEL 2 · APP DEV</span><span class="lv-count">13 concepts</span></div>
+      <h2 class="lv-title">Building grid apps</h2>
+      <p class="lv-desc">Writing against PromiseGrid: the grid envelope, promises vs. RPC, pCIDs, capability tokens, break-witnesses, signing-key identity, conformance claims, and building for hostile peers.</p>
+      <span class="lv-go">Open Level 2 →</span>
+    </a>
+
+    <a class="level" href="kernel-dev.html">
+      <div class="lv-rail"></div>
+      <div class="lv-top"><span class="lv-num">LEVEL 3 · KERNEL DEV</span><span class="lv-count">13 concepts</span></div>
+      <h2 class="lv-title">Porting the grid</h2>
+      <p class="lv-desc">Hosting PromiseGrid on a new platform: the kernel as a role, the layered model, binding, CAS, ingress, the bytes-vs-judgment boundary, and stating your port's envelope honestly.</p>
+      <span class="lv-go">Open Level 3 →</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>New to this?</b> Start at Level 1 even if you're a developer — Level 2 leans on the layperson concepts
+    (especially "promises, not commands"). Each level tracks its own progress and saves it in your browser.
+    Much of the App Dev and Kernel Dev material is still provisional upstream (<code>DR-tuhaz</code>, <code>DR-davod</code>),
+    so treat the deeper levels as orientation, not frozen contract.
+  </div>
+
+  <div class="foot">A layperson-to-kernel primer for the PromiseGrid dev guide.</div>
+</div>

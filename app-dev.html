@@ -1,0 +1,575 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid for App Devs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;
+    --ink-2:#0a1614;
+    --panel:#162824;
+    --panel-2:#1d332e;
+    --line:#2a463f;
+    --text:#efe7d8;
+    --text-dim:#b9c4ba;
+    --text-faint:#7f9189;
+    --gold:#f0b35e;
+    --gold-soft:#caa066;
+    --green:#62cf94;
+    --coral:#e8896b;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+
+  header{display:flex;gap:18px;align-items:center;margin-bottom:8px}
+  .rings{flex:0 0 auto}
+  .rings svg{display:block}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:2.2}
+  .ring-on{fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;
+    filter:drop-shadow(0 0 4px rgba(240,179,94,.45));transition:stroke .5s ease, opacity .5s ease}
+  .ring-count{font-family:var(--display);font-size:14px;fill:var(--text);font-weight:600}
+  .ring-label{font-family:var(--mono);font-size:6px;fill:var(--text-faint);letter-spacing:.06em}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    color:var(--gold);border:1px solid var(--gold-soft);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+  .titles h1{font-family:var(--display);font-weight:600;font-size:clamp(25px,5.6vw,36px);
+    line-height:1.02;margin:0 0 4px;letter-spacing:-.01em}
+  .titles h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .titles p{margin:0;color:var(--text-dim);font-size:14.5px}
+  .xp{font-family:var(--mono);font-size:12px;color:var(--gold-soft);margin-top:6px}
+  .xp b{color:var(--gold)}
+
+  .lede{margin:22px 0 10px;padding:18px 20px;border:1px solid var(--line);
+    border-left:3px solid var(--gold);border-radius:12px;background:var(--panel);
+    font-family:var(--display);font-size:17.5px;line-height:1.45;color:var(--text)}
+  .lede span{color:var(--gold)}
+
+  .map{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 22px}
+  .dot{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--panel);
+    color:var(--text-faint);font-family:var(--mono);font-size:12px;display:grid;place-items:center;
+    cursor:pointer;transition:.18s;padding:0}
+  .dot:hover{border-color:var(--gold-soft);color:var(--text)}
+  .dot.done{background:linear-gradient(180deg,#26443b,#1c352e);border-color:var(--gold);color:var(--gold)}
+  .dot.active{outline:2px solid var(--gold);outline-offset:2px;color:var(--text)}
+
+  .card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:26px 24px;
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8);animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--gold-soft);letter-spacing:.1em;
+    text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+  .eyebrow .n{color:var(--text-faint)}
+  .card h2{font-family:var(--display);font-weight:600;font-size:clamp(21px,4.6vw,28px);
+    line-height:1.08;margin:10px 0 2px;letter-spacing:-.01em}
+  .plainline{color:var(--gold);font-size:15px;margin:0 0 16px;font-weight:500}
+  .body p{font-size:15.5px;color:var(--text);margin:0 0 14px}
+  .term{font-family:var(--mono);font-size:.85em;color:var(--gold);background:rgba(240,179,94,.1);
+    padding:1px 6px;border-radius:5px;border:1px solid rgba(240,179,94,.22);white-space:nowrap}
+  .analogy{display:flex;gap:12px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:11px;padding:14px 16px;margin:4px 0 22px}
+  .analogy .ic{font-size:20px;line-height:1.2;flex:0 0 auto}
+  .analogy div p{margin:0;font-size:14.5px;color:var(--text-dim)}
+  .analogy b{color:var(--text);font-weight:600}
+
+  .quiz-q{margin:0 0 12px}
+  .quiz-q .lab{color:var(--gold-soft);font-family:var(--mono);font-size:11px;letter-spacing:.12em;display:block;margin-bottom:4px}
+  .quiz-q .qt{font-weight:600;font-size:15.5px;color:var(--text)}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{text-align:left;border:1px solid var(--line);background:var(--ink-2);color:var(--text);
+    border-radius:10px;padding:13px 15px;font:inherit;font-size:15px;cursor:pointer;transition:.14s;
+    display:flex;gap:10px;align-items:flex-start}
+  .opt:hover:not(:disabled){border-color:var(--gold-soft);transform:translateX(2px)}
+  .opt:disabled{cursor:default}
+  .opt .k{font-family:var(--mono);font-size:13px;color:var(--text-faint);flex:0 0 auto;margin-top:1px}
+  .opt.correct{border-color:var(--green);background:rgba(98,207,148,.14)}
+  .opt.correct .k{color:var(--green)}
+  .opt.wrong{border-color:var(--coral);background:rgba(232,137,107,.12)}
+  .opt.wrong .k{color:var(--coral)}
+  .feedback{margin:16px 0 0;padding:14px 16px;border-radius:11px;font-size:15px;display:none}
+  .feedback.show{display:block;animation:pop .35s ease}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+  .feedback.good{background:rgba(98,207,148,.12);border:1px solid rgba(98,207,148,.4)}
+  .feedback.bad{background:rgba(232,137,107,.1);border:1px solid rgba(232,137,107,.35)}
+  .feedback .hd{font-family:var(--display);font-size:17px;font-weight:600;display:block;margin-bottom:3px}
+  .feedback.good .hd{color:var(--green)}
+  .feedback.bad .hd{color:var(--coral)}
+  .streak{font-family:var(--mono);font-size:12px;color:var(--gold);margin-left:8px}
+
+  .nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+  .btn{font:inherit;font-size:15px;font-weight:600;border-radius:10px;padding:12px 20px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--text);transition:.15s}
+  .btn:hover:not(:disabled){border-color:var(--gold-soft)}
+  .btn:disabled{opacity:.35;cursor:default}
+  .btn.primary{background:linear-gradient(180deg,#f0b35e,#d9974a);color:#241405;border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.06)}
+
+  .decoder{margin-top:14px}
+  .decoder h3{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 4px}
+  .decoder .sub{color:var(--text-dim);font-size:14.5px;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .flip{height:104px;perspective:900px;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+  .flip-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flip.on .flip-in{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);
+    border-radius:11px;padding:12px;display:flex;flex-direction:column;justify-content:center;text-align:left}
+  .front{background:var(--panel-2)}
+  .front .t{font-family:var(--mono);font-size:14px;color:var(--gold);margin-bottom:4px;word-break:break-word}
+  .front .h{font-size:11px;color:var(--text-faint);font-family:var(--mono)}
+  .back{background:linear-gradient(180deg,#22403a,#1a322c);transform:rotateY(180deg);border-color:var(--gold-soft)}
+  .back p{margin:0;font-size:12px;color:var(--text);line-height:1.4}
+
+  .finale{text-align:center;padding:34px 24px}
+  .finale .big{font-family:var(--display);font-size:38px;font-weight:600;margin:0 0 6px;color:var(--gold)}
+  .finale p{color:var(--text-dim);font-size:16px;max-width:48ch;margin:0 auto 10px}
+  .finale .next{margin-top:18px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);text-align:left}
+  .finale .next b{color:var(--text)}
+
+  .footer{margin-top:30px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint)}
+  .reset{background:none;border:0;color:var(--text-faint);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+  .reset:hover{color:var(--coral)}
+
+  @media (max-width:480px){ .lede{font-size:16px} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="rings" id="rings" aria-hidden="true"></div>
+    <div class="titles">
+      <span class="pill">LEVEL 2 · APP DEV</span>
+      <h1>Building <em>grid apps</em></h1>
+      <p>Thirteen disciplines for writing against PromiseGrid.</p>
+      <div class="xp" id="xp">0 XP · 0 of 13 mastered</div>
+    </div>
+  </header>
+
+  <div class="lede">
+    The whole job in one sentence: <span>pick a protocol spec, name it by its pCID, implement what
+    that spec defines, and publish conformance claims.</span> There's no SDK yet — there's a discipline.
+  </div>
+
+  <div class="map" id="map" role="tablist" aria-label="Concept progress"></div>
+  <div id="stage"></div>
+
+  <div class="footer">
+    App Dev primer for the PromiseGrid dev guide · much here is provisional (DR-tuhaz) ·
+    <button class="reset" id="reset">reset my progress</button>
+  </div>
+</div>
+
+<script>
+const LESSONS = [
+  {
+    tag:"The minimum contract", icon:"🧭",
+    title:"There's no SDK. There's a discipline.",
+    plain:"Pick a spec, use its pCID when frozen, let it define your payloads, publish conformance claims.",
+    body:[
+      "If you're waiting for an official PromiseGrid SDK, a stable handler ABI, or a universal app message API \u2014 there isn't one yet, and the guide says so plainly (the question is still open under <span class='term'>DR-tuhaz</span>). What exists today is a discipline, not a library.",
+      "The whole app-dev contract fits in one line: <b>choose an explicit protocol spec, name it by its pCID once it's frozen, let that spec define your payload and handler rules, and publish conformance claims</b> \u2014 instead of pointing people at a branch or a demo."
+    ],
+    analogy:"Like building to a published file-format standard rather than against one vendor's library. The standard is the contract; your code just claims to follow it.",
+    q:"What's the actual app-dev \u201ccontract\u201d in PromiseGrid today?",
+    opts:["Install the official SDK and call its functions",
+      "Pick a spec, cite its pCID, implement its payloads, and publish conformance claims",
+      "Register your app with the central PromiseGrid authority",
+      "Copy the latest demo code from wire-lab"],
+    correct:1,
+    why:"Right \u2014 it's a <b>discipline, not an SDK</b>. Everything else in this trainer is a detail of doing that one thing well.",
+    nudge:"There's deliberately no SDK or registry yet. The job is to follow a named spec and say so."
+  },
+  {
+    tag:"The wire shape", icon:"\u2709\uFE0F",
+    title:"The grid envelope",
+    plain:"Everything rides inside grid(...). Slot 0 names the protocol; the spec defines the rest.",
+    body:[
+      "On the wire, a message is wrapped in an outer <span class='term'>grid(...)</span> envelope. The first slot \u2014 <b>slot 0</b> \u2014 is a tagged protocol selector, <span class='term'>42(pCID)</span>, saying which spec this message speaks. Slot 1 is the recommended anchor for the main payload.",
+      "Crucially, <b>slots 1..N \u2014 their count, order, meaning, and validation \u2014 are defined entirely by the spec that pCID names</b>, not by the envelope. If a peer doesn't support that pCID, it may keep the raw bytes as evidence but it does <i>not</i> get to reinterpret them. (Envelope details are still provisional.)"
+    ],
+    analogy:"An envelope with the protocol's name written where the stamp goes. The postal system just routes it; what's inside only makes sense to someone who speaks that protocol.",
+    q:"In the grid envelope, what lives in slot 0?",
+    opts:["The message payload",
+      "A tagged pCID \u2014 the selector saying which protocol this message speaks",
+      "The sender's password",
+      "A timestamp"],
+    correct:1,
+    why:"Yes. Slot 0 is <b>42(pCID)</b>, the protocol selector. The payload anchors at slot 1, and the named spec owns the rest.",
+    nudge:"The envelope's first job is to say which protocol this is. That selector is slot 0; payload comes after."
+  },
+  {
+    tag:"The mindset shift", icon:"\uD83E\uDD1D",
+    title:"It's promises, not function calls",
+    plain:"You make, receive, and assess promises \u2014 and keep the evidence. Not call-and-return.",
+    body:[
+      "In ordinary RPC, success means \u201cthe call returned the right value just now.\u201d In PromiseGrid, an app <b>makes, receives, and evaluates protocol-governed promises</b>, and keeps the evidence about whether they were kept.",
+      "So success is bigger: what was claimed, under what conditions, what evidence arrived later, and who's positioned to assess whether the promise was kept, broken, superseded, or still open. A message can matter <b>long after</b> first receipt \u2014 in a dispute, an audit, or a trust judgment."
+    ],
+    analogy:"A signed contract with a paper trail vs. shouting an order across a room. The contract can be examined and disputed months later. The shout is gone the instant it lands.",
+    q:"Compared to RPC, what does \u201csuccess\u201d mean for a grid app?",
+    opts:["The function returned the expected value immediately",
+      "What was promised, under what conditions, and what evidence later shows about whether it held",
+      "The message was delivered with low latency",
+      "The server didn't crash"],
+    correct:1,
+    why:"Exactly \u2014 success is about <b>obligations and evidence over time</b>, not just an instant return value.",
+    nudge:"The key word is later. Don't flatten it to request/reply \u2014 a promise and its proof can matter long after the moment."
+  },
+  {
+    tag:"Selecting a protocol", icon:"\uD83D\uDD16",
+    title:"A pCID is the protocol's fingerprint",
+    plain:"Selecting a protocol means \u201cspeak the exact spec that hashes to this ID\u201d \u2014 not \u201clook up entry X.\u201d",
+    body:[
+      "A <span class='term'>pCID</span> is the content-addressed identity of a protocol <i>spec</i>. Protocol selection is not \u201cwhatever currently listens on port Y\u201d or \u201cregistry entry X\u201d \u2014 it's <b>speak the exact spec whose content hashes to this identifier</b>.",
+      "Same frozen pCID on both sides = the same contract, guaranteed. Different pCIDs = different specs; you need an <b>explicit bridge or fork policy</b>, not the hope that a shared name hides the difference. When interpretation rules differ, fail visibly at dispatch rather than waving it away."
+    ],
+    analogy:"Citing a law by the exact text that hashes to a fingerprint, instead of \u201cthe rule everyone calls the parking law\u201d \u2014 which could quietly mean different things in different towns.",
+    q:"Two peers cite the same frozen pCID. What does that guarantee?",
+    opts:["They're on the same server",
+      "They're claiming the exact same protocol contract",
+      "They trust each other",
+      "They run the same SDK version"],
+    correct:1,
+    why:"Right. Same frozen pCID = same contract. Different pCIDs need an explicit bridge, not a hopeful assumption.",
+    nudge:"A pCID names the spec by its contents. Matching pCIDs mean the same exact spec \u2014 nothing about servers or trust."
+  },
+  {
+    tag:"Authority", icon:"\uD83C\uDF9F\uFE0F",
+    title:"Capability tokens are promises, not passwords",
+    plain:"A token isn't a magic bearer string \u2014 it's a promise with mint, redeem, and revoke rules.",
+    body:[
+      "When a spec uses a token to let someone do something later, treat it as a <b>promise-bearing protocol artifact</b>, not an unstructured bearer blob whose meaning lives in app folklore.",
+      "Your app should know: who's allowed to <b>mint</b> it, what evidence makes a <b>redemption</b> valid, whether reuse is allowed, and how peers learn it's been <b>revoked</b>. The current direction keeps the envelope small and puts the token's real meaning inside the pCID-defined payload \u2014 not in one generic cross-app permission card."
+    ],
+    analogy:"A named, signed permit with conditions and an expiry \u2014 not a \u201cwhoever holds this paper wins\u201d coupon. Who issued it, what it allows, and when it dies are all explicit.",
+    q:"How should an app treat a capability token?",
+    opts:["As a secret password to keep safe",
+      "As a promise with explicit issuance, redemption, and revocation rules",
+      "As a permanent, unrevocable grant",
+      "As a generic key that works across every app"],
+    correct:1,
+    why:"Yes \u2014 a token is a <b>promise with a lifecycle</b>. Issuance, redemption, and revocation all need to be explicit in the spec.",
+    nudge:"\u201cPassword\u201d implies a static secret. A capability token is alive \u2014 minted, redeemed, and revoked under promise rules."
+  },
+  {
+    tag:"Disputes", icon:"\u2696\uFE0F",
+    title:"Break-witnesses are evidence, not verdicts",
+    plain:"A claim that a promise broke is assessable evidence \u2014 receiving one isn't an auto guilty verdict.",
+    body:[
+      "If a protocol lets participants say a promise wasn't kept, that <b>break-witness</b> is its own artifact with lifecycle questions: who may emit it, what evidence it must cite, how receivers record it, and how it's weighed against other evidence.",
+      "Emitting one isn't just \u201cpeer said bad thing happened\u201d \u2014 preserve what was allegedly broken, when, by whom, under which conditions. And receiving one <b>shouldn't collapse into instant guilt</b>: trust stays local and per-burden, so a witness can matter a lot, a little, or not at all depending on source, context, and corroboration."
+    ],
+    analogy:"A witness statement in a case file, not a conviction. It's logged, weighed against other evidence, and judged in context \u2014 never an automatic sentence.",
+    q:"Your app receives a break-witness about a peer. What's the right posture?",
+    opts:["Immediately mark the peer untrustworthy everywhere",
+      "Ignore it \u2014 only a central authority decides",
+      "Record it as assessable evidence and weigh it locally by context and corroboration",
+      "Forward it to everyone as proven fact"],
+    correct:2,
+    why:"Right \u2014 it's <b>evidence to weigh locally</b>, not a universal verdict. Trust here is per-burden and contextual.",
+    nudge:"A witness is a claim, not a court ruling. Log it, weigh it in context \u2014 don't let one report auto-convict."
+  },
+  {
+    tag:"Identity", icon:"\uD83D\uDD11",
+    title:"Identity lives in the signing key",
+    plain:"Durable authority = the signing key and its rotation history. Names and avatars are hints.",
+    body:[
+      "The durable anchor of identity is the <b>signing key</b>, not a registry entry, hostname, or project label. So <b>key rotation is a normal lifecycle event</b>, not a protocol reset \u2014 authority continues through current keys and their replacement history.",
+      "Expect <b>two identity layers</b>: durable authority (keys) and user-facing presentation (names, handles, avatars). Presentation can travel between clients for human continuity, but <b>portability isn't authority</b> \u2014 a friendly From: label is a hint, never proof of who's really speaking. And don't hardcode one crypto algorithm forever; a primitive aging out is a lifecycle event to handle."
+    ],
+    analogy:"A signature you can re-issue, not a username. If your handwriting changes you note the change \u2014 you don't become a different legal person. The display name is just the label on the mailbox.",
+    q:"What's the durable anchor of identity in PromiseGrid?",
+    opts:["The user's display name and avatar",
+      "A central registry entry",
+      "The signing key and its rotation history",
+      "The hostname the app runs on"],
+    correct:2,
+    why:"Yes. Keys (and their replacement history) carry durable authority. Names and avatars are presentation hints only.",
+    nudge:"Two layers \u2014 keys (authority) and labels (presentation). The durable one is the key, which can rotate without resetting identity."
+  },
+  {
+    tag:"Trust", icon:"\uD83D\uDCD2",
+    title:"Trust is a local ledger, by promise type",
+    plain:"No global reputation score. Track kept/broken/open promises locally, per kind of promise.",
+    body:[
+      "Don't model trust as one global scalar attached to identity. A peer can be <b>reliable for one kind of promise and unreliable for another</b>.",
+      "Keep a <b>local trust ledger</b> of kept, broken, and still-open promise evidence, organized by burden and context. PromiseGrid trust is \u201cwhat has this peer done, in this context\u201d \u2014 not a universal \u201cgood node\u201d badge handed down from anywhere."
+    ],
+    analogy:"Your own notes on which contractors are great at plumbing but flaky on deadlines \u2014 kept per skill, from your own experience. There's no city-wide rating that decides it for you.",
+    q:"How should an app model peer trust?",
+    opts:["One global reputation score per identity",
+      "A local ledger of kept/broken/open promises, tracked per promise type",
+      "Whatever the central registry reports",
+      "Trust everyone equally, globally, until proven otherwise"],
+    correct:1,
+    why:"Right \u2014 trust is <b>local and per-burden</b>. One scalar reputation collapses information the app actually needs.",
+    nudge:"Picture a ledger, not a star rating. Reliability for one promise type says little about another, and it's yours to track."
+  },
+  {
+    tag:"Discovery", icon:"\uD83D\uDDFA\uFE0F",
+    title:"There's no central registry",
+    plain:"Build a local view from the specs you hold, the conformance claims you've seen, and peers you trust.",
+    body:[
+      "Don't expect a central registry to tell your app what every pCID means or which peers are authoritative. Each app builds a <b>local view</b> from the specs it holds, the conformance claims it's seen, and the peers it trusts enough to import.",
+      "The system can converge on shared understanding through <b>exchanged evidence</b> \u2014 but that's made of local pCID knowledge and local trust, not one global directory. And bootstrap/rendezvous (how peers first find each other) are spec- and host-dependent: don't improvise discovery and then quietly call it PromiseGrid."
+    ],
+    analogy:"Word-of-mouth and your own address book, not a phone directory run by one company. Everyone's map is built from who they've actually dealt with.",
+    q:"Where does an app learn what pCIDs mean and which peers to trust?",
+    opts:["A global registry every app queries",
+      "Locally \u2014 from specs it holds, conformance claims it's seen, and peers it trusts",
+      "From the kernel's built-in directory",
+      "It's assigned at install time"],
+    correct:1,
+    why:"Yes \u2014 it's a <b>local view</b>, converging through exchanged evidence rather than one authoritative directory.",
+    nudge:"No central directory exists. Each app assembles its own picture from specs, claims, and trusted peers."
+  },
+  {
+    tag:"Architecture", icon:"\uD83E\uDDF1",
+    title:"Draw the boundary cleanly",
+    plain:"The PromiseGrid-facing part claims a spec. The rest is ordinary internal code you can change freely.",
+    body:[
+      "Resist rebranding your whole app as \u201cPromiseGrid.\u201d The <b>PG-facing side</b> is the part that claims a named spec, interprets payloads by that spec's rules, honors its capability/witness logic, and publishes conformance claims. The <b>internal side</b> \u2014 engine, cache shape, UI, scheduling, helper processes \u2014 you can change without touching the contract.",
+      "Also: one app may need <b>several protocols</b>. Sync, presence, access control, and publication don't have to collapse into one pCID just because one product surface exposes them together. If they have different payloads, authority, or lifecycles, name them as separate protocols and explain how you combine them."
+    ],
+    analogy:"A building's load-bearing walls vs. the furniture. The spec-facing contract is structural and shared; your internal plumbing is furniture you can rearrange anytime.",
+    q:"Which part of your app is the \u201cPromiseGrid-facing\u201d side?",
+    opts:["Everything \u2014 the whole app must become PromiseGrid",
+      "Only the part that claims a named spec, interprets its payloads, and publishes conformance",
+      "Just the user interface",
+      "The database"],
+    correct:1,
+    why:"Right. Keep the contract boundary explicit; leave purely local machinery local \u2014 and split distinct concerns into distinct pCIDs.",
+    nudge:"Only the spec-claiming, payload-interpreting, conformance-publishing part is PG-facing. The rest stays ordinary code."
+  },
+  {
+    tag:"Persistence", icon:"\uD83D\uDDC3\uFE0F",
+    title:"Know what survives \u2014 and never rewrite it",
+    plain:"Receipts and exchanged bytes are append-only history. Caches change. Improve by adding, not rewriting.",
+    body:[
+      "Split your state. <b>Durable record</b> \u2014 exchanged artifacts, receipts, decisions, access changes, prior bytes \u2014 is append-only history later participants may audit or replay. <b>Working state</b> \u2014 indexes, caches, projections, presence \u2014 can change freely as the app evolves.",
+      "When something improves, <b>add new artifacts that supersede or reinterpret the old ones</b> \u2014 don't silently rewrite old history and pretend the earlier bytes meant something else. Same rule for versioning: a material change in meaning gets a <b>new spec identity or migration path</b>, carried side by side during rollout, with old bytes still auditable."
+    ],
+    analogy:"A ledger written in pen, not pencil. You don't erase old entries \u2014 you add a correcting one. The summary index on the cover can be redrawn anytime.",
+    q:"A protocol's storage shape improves. What happens to the old history?",
+    opts:["Rewrite the old bytes to match the new shape",
+      "Delete it to save space",
+      "Leave old bytes auditable and add new artifacts that supersede or reinterpret them",
+      "Nothing ever changes"],
+    correct:2,
+    why:"Right \u2014 <b>additive, not destructive</b>. Durable history stays auditable; you supersede it rather than rewriting it.",
+    nudge:"History is append-only. Improve by adding superseding artifacts; never edit old bytes to pretend they meant something new."
+  },
+  {
+    tag:"Conformance", icon:"\uD83D\uDCDD",
+    title:"Say what you speak",
+    plain:"Your CHANGELOG.md names the spec doc-CIDs you implement, the scope, and whether anything broke.",
+    body:[
+      "Conformance claims are how your implementation tells adopters what it believes it speaks. Put them in your <b>CHANGELOG.md</b>, naming the upstream spec <b>doc-CIDs</b> you claim to conform to \u2014 so others can check whether your code matches the frozen spec they intend to use.",
+      "The current entry shape: <span class='term'>claim</span> (implements / partially-implements / extends / deprecates), <span class='term'>spec</span> (the doc-CID), <span class='term'>scope</span> (full / partial), <span class='term'>breaking-change</span> (true/false), and <span class='term'>notes</span>. If your app has several components, claim per component \u2014 don't hide different pieces behind one vague app-wide label."
+    ],
+    analogy:"A nutrition label that names exactly which standard it's measured against. Adopters can verify the claim instead of trusting the brand name.",
+    q:"How do you declare which spec your implementation follows?",
+    opts:["A conformance claim in CHANGELOG.md naming the spec doc-CID, scope, and breaking-change status",
+      "A comment in the source code",
+      "By registering with a central authority",
+      "You don't \u2014 peers infer it from your behavior"],
+    correct:0,
+    why:"Yes. A <b>CHANGELOG conformance entry</b> makes compatibility auditable instead of leaving it implicit in a branch name or vibe.",
+    nudge:"It's a published claim, not an inference. The CHANGELOG names the doc-CID, the scope, and whether compatibility changed."
+  },
+  {
+    tag:"Robustness", icon:"\uD83D\uDEE1\uFE0F",
+    title:"Build for hostile peers",
+    plain:"Test beyond the happy path. Reject malformed input locally. Don't assume synced clocks.",
+    body:[
+      "PromiseGrid assumes hostile, lazy, or unreliable peers are <b>part of the environment</b>. Test against peers that drop obligations, send unsupported material, or validate sloppily \u2014 happy-path tests aren't enough when every new protocol surface adds attack surface and a trust burden.",
+      "Concretely: if bytes don't parse, fail verification, or violate the spec, <b>reject or quarantine them locally</b> \u2014 never silently reinterpret into \u201cclose enough.\u201d Don't assume a global clock (check what clock-bound rules the spec actually names). And keep <b>conformance-critical logic deterministic</b>; reserve randomness for explicitly optional strategies."
+    ],
+    analogy:"Designing a stadium gate assuming some people will push, sneak, or carry the wrong ticket \u2014 not assuming everyone queues politely.",
+    q:"How should your app handle bytes that don't parse or violate the spec?",
+    opts:["Guess the closest valid meaning and continue",
+      "Reject or quarantine them locally instead of reinterpreting",
+      "Forward them to peers unchanged",
+      "Crash the whole app"],
+    correct:1,
+    why:"Right \u2014 <b>reject or quarantine</b>, surface it locally, and only send a protocol-level rejection if the spec defines one.",
+    nudge:"Never \u201cfix\u201d malformed input into a guess. Reject or quarantine it locally \u2014 and assume peers won't all play nice."
+  }
+];
+
+const N = LESSONS.length;
+const KEY = "pg_appdev_v1";
+let state = { done:{}, xp:0, streak:0, best:0 };
+let current = 0;
+let memoryFallback = {};
+
+async function load(){
+  try{
+    if(window.storage && window.storage.get){
+      const r = await window.storage.get(KEY);
+      if(r && r.value) state = JSON.parse(r.value);
+    } else if(memoryFallback[KEY]){ state = memoryFallback[KEY]; }
+  }catch(e){}
+  if(!state.done) state = { done:{}, xp:0, streak:0, best:0 };
+}
+async function save(){
+  try{
+    if(window.storage && window.storage.set){ await window.storage.set(KEY, JSON.stringify(state)); }
+    else { memoryFallback[KEY] = state; }
+  }catch(e){ memoryFallback[KEY] = state; }
+}
+
+function drawRings(){
+  const size=92, cx=size/2, cy=size/2;
+  const doneCount = Object.keys(state.done).length;
+  let circles="";
+  for(let i=0;i<N;i++){
+    const r = 7 + i*2.9;
+    const on = i < doneCount;
+    circles += `<circle class="${on?'ring-on':'ring-bg'}" cx="${cx}" cy="${cy}" r="${r}" ${on?'':'opacity=".55"'} />`;
+  }
+  document.getElementById('rings').innerHTML =
+    `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+       ${circles}
+       <text class="ring-count" x="${cx}" y="${cy-1}" text-anchor="middle" dominant-baseline="middle">${doneCount}/${N}</text>
+       <text class="ring-label" x="${cx}" y="${cy+10}" text-anchor="middle">MASTERED</text>
+     </svg>`;
+}
+function updateMeta(){
+  drawRings();
+  const c = Object.keys(state.done).length;
+  document.getElementById('xp').innerHTML =
+    `<b>${state.xp}</b> XP · ${c} of ${N} mastered` + (state.best>1?` · best streak ${state.best}`:``);
+  drawMap();
+}
+function drawMap(){
+  const m=document.getElementById('map'); m.innerHTML="";
+  for(let i=0;i<N;i++){
+    const b=document.createElement('button');
+    b.className="dot"+(state.done[i]?" done":"")+(i===current?" active":"");
+    b.textContent = state.done[i] ? "\u2713" : (i+1);
+    b.title = LESSONS[i].title; b.setAttribute('role','tab');
+    b.onclick=()=>{ current=i; render(); };
+    m.appendChild(b);
+  }
+  const d=document.createElement('button');
+  d.className="dot"+(current===N?" active":"");
+  d.textContent="\u2726"; d.title="Jargon decoder";
+  d.onclick=()=>{ current=N; render(); };
+  m.appendChild(d);
+}
+
+function render(){
+  updateMeta();
+  const stage=document.getElementById('stage');
+  if(current>=N){ return renderDecoder(); }
+  const L=LESSONS[current];
+  const answered = state.done[current];
+  stage.innerHTML = `
+    <div class="card">
+      <div class="eyebrow"><span>${L.tag}</span><span class="n">${String(current+1).padStart(2,'0')} / ${String(N).padStart(2,'0')}</span></div>
+      <h2>${L.title}</h2>
+      <div class="plainline">${L.plain}</div>
+      <div class="body">${L.body.map(p=>`<p>${p}</p>`).join("")}</div>
+      <div class="analogy"><div class="ic">${L.icon}</div><div><p><b>Picture it:</b> ${L.analogy}</p></div></div>
+      <div class="quiz">
+        <p class="quiz-q"><span class="lab">QUICK CHECK</span><span class="qt">${L.q}</span></p>
+        <div class="opts" id="opts">
+          ${L.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${String.fromCharCode(65+i)}</span><span>${o}</span></button>`).join("")}
+        </div>
+        <div class="feedback" id="fb"></div>
+      </div>
+      <div class="nav">
+        <button class="btn" id="prev" ${current===0?'disabled':''}>\u2190 Back</button>
+        <button class="btn primary" id="next">${current===N-1?'Finish \u2192':'Next \u2192'}</button>
+      </div>
+    </div>`;
+  const opts=[...stage.querySelectorAll('.opt')];
+  const fb=stage.querySelector('#fb');
+  if(answered){
+    opts.forEach(b=>b.disabled=true);
+    opts[L.correct].classList.add('correct');
+    fb.className="feedback good show";
+    fb.innerHTML=`<span class="hd">Mastered \u2713</span>${L.why}`;
+  }
+  opts.forEach(btn=>btn.onclick=()=>{
+    const i=+btn.dataset.i; const right=i===L.correct;
+    opts.forEach(b=>b.disabled=true);
+    btn.classList.add(right?'correct':'wrong');
+    if(!right) opts[L.correct].classList.add('correct');
+    if(right){
+      const firstTime=!state.done[current];
+      if(firstTime){ state.done[current]=true; state.xp+=10; state.streak+=1; state.best=Math.max(state.best,state.streak); save(); }
+      const streakTxt = state.streak>=2 ? ` <span class="streak">\uD83D\uDD25 ${state.streak} in a row</span>`:``;
+      fb.className="feedback good show";
+      fb.innerHTML=`<span class="hd">Nice.${firstTime?` +10 XP`:``}</span>${L.why}${streakTxt}`;
+      updateMeta();
+    } else {
+      state.streak=0; save();
+      fb.className="feedback bad show";
+      fb.innerHTML=`<span class="hd">Not quite \u2014 try again</span>${L.nudge}`;
+      setTimeout(()=>{ opts.forEach((b,bi)=>{ if(bi!==L.correct){ b.disabled=false; b.classList.remove('wrong'); }}); },1100);
+      opts[L.correct].classList.remove('correct');
+    }
+  });
+  stage.querySelector('#prev').onclick=()=>{ if(current>0){current--;render();} };
+  stage.querySelector('#next').onclick=()=>{ current++; render(); };
+}
+
+const TERMS=[
+  ["grid(...)","the envelope","Outer CBOR wrapper around every message (tag 0x67726964). Slot 0 names the protocol."],
+  ["42(pCID)","the selector","Slot 0: a tagged pCID saying which protocol spec this message speaks."],
+  ["pCID","spec fingerprint","Content-addressed ID of a protocol spec. Same frozen pCID = same contract."],
+  ["doc-CID","document fingerprint","Content-addressed ID of one exact frozen document; cite it forever."],
+  ["CBOR","the encoding","Concise Binary Object Representation \u2014 the binary format the envelope uses."],
+  ["slot","a position","An ordered position in the grid vector. Slot 0 = selector; 1+ are spec-defined."],
+  ["payload","the body","The protocol-defined content, anchored by default at slot 1."],
+  ["conformance claim","'I follow this'","Published statement (in CHANGELOG.md) of which spec doc-CID your code implements."],
+  ["capability token","a promise to allow","A promise-bearing artifact with mint/redeem/revoke rules \u2014 not a bearer password."],
+  ["break-witness","broken-promise evidence","An assessable claim a promise wasn't kept; weighed locally, never an auto-verdict."],
+  ["signing key","identity anchor","The durable root of authority. Rotation is normal and doesn't reset identity."],
+  ["handler","protocol code","The unit that implements a protocol's rules for incoming/outgoing work."],
+  ["agent-ref","a participant ref","How a payload points at an agent (promiser/promisee) inside a promise."],
+  ["DR-tuhaz","an open question","The upstream app-dev decision still open \u2014 why much here stays \u201cprovisional.\u201d"]
+];
+function renderDecoder(){
+  const stage=document.getElementById('stage');
+  const mastered = Object.keys(state.done).length===N;
+  stage.innerHTML=`
+    <div class="card decoder">
+      ${mastered?`<div class="finale" style="padding-top:8px">
+          <div class="big">All thirteen rings \uD83C\uDF33</div>
+          <p>You can now write against PromiseGrid the way the guide intends: choose a spec, speak it by pCID, treat messages as promises with evidence, and publish what you conform to.</p>
+          <div class="next"><b>One honest reminder:</b> the App Dev section leans on <b>DR-tuhaz</b> being open \u2014 no frozen SDK, ABI, or universal message API yet. Treat the envelope shapes and token mechanics here as the current direction, not settled contract.<br><br><b>Last level:</b> <b>Kernel Devs</b> \u2014 porting the infrastructure itself (layered binding/session/message model, CAS, ingress). Want that trainer next?</div>
+        </div>`:''}
+      <h3>Jargon decoder</h3>
+      <p class="sub">Tap any term to flip it into plain words. These are the app-dev ones the full guide leans on.</p>
+      <div class="grid">
+        ${TERMS.map((t,i)=>`
+          <button class="flip" data-i="${i}" aria-label="Flip ${t[0]}">
+            <div class="flip-in">
+              <div class="face front"><div class="t">${t[0]}</div><div class="h">tap to decode</div></div>
+              <div class="face back"><p><b>${t[1]}.</b><br>${t[2]}</p></div>
+            </div>
+          </button>`).join("")}
+      </div>
+      <div class="nav"><button class="btn" id="back">\u2190 Back to concepts</button><span></span></div>
+    </div>`;
+  stage.querySelectorAll('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+  stage.querySelector('#back').onclick=()=>{ current=N-1; render(); };
+}
+
+document.getElementById('reset').onclick=async()=>{ state={done:{},xp:0,streak:0,best:0}; current=0; await save(); render(); };
+(async()=>{ await load(); render(); })();
+</script>

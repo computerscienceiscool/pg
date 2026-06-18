@@ -1,0 +1,396 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid — On the Spot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;--ink-2:#0a1614;--panel:#162824;--panel-2:#1d332e;--line:#2a463f;
+    --text:#efe7d8;--text-dim:#b9c4ba;--text-faint:#7f9189;
+    --gold:#f0b35e;--gold-soft:#caa066;--green:#62cf94;--coral:#e8896b;--blue:#7fb6c9;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:660px;margin:0 auto;padding:30px 20px 80px}
+
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:6px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--gold);
+    border:1px solid var(--gold-soft);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,6vw,38px);line-height:1.0;margin:0 0 6px;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .sub{margin:0;color:var(--text-dim);font-size:14.5px;max-width:50ch}
+  .solid{font-family:var(--mono);font-size:12px;color:var(--gold-soft);text-align:right;white-space:nowrap}
+  .solid b{color:var(--gold)}
+  .bar{height:6px;border-radius:4px;background:var(--panel-2);border:1px solid var(--line);margin-top:6px;overflow:hidden;width:120px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-soft),var(--gold));transition:width .5s}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0 18px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .seg button{font:inherit;font-size:13px;font-family:var(--mono);background:none;border:0;color:var(--text-dim);
+    padding:8px 12px;cursor:pointer;transition:.14s;border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:linear-gradient(180deg,#26443b,#1c352e);color:var(--gold)}
+  .toggle{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+  .toggle input{appearance:none;width:34px;height:19px;border-radius:20px;background:var(--panel-2);border:1px solid var(--line);position:relative;cursor:pointer;transition:.16s;flex:0 0 auto}
+  .toggle input:checked{background:var(--gold-soft);border-color:var(--gold-soft)}
+  .toggle input::after{content:"";position:absolute;width:13px;height:13px;border-radius:50%;background:var(--text);top:2px;left:2px;transition:.16s}
+  .toggle input:checked::after{left:17px;background:#241405}
+
+  .card{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:28px 26px;
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8);animation:rise .4s ease;min-height:320px;display:flex;flex-direction:column}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .lvtag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:center}
+  .lvtag .l{color:var(--gold-soft)}
+  .lvtag .box{color:var(--text-faint)}
+
+  .asker{display:flex;gap:13px;align-items:flex-start;margin-bottom:4px}
+  .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:linear-gradient(150deg,#2a4a42,#1b332d);
+    border:1px solid var(--line);display:grid;place-items:center;font-size:20px}
+  .bubble{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:4px 14px 14px 14px;
+    padding:15px 17px;font-family:var(--display);font-size:21px;line-height:1.3;color:var(--text)}
+
+  .cue{margin:20px 0 0;font-size:14px;color:var(--text-dim);display:flex;align-items:center;gap:9px}
+  .cue .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:blink 1.3s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+  .timer{font-family:var(--mono);font-size:13px;color:var(--coral)}
+  .timer.calm{color:var(--green)}
+
+  .spacer{flex:1 1 auto;min-height:14px}
+
+  .reveal-btn{font:inherit;font-size:16px;font-weight:600;border-radius:12px;padding:15px 20px;cursor:pointer;
+    border:0;background:linear-gradient(180deg,#f0b35e,#d9974a);color:#241405;transition:.15s;width:100%}
+  .reveal-btn:hover{filter:brightness(1.06)}
+  .reveal-hint{text-align:center;font-size:12.5px;color:var(--text-faint);margin:10px 0 0;font-family:var(--mono)}
+
+  .answer{animation:pop .35s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .a-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;margin:0 0 6px}
+  .model{font-size:16px;color:var(--text);margin:0 0 18px;line-height:1.5}
+  .pocket{border:1px solid var(--gold-soft);background:rgba(240,179,94,.08);border-radius:12px;padding:14px 16px;margin:0 0 20px}
+  .pocket .pl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--gold-soft);text-transform:uppercase;display:block;margin-bottom:5px}
+  .pocket .pt{font-family:var(--display);font-size:18px;font-weight:500;color:var(--gold);line-height:1.35}
+
+  .grade-q{text-align:center;font-size:13.5px;color:var(--text-dim);margin:0 0 11px;font-family:var(--mono)}
+  .grades{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+  .grade{font:inherit;font-size:14px;font-weight:600;border-radius:11px;padding:13px 8px;cursor:pointer;
+    border:1px solid var(--line);background:var(--ink-2);color:var(--text);transition:.14s;display:flex;flex-direction:column;gap:2px;align-items:center}
+  .grade small{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--text-faint)}
+  .grade.nail:hover{border-color:var(--green);background:rgba(98,207,148,.12)}
+  .grade.nail:hover small{color:var(--green)}
+  .grade.close:hover{border-color:var(--blue);background:rgba(127,182,201,.12)}
+  .grade.blank:hover{border-color:var(--coral);background:rgba(232,137,107,.12)}
+
+  .footer{margin-top:26px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);line-height:1.7}
+  .reset{background:none;border:0;color:var(--text-faint);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+  .reset:hover{color:var(--coral)}
+
+  @media (max-width:480px){ .bubble{font-size:18px} .solid{font-size:11px} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <span class="pill">RECALL DRILL · SAY IT OUT LOUD</span>
+      <h1>On the <em>spot</em></h1>
+      <p class="sub">Someone just asked you, cold. Answer out loud before you reveal the model. The ones you blank on come back sooner.</p>
+    </div>
+    <div class="solid">
+      <span id="solidTxt">solid 0/35</span>
+      <div class="bar"><i id="solidBar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="seg" id="seg" role="group" aria-label="Filter by level">
+      <button data-f="all" class="on">All 35</button>
+      <button data-f="1">Layperson</button>
+      <button data-f="2">App Dev</button>
+      <button data-f="3">Kernel</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="pressure" checked> pressure timer</label>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="footer">
+    Tip: actually speak the answer — even mutter it. Saying it is a different skill from knowing it.<br>
+    35 prompts across all three levels · <button class="reset" id="reset">reset my progress</button>
+  </div>
+</div>
+
+<script>
+// lvl: 1=Layperson, 2=App Dev, 3=Kernel Dev
+const CONCEPTS = [
+  // ---------- LAYPERSON ----------
+  {lvl:1, q:"So\u2026 what even is PromiseGrid?",
+   model:"It's a way to build a community's shared tools and records so they survive for decades \u2014 even if the founder leaves, the company dies, or the platform shuts down. The whole point is continuity without depending on any single company, server, or boss.",
+   pocket:"Shared tools and records that outlive whoever built them \u2014 no single company or boss required."},
+  {lvl:1, q:"Why do they keep going on about a hundred years?",
+   model:"It's a stress test, not a backup policy. The question is whether these records and agreements would still make sense after generations turn over and the software's been replaced a few times. If a design can't survive a century of change, it needs work.",
+   pocket:"The 100-year horizon is a stress test \u2014 would this still make sense after everyone involved is gone?"},
+  {lvl:1, q:"What does 'no central authority' actually mean?",
+   model:"No single company, server, or permanent boss is required to keep the community going. It doesn't mean no rules or no conflict \u2014 it means conflict and turnover are survivable, with no single point of failure.",
+   pocket:"No single required center \u2014 conflict becomes survivable instead of fatal."},
+  {lvl:1, q:"Isn't a group splitting in two a failure?",
+   model:"Not here \u2014 forking is treated as normal. Real disagreement over decades is inevitable, so the system lets a group split into a traceable sibling path and both sides keep going, instead of forcing one final answer or erasing history.",
+   pocket:"Forking is peaceful, traceable separation \u2014 a feature, not a failure."},
+  {lvl:1, q:"What's a pCID, in plain terms?",
+   model:"It's a content fingerprint that lets you point at the exact same document forever \u2014 by its contents, not by a link that can break or get swapped. Same fingerprint, same thing, no matter where it's stored.",
+   pocket:"A content fingerprint that names the exact same document forever, even after it's copied around."},
+  {lvl:1, q:"How does trust work in this thing?",
+   model:"Trust is local and per-relationship \u2014 you trust a specific person for a specific kind of thing, not via one global score handed down by a referee. And it's repairable: relationships can break and be rebuilt.",
+   pocket:"Trust is local, per-task, and repairable \u2014 no universal score."},
+  {lvl:1, q:"How's it different from a normal app sending messages?",
+   model:"Instead of 'do this now and reply,' it's about making and assessing promises and keeping the evidence. So a message can still matter long after it arrives \u2014 in a dispute, an audit, or a trust judgment.",
+   pocket:"It tracks promises and evidence over time, not just instant commands."},
+  {lvl:1, q:"What happens when the people in charge change?",
+   model:"Records keep a stable identity, and leadership can rotate or be inherited without making the history ambiguous. Picture a relay baton \u2014 the runners change, but the continuity doesn't drop.",
+   pocket:"Leadership can change hands without breaking the continuous record \u2014 like passing a baton."},
+  {lvl:1, q:"Is this thing finished? Can I rely on it?",
+   model:"A lot of it is still being figured out. The rule is: the 'frozen' specs are the real authority, and everything else \u2014 drafts, experiments, simulations \u2014 is useful orientation but not a settled contract.",
+   pocket:"Frozen specs are authority; drafts are orientation. Know which you're looking at."},
+
+  // ---------- APP DEV ----------
+  {lvl:2, q:"How do I start building on this? Is there an SDK?",
+   model:"There's no SDK yet \u2014 it's a discipline. You pick an explicit protocol spec, name it by its pCID once it's frozen, implement the payloads and rules that spec defines, and publish conformance claims. That's the whole contract.",
+   pocket:"No SDK \u2014 pick a spec, cite its pCID, implement it, publish conformance claims."},
+  {lvl:2, q:"What does a message actually look like on the wire?",
+   model:"Everything's wrapped in a 'grid' envelope. Slot zero is a tagged pCID saying which protocol this is; slot one is the payload. And the spec that pCID names defines everything after that \u2014 the envelope itself doesn't.",
+   pocket:"A grid envelope: slot 0 is the pCID selector, the named spec defines the rest."},
+  {lvl:2, q:"So it's basically RPC, right?",
+   model:"No \u2014 it's promises, not function calls. You make, receive, and assess promises and keep the evidence, so 'success' means what was promised, under what conditions, and what the evidence later shows \u2014 not just an instant return value.",
+   pocket:"Not RPC \u2014 make and assess promises, and keep the evidence over time."},
+  {lvl:2, q:"What exactly is a pCID?",
+   model:"It's the content-addressed fingerprint of a protocol spec. Selecting a protocol means 'speak the exact spec that hashes to this ID.' Same frozen pCID on both sides means the same contract; different pCIDs need an explicit bridge.",
+   pocket:"A pCID is the spec's fingerprint \u2014 same pCID, same exact contract."},
+  {lvl:2, q:"How do permissions or access tokens work?",
+   model:"A capability token isn't a bearer password \u2014 it's a promise with a lifecycle. The spec has to define who can mint it, what makes a redemption valid, and how peers learn it's been revoked.",
+   pocket:"Capability tokens are promises with mint/redeem/revoke rules \u2014 not bearer passwords."},
+  {lvl:2, q:"What happens if someone says a promise was broken?",
+   model:"That's a break-witness, and it's evidence, not a verdict. Receiving one doesn't auto-convict anybody \u2014 you record it and weigh it locally by source, context, and corroboration, because trust is per-relationship.",
+   pocket:"A break-witness is evidence to weigh locally, not an automatic guilty verdict."},
+  {lvl:2, q:"How does identity work \u2014 usernames?",
+   model:"Identity lives in the signing key, not a name or a registry entry. Key rotation is a normal lifecycle event, not a reset. Names and avatars are just presentation hints \u2014 not proof of who's speaking.",
+   pocket:"Identity is the signing key and its rotation history; names are just hints."},
+  {lvl:2, q:"How should I store reputation for peers?",
+   model:"Not as one global score. Keep a local ledger of kept, broken, and open promises, tracked per promise type \u2014 because a peer can be reliable for one kind of thing and flaky at another.",
+   pocket:"Trust is a local ledger, tracked per promise type \u2014 never one global score."},
+  {lvl:2, q:"Where do I look up which peers and protocols are legit?",
+   model:"There's no central registry. Your app builds a local view from the specs it holds, the conformance claims it's seen, and the peers it trusts \u2014 converging through exchanged evidence, not a global directory.",
+   pocket:"No central registry \u2014 you build a local view from specs, claims, and trusted peers."},
+  {lvl:2, q:"Does my whole app become 'a PromiseGrid app'?",
+   model:"No \u2014 just draw a clean boundary. The PromiseGrid-facing part is whatever claims a named spec, interprets its payloads, and publishes conformance. Your engine, cache, and UI stay ordinary internal code. And one app may speak several protocols.",
+   pocket:"Only the spec-claiming part is PromiseGrid-facing; the rest is normal internal code."},
+  {lvl:2, q:"Can I refactor my data and migrate old records?",
+   model:"Your durable history \u2014 receipts and exchanged bytes \u2014 is append-only; you never rewrite it. You improve by adding new artifacts that supersede the old ones, and a real change in meaning gets a new spec identity, carried side by side during rollout.",
+   pocket:"History is append-only \u2014 supersede old bytes, never rewrite them."},
+  {lvl:2, q:"How do people know what my implementation supports?",
+   model:"You publish a conformance claim in your CHANGELOG \u2014 naming the spec doc-CID you implement, the scope, and whether anything broke. That makes compatibility auditable instead of implied by a branch name.",
+   pocket:"Publish conformance claims in CHANGELOG.md \u2014 name the doc-CID, scope, and breaking changes."},
+  {lvl:2, q:"What should I assume about the other peers?",
+   model:"Assume some are hostile, lazy, or broken \u2014 that's part of the environment. Test past the happy path, and if bytes don't parse or violate the spec, reject or quarantine them locally instead of guessing a 'close enough' meaning. And don't assume a global clock.",
+   pocket:"Assume hostile peers \u2014 reject or quarantine bad input locally, never reinterpret it."},
+
+  // ---------- KERNEL DEV ----------
+  {lvl:3, q:"What's the 'kernel' in PromiseGrid?",
+   model:"It's a role, not a binary \u2014 the infrastructure role that hosts the protocol stack and dispatches work to handlers. It's not an OS kernel and not one mandatory program; any runtime that can carry those responsibilities can play it.",
+   pocket:"The kernel is a hosting role \u2014 run the stack, dispatch to handlers \u2014 not a binary."},
+  {lvl:3, q:"How do I port it \u2014 do I just copy the wire-lab repo?",
+   model:"No \u2014 you don't clone wire-lab, you satisfy the contracts. The target is which layers and frozen specs your platform must support, tested by pCID \u2014 not reproducing a directory tree or matching one harness run.",
+   pocket:"Don't clone wire-lab \u2014 satisfy the layers and frozen specs, tested by pCID."},
+  {lvl:3, q:"What are the layers?",
+   model:"Substrate, feed, group, CAS, session, message \u2014 each is a distinct obligation. The discipline is to say which ones your port fulfills, which it delegates, and where each layer's guarantees stop \u2014 not smear them into one vague 'kernel support.'",
+   pocket:"Keep the layers distinct \u2014 say which you host, which you delegate, where each stops."},
+  {lvl:3, q:"What's binding for?",
+   model:"Carrying bytes over UDP or TCP doesn't make a session. Binding is the bridge that turns messy real transport \u2014 addressing, delivery, lifecycle \u2014 into the clean session context your handlers expect. Like a power adapter between the wall and your laptop.",
+   pocket:"Binding turns raw transport into the clean sessions handlers expect \u2014 it's the adapter."},
+  {lvl:3, q:"Is CAS just a cache?",
+   model:"No \u2014 it's a contract. Chunks live by their bytes under a named CAS protocol, with one uniform shape \u2014 not 'small stuff inline, big stuff in storage.' Treat the CAS subtree as a real boundary, not a per-host detail.",
+   pocket:"CAS is a contract, not a cache \u2014 everything addressed by its bytes, uniformly."},
+  {lvl:3, q:"What's the deal with ingress?",
+   model:"It's where work enters your host, and platforms differ \u2014 a centralized boundary, a thin distributed path, or no heavyweight kernel at all. That choice decides where buffering and trust live and what crashes together, so you have to state your assumptions explicitly.",
+   pocket:"Ingress is where work enters \u2014 make your assumptions explicit; they shape trust and blast radius."},
+  {lvl:3, q:"Is there a handler API I implement?",
+   model:"There's no frozen ABI yet. What you need is the responsibility shape: a way to accept work, route it to handlers, give them context, and return or persist effects. Model those boundaries clearly \u2014 don't copy an interface verbatim out of wire-lab.",
+   pocket:"No frozen ABI \u2014 model the responsibility shape: dispatch, context, effects."},
+  {lvl:3, q:"Does the kernel decide if a promise was kept?",
+   model:"No \u2014 that's the big boundary. The kernel moves bytes: it parses slot zero, forwards the exact bytes, and records delivery evidence. Whether an application promise was actually kept is the promisee app's judgment, not the kernel's.",
+   pocket:"The kernel moves bytes and logs delivery; apps judge whether promises were kept."},
+  {lvl:3, q:"So the kernel is the router?",
+   model:"Deliberately not. It's not a router, registry, or RPC authority \u2014 it's a local app/kernel boundary. Relay apps own their own neighbor transport and hop promises; routing and discovery don't get centralized in the kernel.",
+   pocket:"The kernel isn't a router or registry \u2014 relay apps own their hops."},
+  {lvl:3, q:"Where does the kernel keep peer trust scores?",
+   model:"It doesn't \u2014 no global trust score lives in the kernel. It can record local promise-accounting evidence, but it's not an authoritative ledger. And things like resource exhaustion or a refusal are just evidence; they don't lower trust by themselves.",
+   pocket:"No global trust score in the kernel \u2014 only local evidence, never an authoritative ledger."},
+  {lvl:3, q:"What about signing \u2014 which algorithm do I pick?",
+   model:"Don't weld one in. The durable anchor is the signing key and its replacement history, so the port stays crypto-agile \u2014 surviving key rotation and even an algorithm change without pretending the protocol became something new.",
+   pocket:"Anchor on the key and its history; stay crypto-agile through rotation and algorithm changes."},
+  {lvl:3, q:"What counts as a real, minimal port?",
+   model:"The smallest honest port, not the smallest demo. Host the handlers you claim, name the frozen specs they conform to, exercise against those contracts, and be explicit about what's out of scope, delegated, or host-dependent. No hand-waving.",
+   pocket:"The minimum port is the smallest honest one \u2014 declare what you host, delegate, and don't do."},
+  {lvl:3, q:"Can I just model it on Plan 9 or Hurd?",
+   model:"Borrow ideas, not assumptions. Those systems are useful inspiration, but don't import their global namespaces or filesystem-authority models as PromiseGrid requirements. Keep views local and trust-filtered, and namespaces voluntary \u2014 not handed down by the infrastructure.",
+   pocket:"Borrow ideas from prior art, not their global-namespace assumptions \u2014 keep views local."}
+];
+
+const LVL = {1:"Layperson",2:"App Dev",3:"Kernel Dev"};
+const N = CONCEPTS.length;
+const SOLID = 3;          // box >= SOLID counts as "solid"
+const MAXBOX = 4;
+const KEY = "pg_onthespot_v1";
+let state = { boxes:{}, nailStreak:0 };
+let filter = "all";
+let pressure = true;
+let lastIdx = -1, curIdx = -1, revealed = false, timerId = null;
+let mem = {};
+
+async function load(){
+  try{
+    if(window.storage && window.storage.get){
+      const r = await window.storage.get(KEY);
+      if(r && r.value) state = JSON.parse(r.value);
+    } else if(mem[KEY]) state = mem[KEY];
+  }catch(e){}
+  if(!state.boxes) state = { boxes:{}, nailStreak:0 };
+}
+async function save(){
+  try{
+    if(window.storage && window.storage.set) await window.storage.set(KEY, JSON.stringify(state));
+    else mem[KEY] = state;
+  }catch(e){ mem[KEY] = state; }
+}
+const box = i => state.boxes[i] ?? 0;
+
+function poolIdx(){ return CONCEPTS.map((c,i)=>i).filter(i=> filter==="all" || c.lvl===Number(filter)); }
+function solidCount(scope){
+  const pool = scope==="all" ? CONCEPTS.map((c,i)=>i) : poolIdx();
+  return pool.filter(i=> box(i)>=SOLID).length;
+}
+function updateSolid(){
+  const pool = poolIdx();
+  const solid = pool.filter(i=> box(i)>=SOLID).length;
+  document.getElementById('solidTxt').textContent = `solid ${solid}/${pool.length}`;
+  document.getElementById('solidBar').style.width = (pool.length? Math.round(solid/pool.length*100):0)+"%";
+}
+
+function pickNext(){
+  const pool = poolIdx();
+  let cands = pool.filter(i=> i!==lastIdx);
+  if(cands.length===0) cands = pool;
+  const minB = Math.min(...cands.map(box));
+  let low = cands.filter(i=> box(i)<=minB+1);
+  if(low.length===0) low = cands;
+  return low[Math.floor(Math.random()*low.length)];
+}
+
+function clearTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+function render(){
+  updateSolid();
+  clearTimer();
+  revealed = false;
+  curIdx = pickNext();
+  lastIdx = curIdx;
+  const c = CONCEPTS[curIdx];
+  const stage = document.getElementById('stage');
+  stage.innerHTML = `
+    <div class="card">
+      <div class="lvtag"><span class="l">${LVL[c.lvl]}</span><span class="box">retention ${box(curIdx)}/${MAXBOX}</span></div>
+      <div class="asker">
+        <div class="avatar">\uD83D\uDDE3\uFE0F</div>
+        <div class="bubble">${c.q}</div>
+      </div>
+      <div class="cue" id="cue"><span class="dot"></span><span>Say your answer out loud\u2026</span> <span class="timer" id="timer"></span></div>
+      <div class="spacer"></div>
+      <div id="revealZone">
+        <button class="reveal-btn" id="revealBtn">I've answered \u2014 show the model</button>
+        <p class="reveal-hint">no peeking till you've said it \uD83D\uDD0A</p>
+      </div>
+    </div>`;
+  document.getElementById('revealBtn').onclick = reveal;
+  if(pressure) startTimer();
+}
+
+function startTimer(){
+  let t = 15;
+  const el = document.getElementById('timer');
+  const cueText = document.querySelector('#cue span:nth-child(2)');
+  el.textContent = `${t}s`;
+  timerId = setInterval(()=>{
+    t--;
+    if(t>0){ el.textContent = `${t}s`; }
+    else{
+      clearTimer();
+      el.textContent = "take your time";
+      el.classList.add('calm');
+      if(cueText) cueText.textContent = "No rush \u2014 get it right.";
+    }
+  },1000);
+}
+
+function reveal(){
+  if(revealed) return;
+  revealed = true;
+  clearTimer();
+  const c = CONCEPTS[curIdx];
+  const stage = document.getElementById('stage');
+  const cue = document.getElementById('cue'); if(cue) cue.remove();
+  const rz = document.getElementById('revealZone');
+  rz.outerHTML = `
+    <div class="answer">
+      <p class="a-label">Say it like this</p>
+      <p class="model">${c.model}</p>
+      <div class="pocket"><span class="pl">Pocket answer \u2014 memorize this line</span><span class="pt">${c.pocket}</span></div>
+      <p class="grade-q">How'd you do, out loud?</p>
+      <div class="grades">
+        <button class="grade nail" data-g="nail">Nailed it<small>+retention</small></button>
+        <button class="grade close" data-g="close">Close<small>say again</small></button>
+        <button class="grade blank" data-g="blank">Blanked<small>comes back soon</small></button>
+      </div>
+    </div>`;
+  stage.querySelectorAll('.grade').forEach(b=> b.onclick=()=> grade(b.dataset.g));
+}
+
+function grade(g){
+  const i = curIdx;
+  let b = box(i);
+  if(g==="nail"){ b = Math.min(b+1, MAXBOX); state.nailStreak=(state.nailStreak||0)+1; }
+  else if(g==="close"){ /* stays */ state.nailStreak=0; }
+  else { b = 0; state.nailStreak=0; }
+  state.boxes[i] = b;
+  save();
+  render();
+}
+
+// controls
+document.querySelectorAll('#seg button').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));
+    btn.classList.add('on');
+    filter = btn.dataset.f;
+    lastIdx = -1;
+    render();
+  };
+});
+document.getElementById('pressure').onchange = e=>{
+  pressure = e.target.checked;
+  if(!revealed) render();
+};
+document.getElementById('reset').onclick = async ()=>{
+  state = { boxes:{}, nailStreak:0 }; lastIdx=-1; await save(); render();
+};
+
+(async()=>{ await load(); render(); })();
+</script>

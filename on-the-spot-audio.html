@@ -1,0 +1,359 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid — On the Spot (Audio)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;--ink-2:#0a1614;--panel:#162824;--panel-2:#1d332e;--line:#2a463f;
+    --text:#efe7d8;--text-dim:#b9c4ba;--text-faint:#7f9189;
+    --gold:#f0b35e;--gold-soft:#caa066;--green:#62cf94;--coral:#e8896b;--blue:#7fb6c9;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:640px;margin:0 auto;padding:30px 20px 60px}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--gold);
+    border:1px solid var(--gold-soft);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,6vw,38px);line-height:1.0;margin:0 0 6px;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .sub{margin:0 0 18px;color:var(--text-dim);font-size:14.5px;max-width:52ch}
+
+  .settings{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:18px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .seg button{font:inherit;font-size:12.5px;font-family:var(--mono);background:none;border:0;color:var(--text-dim);
+    padding:8px 11px;cursor:pointer;transition:.14s;border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:linear-gradient(180deg,#26443b,#1c352e);color:var(--gold)}
+  select,.mini{font:inherit;font-family:var(--mono);font-size:12.5px;background:var(--panel);color:var(--text);
+    border:1px solid var(--line);border-radius:9px;padding:7px 10px;cursor:pointer}
+  .field{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;color:var(--text-dim)}
+  input[type=range]{accent-color:var(--gold);width:90px}
+
+  .player{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:24px 24px 20px;
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8);min-height:340px;display:flex;flex-direction:column}
+  .lvtag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .lvtag .l{color:var(--gold-soft)} .lvtag .pos{color:var(--text-faint)}
+
+  .asker{display:flex;gap:12px;align-items:flex-start}
+  .avatar{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:linear-gradient(150deg,#2a4a42,#1b332d);
+    border:1px solid var(--line);display:grid;place-items:center;font-size:19px}
+  .bubble{background:var(--panel-2);border:1px solid var(--line);border-radius:4px 14px 14px 14px;
+    padding:14px 16px;font-family:var(--display);font-size:20px;line-height:1.3;color:var(--text);transition:.2s}
+  .bubble.speaking{border-color:var(--gold-soft);box-shadow:0 0 0 1px var(--gold-soft),0 0 18px -4px rgba(240,179,94,.5)}
+
+  .turn{margin:18px 0 0;border:1px dashed var(--coral);border-radius:12px;padding:16px;text-align:center;display:none}
+  .turn.show{display:block;animation:pop .3s ease}
+  .turn .big{font-family:var(--display);font-size:20px;color:var(--coral);margin-bottom:4px}
+  .turn .cd{font-family:var(--mono);font-size:13px;color:var(--text-dim)}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1}}
+
+  .ans{margin-top:18px;display:none}
+  .ans.show{display:block;animation:pop .3s ease}
+  .a-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;margin:0 0 6px}
+  .model{font-size:15.5px;color:var(--text);margin:0 0 16px;line-height:1.5;border-radius:10px;padding:2px 0;transition:.2s}
+  .model.speaking{background:rgba(98,207,148,.1);box-shadow:0 0 0 8px rgba(98,207,148,.1);border-radius:10px}
+  .pocket{border:1px solid var(--gold-soft);background:rgba(240,179,94,.08);border-radius:12px;padding:13px 15px;transition:.2s}
+  .pocket.speaking{box-shadow:0 0 18px -4px rgba(240,179,94,.5)}
+  .pocket .pl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--gold-soft);text-transform:uppercase;display:block;margin-bottom:5px}
+  .pocket .pt{font-family:var(--display);font-size:17px;font-weight:500;color:var(--gold);line-height:1.35}
+
+  .spacer{flex:1 1 auto;min-height:14px}
+  .status{font-family:var(--mono);font-size:12px;color:var(--text-faint);text-align:center;margin:10px 0 14px;min-height:16px}
+  .status .live{color:var(--gold)}
+
+  .progress{height:5px;border-radius:4px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;margin-bottom:16px}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-soft),var(--gold));transition:width .3s}
+
+  .transport{display:flex;align-items:center;justify-content:center;gap:14px}
+  .tbtn{font:inherit;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:50%;
+    width:48px;height:48px;display:grid;place-items:center;cursor:pointer;transition:.14s;font-size:18px}
+  .tbtn:hover{border-color:var(--gold-soft)}
+  .play{width:64px;height:64px;background:linear-gradient(180deg,#f0b35e,#d9974a);color:#241405;border:0;font-size:24px}
+  .play:hover{filter:brightness(1.06)}
+
+  .footer{margin-top:22px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);line-height:1.7}
+  .warn{margin-top:14px;padding:12px 14px;border:1px solid var(--coral);border-radius:10px;background:rgba(232,137,107,.08);
+    font-size:13px;color:var(--text-dim);display:none}
+  .warn.show{display:block}
+
+  @media (max-width:480px){ .bubble{font-size:18px} input[type=range]{width:70px} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+</style>
+
+<div class="wrap">
+  <span class="pill">LISTEN &amp; ANSWER · HANDS-FREE</span>
+  <h1>On the spot <em>\u2014 out loud</em></h1>
+  <p class="sub">Press play. Hear the question cold, answer out loud into the gap, then hear how to say it. All 35, like a drill podcast.</p>
+
+  <div class="settings">
+    <div class="seg" id="mode" role="group" aria-label="Mode">
+      <button data-m="drill" class="on">Drill</button>
+      <button data-m="questions">Questions only</button>
+      <button data-m="listen">Just listen</button>
+    </div>
+    <div class="seg" id="lvl" role="group" aria-label="Level">
+      <button data-f="all" class="on">All</button>
+      <button data-f="1">L1</button>
+      <button data-f="2">L2</button>
+      <button data-f="3">L3</button>
+    </div>
+  </div>
+  <div class="settings">
+    <label class="field">voice <select id="voice" class="mini"></select></label>
+    <label class="field">speed <input type="range" id="rate" min="0.7" max="1.25" step="0.05" value="1"></label>
+    <label class="field">your turn <input type="range" id="gap" min="3" max="18" step="1" value="8"><span id="gapv" class="mini" style="cursor:default">8s</span></label>
+    <label class="field" style="cursor:pointer"><input type="checkbox" id="shuffle"> shuffle</label>
+  </div>
+
+  <div class="player">
+    <div class="lvtag"><span class="l" id="lvName">\u2014</span><span class="pos" id="pos">0 / 0</span></div>
+    <div class="asker">
+      <div class="avatar">\uD83D\uDDE3\uFE0F</div>
+      <div class="bubble" id="bubble">Press play to begin.</div>
+    </div>
+
+    <div class="turn" id="turn">
+      <div class="big">Your turn \u2014 say it out loud</div>
+      <div class="cd" id="cd"></div>
+    </div>
+
+    <div class="ans" id="ans">
+      <p class="a-label">Say it like this</p>
+      <p class="model" id="model"></p>
+      <div class="pocket" id="pocket"><span class="pl">Pocket answer \u2014 memorize this line</span><span class="pt" id="pt"></span></div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="status" id="status">Ready when you are.</div>
+    <div class="progress"><i id="bar" style="width:0%"></i></div>
+    <div class="transport">
+      <button class="tbtn" id="prev" title="Previous (\u2190)">\u23EE</button>
+      <button class="tbtn play" id="play" title="Play / Pause (space)">\u25B6</button>
+      <button class="tbtn" id="next" title="Next (\u2192)">\u23ED</button>
+    </div>
+  </div>
+
+  <div class="warn" id="warn"></div>
+  <div class="footer">
+    Uses your device's built-in voices \u2014 works best in Chrome or Edge; iPhone, use Safari with the screen awake.<br>
+    Space = play/pause \u00B7 \u2190 \u2192 = skip. Answer in the gap <i>before</i> the model plays.
+  </div>
+</div>
+
+<script>
+// lvl: 1=Layperson, 2=App Dev, 3=Kernel Dev
+const CONCEPTS = [
+  {lvl:1, q:"So\u2026 what even is PromiseGrid?", model:"It's a way to build a community's shared tools and records so they survive for decades \u2014 even if the founder leaves, the company dies, or the platform shuts down. The whole point is continuity without depending on any single company, server, or boss.", pocket:"Shared tools and records that outlive whoever built them \u2014 no single company or boss required."},
+  {lvl:1, q:"Why do they keep going on about a hundred years?", model:"It's a stress test, not a backup policy. The question is whether these records and agreements would still make sense after generations turn over and the software's been replaced a few times. If a design can't survive a century of change, it needs work.", pocket:"The 100-year horizon is a stress test \u2014 would this still make sense after everyone involved is gone?"},
+  {lvl:1, q:"What does 'no central authority' actually mean?", model:"No single company, server, or permanent boss is required to keep the community going. It doesn't mean no rules or no conflict \u2014 it means conflict and turnover are survivable, with no single point of failure.", pocket:"No single required center \u2014 conflict becomes survivable instead of fatal."},
+  {lvl:1, q:"Isn't a group splitting in two a failure?", model:"Not here \u2014 forking is treated as normal. Real disagreement over decades is inevitable, so the system lets a group split into a traceable sibling path and both sides keep going, instead of forcing one final answer or erasing history.", pocket:"Forking is peaceful, traceable separation \u2014 a feature, not a failure."},
+  {lvl:1, q:"What's a pCID, in plain terms?", model:"It's a content fingerprint that lets you point at the exact same document forever \u2014 by its contents, not by a link that can break or get swapped. Same fingerprint, same thing, no matter where it's stored.", pocket:"A content fingerprint that names the exact same document forever, even after it's copied around."},
+  {lvl:1, q:"How does trust work in this thing?", model:"Trust is local and per-relationship \u2014 you trust a specific person for a specific kind of thing, not via one global score handed down by a referee. And it's repairable: relationships can break and be rebuilt.", pocket:"Trust is local, per-task, and repairable \u2014 no universal score."},
+  {lvl:1, q:"How's it different from a normal app sending messages?", model:"Instead of 'do this now and reply,' it's about making and assessing promises and keeping the evidence. So a message can still matter long after it arrives \u2014 in a dispute, an audit, or a trust judgment.", pocket:"It tracks promises and evidence over time, not just instant commands."},
+  {lvl:1, q:"What happens when the people in charge change?", model:"Records keep a stable identity, and leadership can rotate or be inherited without making the history ambiguous. Picture a relay baton \u2014 the runners change, but the continuity doesn't drop.", pocket:"Leadership can change hands without breaking the continuous record \u2014 like passing a baton."},
+  {lvl:1, q:"Is this thing finished? Can I rely on it?", model:"A lot of it is still being figured out. The rule is: the frozen specs are the real authority, and everything else \u2014 drafts, experiments, simulations \u2014 is useful orientation but not a settled contract.", pocket:"Frozen specs are authority; drafts are orientation. Know which you're looking at."},
+
+  {lvl:2, q:"How do I start building on this? Is there an SDK?", model:"There's no SDK yet \u2014 it's a discipline. You pick an explicit protocol spec, name it by its pCID once it's frozen, implement the payloads and rules that spec defines, and publish conformance claims. That's the whole contract.", pocket:"No SDK \u2014 pick a spec, cite its pCID, implement it, publish conformance claims."},
+  {lvl:2, q:"What does a message actually look like on the wire?", model:"Everything's wrapped in a grid envelope. Slot zero is a tagged pCID saying which protocol this is; slot one is the payload. And the spec that pCID names defines everything after that \u2014 the envelope itself doesn't.", pocket:"A grid envelope: slot 0 is the pCID selector, the named spec defines the rest."},
+  {lvl:2, q:"So it's basically RPC, right?", model:"No \u2014 it's promises, not function calls. You make, receive, and assess promises and keep the evidence, so success means what was promised, under what conditions, and what the evidence later shows \u2014 not just an instant return value.", pocket:"Not RPC \u2014 make and assess promises, and keep the evidence over time."},
+  {lvl:2, q:"What exactly is a pCID?", model:"It's the content-addressed fingerprint of a protocol spec. Selecting a protocol means: speak the exact spec that hashes to this ID. Same frozen pCID on both sides means the same contract; different pCIDs need an explicit bridge.", pocket:"A pCID is the spec's fingerprint \u2014 same pCID, same exact contract."},
+  {lvl:2, q:"How do permissions or access tokens work?", model:"A capability token isn't a bearer password \u2014 it's a promise with a lifecycle. The spec has to define who can mint it, what makes a redemption valid, and how peers learn it's been revoked.", pocket:"Capability tokens are promises with mint, redeem, and revoke rules \u2014 not bearer passwords."},
+  {lvl:2, q:"What happens if someone says a promise was broken?", model:"That's a break-witness, and it's evidence, not a verdict. Receiving one doesn't auto-convict anybody \u2014 you record it and weigh it locally by source, context, and corroboration, because trust is per-relationship.", pocket:"A break-witness is evidence to weigh locally, not an automatic guilty verdict."},
+  {lvl:2, q:"How does identity work \u2014 usernames?", model:"Identity lives in the signing key, not a name or a registry entry. Key rotation is a normal lifecycle event, not a reset. Names and avatars are just presentation hints \u2014 not proof of who's speaking.", pocket:"Identity is the signing key and its rotation history; names are just hints."},
+  {lvl:2, q:"How should I store reputation for peers?", model:"Not as one global score. Keep a local ledger of kept, broken, and open promises, tracked per promise type \u2014 because a peer can be reliable for one kind of thing and flaky at another.", pocket:"Trust is a local ledger, tracked per promise type \u2014 never one global score."},
+  {lvl:2, q:"Where do I look up which peers and protocols are legit?", model:"There's no central registry. Your app builds a local view from the specs it holds, the conformance claims it's seen, and the peers it trusts \u2014 converging through exchanged evidence, not a global directory.", pocket:"No central registry \u2014 you build a local view from specs, claims, and trusted peers."},
+  {lvl:2, q:"Does my whole app become a PromiseGrid app?", model:"No \u2014 just draw a clean boundary. The PromiseGrid-facing part is whatever claims a named spec, interprets its payloads, and publishes conformance. Your engine, cache, and UI stay ordinary internal code. And one app may speak several protocols.", pocket:"Only the spec-claiming part is PromiseGrid-facing; the rest is normal internal code."},
+  {lvl:2, q:"Can I refactor my data and migrate old records?", model:"Your durable history \u2014 receipts and exchanged bytes \u2014 is append-only; you never rewrite it. You improve by adding new artifacts that supersede the old ones, and a real change in meaning gets a new spec identity, carried side by side during rollout.", pocket:"History is append-only \u2014 supersede old bytes, never rewrite them."},
+  {lvl:2, q:"How do people know what my implementation supports?", model:"You publish a conformance claim in your changelog \u2014 naming the spec doc-CID you implement, the scope, and whether anything broke. That makes compatibility auditable instead of implied by a branch name.", pocket:"Publish conformance claims in CHANGELOG \u2014 name the doc-CID, scope, and breaking changes."},
+  {lvl:2, q:"What should I assume about the other peers?", model:"Assume some are hostile, lazy, or broken \u2014 that's part of the environment. Test past the happy path, and if bytes don't parse or violate the spec, reject or quarantine them locally instead of guessing a close-enough meaning. And don't assume a global clock.", pocket:"Assume hostile peers \u2014 reject or quarantine bad input locally, never reinterpret it."},
+
+  {lvl:3, q:"What's the kernel in PromiseGrid?", model:"It's a role, not a binary \u2014 the infrastructure role that hosts the protocol stack and dispatches work to handlers. It's not an OS kernel and not one mandatory program; any runtime that can carry those responsibilities can play it.", pocket:"The kernel is a hosting role \u2014 run the stack, dispatch to handlers \u2014 not a binary."},
+  {lvl:3, q:"How do I port it \u2014 do I just copy the wire-lab repo?", model:"No \u2014 you don't clone wire-lab, you satisfy the contracts. The target is which layers and frozen specs your platform must support, tested by pCID \u2014 not reproducing a directory tree or matching one harness run.", pocket:"Don't clone wire-lab \u2014 satisfy the layers and frozen specs, tested by pCID."},
+  {lvl:3, q:"What are the layers?", model:"Substrate, feed, group, CAS, session, message \u2014 each is a distinct obligation. The discipline is to say which ones your port fulfills, which it delegates, and where each layer's guarantees stop \u2014 not smear them into one vague kernel support.", pocket:"Keep the layers distinct \u2014 say which you host, which you delegate, where each stops."},
+  {lvl:3, q:"What's binding for?", model:"Carrying bytes over UDP or TCP doesn't make a session. Binding is the bridge that turns messy real transport \u2014 addressing, delivery, lifecycle \u2014 into the clean session context your handlers expect. Like a power adapter between the wall and your laptop.", pocket:"Binding turns raw transport into the clean sessions handlers expect \u2014 it's the adapter."},
+  {lvl:3, q:"Is CAS just a cache?", model:"No \u2014 it's a contract. Chunks live by their bytes under a named CAS protocol, with one uniform shape \u2014 not small stuff inline, big stuff in storage. Treat the CAS subtree as a real boundary, not a per-host detail.", pocket:"CAS is a contract, not a cache \u2014 everything addressed by its bytes, uniformly."},
+  {lvl:3, q:"What's the deal with ingress?", model:"It's where work enters your host, and platforms differ \u2014 a centralized boundary, a thin distributed path, or no heavyweight kernel at all. That choice decides where buffering and trust live and what crashes together, so you have to state your assumptions explicitly.", pocket:"Ingress is where work enters \u2014 make your assumptions explicit; they shape trust and blast radius."},
+  {lvl:3, q:"Is there a handler API I implement?", model:"There's no frozen ABI yet. What you need is the responsibility shape: a way to accept work, route it to handlers, give them context, and return or persist effects. Model those boundaries clearly \u2014 don't copy an interface verbatim out of wire-lab.", pocket:"No frozen ABI \u2014 model the responsibility shape: dispatch, context, effects."},
+  {lvl:3, q:"Does the kernel decide if a promise was kept?", model:"No \u2014 that's the big boundary. The kernel moves bytes: it parses slot zero, forwards the exact bytes, and records delivery evidence. Whether an application promise was actually kept is the promisee app's judgment, not the kernel's.", pocket:"The kernel moves bytes and logs delivery; apps judge whether promises were kept."},
+  {lvl:3, q:"So the kernel is the router?", model:"Deliberately not. It's not a router, registry, or RPC authority \u2014 it's a local app-kernel boundary. Relay apps own their own neighbor transport and hop promises; routing and discovery don't get centralized in the kernel.", pocket:"The kernel isn't a router or registry \u2014 relay apps own their hops."},
+  {lvl:3, q:"Where does the kernel keep peer trust scores?", model:"It doesn't \u2014 no global trust score lives in the kernel. It can record local promise-accounting evidence, but it's not an authoritative ledger. And things like resource exhaustion or a refusal are just evidence; they don't lower trust by themselves.", pocket:"No global trust score in the kernel \u2014 only local evidence, never an authoritative ledger."},
+  {lvl:3, q:"What about signing \u2014 which algorithm do I pick?", model:"Don't weld one in. The durable anchor is the signing key and its replacement history, so the port stays crypto-agile \u2014 surviving key rotation and even an algorithm change without pretending the protocol became something new.", pocket:"Anchor on the key and its history; stay crypto-agile through rotation and algorithm changes."},
+  {lvl:3, q:"What counts as a real, minimal port?", model:"The smallest honest port, not the smallest demo. Host the handlers you claim, name the frozen specs they conform to, exercise against those contracts, and be explicit about what's out of scope, delegated, or host-dependent. No hand-waving.", pocket:"The minimum port is the smallest honest one \u2014 declare what you host, delegate, and don't do."},
+  {lvl:3, q:"Can I just model it on Plan 9 or Hurd?", model:"Borrow ideas, not assumptions. Those systems are useful inspiration, but don't import their global namespaces or filesystem-authority models as PromiseGrid requirements. Keep views local and trust-filtered, and namespaces voluntary \u2014 not handed down by the infrastructure.", pocket:"Borrow ideas from prior art, not their global-namespace assumptions \u2014 keep views local."}
+];
+const LVL = {1:"Layperson",2:"App Dev",3:"Kernel Dev"};
+
+// ---------- state ----------
+let mode="drill", filter="all", shuffle=false;
+let order=[];                 // concept indices in play order
+let segs=[];                  // [{cIdx, phase}]  phase: q|gap|a|p|sep
+let pos=0, playing=false, gapTimer=null, cdTimer=null, voices=[], voice=null;
+const synth = window.speechSynthesis;
+
+const el = id => document.getElementById(id);
+
+// ---------- build ----------
+function phasesFor(m){
+  if(m==="questions") return ["q","gap","sep"];
+  if(m==="listen") return ["q","a","p","sep"];
+  return ["q","gap","a","p","sep"];
+}
+function rebuild(keep){
+  let pool = CONCEPTS.map((c,i)=>i).filter(i=> filter==="all" || CONCEPTS[i].lvl===Number(filter));
+  if(shuffle){ for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; } }
+  order = pool;
+  segs = [];
+  const ph = phasesFor(mode);
+  order.forEach(ci => ph.forEach(p => segs.push({cIdx:ci, phase:p})));
+  if(!keep){ pos=0; }
+  paintStatic();
+}
+
+// ---------- speech ----------
+function loadVoices(){
+  const all = synth ? synth.getVoices() : [];
+  voices = all.filter(v=>/^en/i.test(v.lang));
+  if(voices.length===0) voices = all;
+  const sel = el('voice'); sel.innerHTML="";
+  voices.forEach((v,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=v.name.replace(/ \(.*\)/,'')+" \u00B7 "+v.lang; sel.appendChild(o); });
+  // prefer a natural US voice
+  let pick = voices.findIndex(v=>/Google US English|Samantha|Aaron|Microsoft Aria|Microsoft Jenny/i.test(v.name));
+  if(pick<0) pick = voices.findIndex(v=>/en-US/i.test(v.lang));
+  if(pick<0) pick = 0;
+  sel.value = pick; voice = voices[pick] || null;
+}
+function speak(text, onend){
+  if(!synth){ onend && onend(); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if(voice) u.voice = voice;
+  u.rate = parseFloat(el('rate').value);
+  u.pitch = 1;
+  u.onend = ()=>{ if(playing) onend && onend(); };
+  u.onerror = ()=>{ if(playing) onend && onend(); };
+  synth.speak(u);
+}
+
+// ---------- transport ----------
+function conceptStartPos(targetCi){ return segs.findIndex(s=> s.cIdx===targetCi && s.phase==="q"); }
+function currentCi(){ return segs[pos] ? segs[pos].cIdx : order[0]; }
+
+function play(){
+  if(!segs.length) return;
+  playing = true; el('play').textContent="\u23F8";
+  step();
+}
+function pause(){
+  playing = false; el('play').textContent="\u25B6";
+  if(synth) synth.cancel();
+  clearTimeout(gapTimer); clearInterval(cdTimer);
+  el('turn').classList.remove('show');
+  setStatus("Paused.");
+}
+function toggle(){ playing ? pause() : play(); }
+
+function jumpConcept(dir){
+  const ci = currentCi();
+  let oi = order.indexOf(ci) + dir;
+  if(oi<0) oi=0; if(oi>=order.length) oi=order.length-1;
+  pos = conceptStartPos(order[oi]);
+  if(synth) synth.cancel(); clearTimeout(gapTimer); clearInterval(cdTimer);
+  paintCard(order[oi], "q");
+  if(playing) step(); else { setStatus("Cued up."); }
+}
+
+function step(){
+  if(pos >= segs.length){ pos=0; pause(); setStatus("That's all 35. Loop it again whenever."); paintCard(order[0],"q"); return; }
+  const s = segs[pos];
+  const c = CONCEPTS[s.cIdx];
+  paintCard(s.cIdx, s.phase);
+  updateProgress();
+
+  if(s.phase==="sep"){ pos++; gapTimer=setTimeout(()=>{ if(playing) step(); }, 900); return; }
+  if(s.phase==="gap"){
+    const secs = parseInt(el('gap').value,10);
+    el('turn').classList.add('show');
+    let t = secs; el('cd').textContent = t+"s \u2014 answer out loud";
+    setStatus("<span class='live'>\u25CF your turn</span>");
+    clearInterval(cdTimer);
+    cdTimer = setInterval(()=>{ t--; if(t>0){ el('cd').textContent=t+"s \u2014 answer out loud"; } else { el('cd').textContent="here comes the model\u2026"; } }, 1000);
+    gapTimer = setTimeout(()=>{ clearInterval(cdTimer); el('turn').classList.remove('show'); pos++; if(playing) step(); }, secs*1000);
+    return;
+  }
+  // spoken phases: q, a, p
+  let text = c.q;
+  if(s.phase==="a"){ text = c.model; }
+  if(s.phase==="p"){ text = "Pocket answer. " + c.pocket; }
+  setStatus(s.phase==="q" ? "<span class='live'>\u25CF</span> asking\u2026" : (s.phase==="a"?"the clean answer":"the line to remember"));
+  pos++;
+  speak(text, ()=> step());
+}
+
+// ---------- paint ----------
+function paintStatic(){
+  const ci = order.length? currentCi() : null;
+  if(ci==null){ el('lvName').textContent="\u2014"; el('pos').textContent="0 / 0"; return; }
+  paintCard(ci, "q"); updateProgress();
+}
+function paintCard(ci, phase){
+  const c = CONCEPTS[ci];
+  el('lvName').textContent = LVL[c.lvl];
+  el('pos').textContent = (order.indexOf(ci)+1) + " / " + order.length;
+  el('bubble').textContent = c.q;
+  el('model').textContent = c.model;
+  el('pt').textContent = c.pocket;
+
+  const showAns = (phase==="a"||phase==="p") || (mode==="listen" && phase!=="q" && phase!=="sep");
+  el('ans').classList.toggle('show', !!showAns && phase!=="gap");
+  el('turn').classList.toggle('show', phase==="gap");
+
+  el('bubble').classList.toggle('speaking', phase==="q");
+  el('model').classList.toggle('speaking', phase==="a");
+  el('pocket').classList.toggle('speaking', phase==="p");
+  if(phase==="q"){ el('ans').classList.remove('show'); }
+}
+function updateProgress(){
+  const ci = currentCi();
+  const frac = order.length? (order.indexOf(ci)) / order.length : 0;
+  el('bar').style.width = Math.round(frac*100)+"%";
+}
+function setStatus(html){ el('status').innerHTML = html; }
+
+// ---------- wire up ----------
+document.querySelectorAll('#mode button').forEach(b=> b.onclick=()=>{
+  document.querySelectorAll('#mode button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  mode=b.dataset.m; pause(); rebuild(false); setStatus("Mode set. Press play.");
+});
+document.querySelectorAll('#lvl button').forEach(b=> b.onclick=()=>{
+  document.querySelectorAll('#lvl button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  filter=b.dataset.f; pause(); rebuild(false); setStatus("Filtered. Press play.");
+});
+el('shuffle').onchange = e=>{ shuffle=e.target.checked; pause(); rebuild(false); };
+el('gap').oninput = e=>{ el('gapv').textContent = e.target.value+"s"; };
+el('voice').onchange = e=>{ voice = voices[parseInt(e.target.value,10)] || null; };
+el('play').onclick = toggle;
+el('prev').onclick = ()=> jumpConcept(-1);
+el('next').onclick = ()=> jumpConcept(1);
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
+  if(e.code==="Space"){ e.preventDefault(); toggle(); }
+  else if(e.code==="ArrowRight"){ jumpConcept(1); }
+  else if(e.code==="ArrowLeft"){ jumpConcept(-1); }
+});
+
+if(!synth){ el('warn').classList.add('show'); el('warn').textContent="Your browser doesn't support speech synthesis, so audio won't play here. Try Chrome, Edge, or Safari."; }
+else { if(synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; loadVoices(); }
+rebuild(false);
+</script>

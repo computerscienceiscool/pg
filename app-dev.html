@@ -145,6 +145,9 @@
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
 </style>
 
+<script src="shared/site-header.js"></script>
+<pg-site-header></pg-site-header>
+
 <div class="wrap">
   <header>
     <div class="rings" id="rings" aria-hidden="true"></div>
@@ -158,7 +161,7 @@
 
   <div class="lede">
     The whole job in one sentence: <span>pick a protocol spec, name it by its pCID, implement what
-    that spec defines, and publish conformance claims.</span> There's no SDK yet — there's a discipline.
+    that spec defines, and register handled pCIDs with the local kernel.</span> There's no SDK yet — there's a discipline.
   </div>
 
   <div class="map" id="map" role="tablist" aria-label="Concept progress"></div>
@@ -171,20 +174,23 @@
 </div>
 
 <script>
+// Intent: Keep app-dev guidance aligned with the current support declaration
+// model: apps register handled pCIDs with their local kernel, while broader
+// public support publication remains unresolved. Source: DI-piput
 const LESSONS = [
   {
-    tag:"The minimum contract", icon:"🧭",
+    tag:"The minimum discipline", icon:"🧭",
     title:"There's no SDK. There's a discipline.",
-    plain:"Pick a spec, use its pCID when frozen, let it define your payloads, publish conformance claims.",
+    plain:"Pick a spec, use its pCID when frozen, let it define your payloads, and register handled pCIDs locally.",
     body:[
-      "If you're waiting for an official PromiseGrid SDK, a stable handler ABI, or a universal app message API \u2014 there isn't one yet, and the guide says so plainly (the question is still open under <span class='term'>DR-tuhaz</span>). What exists today is a discipline, not a library.",
-      "The whole app-dev contract fits in one line: <b>choose an explicit protocol spec, name it by its pCID once it's frozen, let that spec define your payload and handler rules, and publish conformance claims</b> \u2014 instead of pointing people at a branch or a demo."
+      "If you're waiting for an official PromiseGrid SDK, a stable protocol role ABI, or a universal app message API \u2014 there isn't one yet, and the guide says so plainly (the question is still open under <span class='term'>DR-tuhaz</span>). What exists today is a discipline, not a library.",
+      "The whole app-dev discipline fits in one line: <b>choose an explicit protocol spec, name it by its pCID once it's frozen, let that spec define your payload and protocol role rules, and register the pCIDs your app handles with the local kernel</b> \u2014 instead of pointing people at a branch or a demo."
     ],
-    analogy:"Like building to a published file-format standard rather than against one vendor's library. The standard is the contract; your code just claims to follow it.",
-    q:"What's the actual app-dev \u201ccontract\u201d in PromiseGrid today?",
+    analogy:"Like building to a published file-format standard rather than against one vendor's library. The standard is the shared reference; your code promises to follow it.",
+    q:"What's the actual app-dev \u201cspec promise\u201d in PromiseGrid today?",
     opts:["Install the official SDK and call its functions",
-      "Pick a spec, cite its pCID, implement its payloads, and publish conformance claims",
-      "Register your app with the central PromiseGrid authority",
+      "Pick a spec, cite its pCID, implement its payloads, and register handled pCIDs locally",
+      "Register your app with the central PromiseGrid registry",
       "Copy the latest demo code from wire-lab"],
     correct:1,
     why:"Right \u2014 it's a <b>discipline, not an SDK</b>. Everything else in this trainer is a detail of doing that one thing well.",
@@ -196,9 +202,9 @@ const LESSONS = [
     plain:"Everything rides inside grid(...). Slot 0 names the protocol; the spec defines the rest.",
     body:[
       "On the wire, a message is wrapped in an outer <span class='term'>grid(...)</span> envelope. The first slot \u2014 <b>slot 0</b> \u2014 is a tagged protocol selector, <span class='term'>42(pCID)</span>, saying which spec this message speaks. Slot 1 is the recommended anchor for the main payload.",
-      "Crucially, <b>slots 1..N \u2014 their count, order, meaning, and validation \u2014 are defined entirely by the spec that pCID names</b>, not by the envelope. If a peer doesn't support that pCID, it may keep the raw bytes as evidence but it does <i>not</i> get to reinterpret them. (Envelope details are still provisional.)"
+      "Crucially, <b>slots 1..N \u2014 their count, order, meaning, and validation \u2014 are defined entirely by the spec that pCID names</b>, not by the envelope. If a peer doesn't support that pCID, it may keep the raw bytes as local records but it does <i>not</i> get to reinterpret them. (Envelope details are still provisional.)"
     ],
-    analogy:"An envelope with the protocol's name written where the stamp goes. The postal system just routes it; what's inside only makes sense to someone who speaks that protocol.",
+    analogy:"An envelope with the protocol's name written where the stamp goes. The postal system just hands it off; what's inside only makes sense to someone who speaks that protocol.",
     q:"In the grid envelope, what lives in slot 0?",
     opts:["The message payload",
       "A tagged pCID \u2014 the selector saying which protocol this message speaks",
@@ -211,19 +217,19 @@ const LESSONS = [
   {
     tag:"The mindset shift", icon:"\uD83E\uDD1D",
     title:"It's promises, not function calls",
-    plain:"You make, receive, and assess promises \u2014 and keep the evidence. Not call-and-return.",
+    plain:"You make, receive, and assess promises \u2014 and keep local records. Not call-and-return.",
     body:[
-      "In ordinary RPC, success means \u201cthe call returned the right value just now.\u201d In PromiseGrid, an app <b>makes, receives, and evaluates protocol-governed promises</b>, and keeps the evidence about whether they were kept.",
-      "So success is bigger: what was claimed, under what conditions, what evidence arrived later, and who's positioned to assess whether the promise was kept, broken, superseded, or still open. A message can matter <b>long after</b> first receipt \u2014 in a dispute, an audit, or a trust judgment."
+      "In ordinary RPC, success means \u201cthe call returned the right value just now.\u201d In PromiseGrid, an app <b>makes, receives, and evaluates protocol-governed promises</b>, and keeps local records about whether they were kept.",
+      "So success is bigger: what was promised, under what conditions, what later promise history arrived, and who's positioned to assess whether the promise was kept, broken, superseded, or still open. A message can matter <b>long after</b> first receipt \u2014 in a dispute, an audit, or a trust judgment."
     ],
-    analogy:"A signed contract with a paper trail vs. shouting an order across a room. The contract can be examined and disputed months later. The shout is gone the instant it lands.",
+    analogy:"A written promise with a paper trail vs. shouting an order across a room. The written promise can be examined and disputed months later. The shout is gone the instant it lands.",
     q:"Compared to RPC, what does \u201csuccess\u201d mean for a grid app?",
     opts:["The function returned the expected value immediately",
-      "What was promised, under what conditions, and what evidence later shows about whether it held",
+      "What was promised, under what conditions, and what later promise history shows about whether it held",
       "The message was delivered with low latency",
       "The server didn't crash"],
     correct:1,
-    why:"Exactly \u2014 success is about <b>obligations and evidence over time</b>, not just an instant return value.",
+    why:"Exactly \u2014 success is about <b>obligations and kept/broken history over time</b>, not just an instant return value.",
     nudge:"The key word is later. Don't flatten it to request/reply \u2014 a promise and its proof can matter long after the moment."
   },
   {
@@ -232,25 +238,25 @@ const LESSONS = [
     plain:"Selecting a protocol means \u201cspeak the exact spec that hashes to this ID\u201d \u2014 not \u201clook up entry X.\u201d",
     body:[
       "A <span class='term'>pCID</span> is the content-addressed identity of a protocol <i>spec</i>. Protocol selection is not \u201cwhatever currently listens on port Y\u201d or \u201cregistry entry X\u201d \u2014 it's <b>speak the exact spec whose content hashes to this identifier</b>.",
-      "Same frozen pCID on both sides = the same contract, guaranteed. Different pCIDs = different specs; you need an <b>explicit bridge or fork policy</b>, not the hope that a shared name hides the difference. When interpretation rules differ, fail visibly at dispatch rather than waving it away."
+      "Same frozen pCID on both sides = the same exact spec, guaranteed. Different pCIDs = different specs; you need an <b>explicit bridge or fork policy</b>, not the hope that a shared name hides the difference. When interpretation rules differ, fail visibly at recognition rather than waving it away."
     ],
     analogy:"Citing a law by the exact text that hashes to a fingerprint, instead of \u201cthe rule everyone calls the parking law\u201d \u2014 which could quietly mean different things in different towns.",
     q:"Two peers cite the same frozen pCID. What does that guarantee?",
     opts:["They're on the same server",
-      "They're claiming the exact same protocol contract",
+      "They're promising the exact same protocol spec",
       "They trust each other",
       "They run the same SDK version"],
     correct:1,
-    why:"Right. Same frozen pCID = same contract. Different pCIDs need an explicit bridge, not a hopeful assumption.",
+    why:"Right. Same frozen pCID = same spec. Different pCIDs need an explicit bridge, not a hopeful assumption.",
     nudge:"A pCID names the spec by its contents. Matching pCIDs mean the same exact spec \u2014 nothing about servers or trust."
   },
   {
-    tag:"Authority", icon:"\uD83C\uDF9F\uFE0F",
+    tag:"Capability", icon:"\uD83C\uDF9F\uFE0F",
     title:"Capability tokens are promises, not passwords",
     plain:"A token isn't a magic bearer string \u2014 it's a promise with mint, redeem, and revoke rules.",
     body:[
       "When a spec uses a token to let someone do something later, treat it as a <b>promise-bearing protocol artifact</b>, not an unstructured bearer blob whose meaning lives in app folklore.",
-      "Your app should know: who's allowed to <b>mint</b> it, what evidence makes a <b>redemption</b> valid, whether reuse is allowed, and how peers learn it's been <b>revoked</b>. The current direction keeps the envelope small and puts the token's real meaning inside the pCID-defined payload \u2014 not in one generic cross-app permission card."
+      "Your app should know: which agents can promise to <b>issue</b> it, what local records make a <b>redemption</b> valid, whether reuse is allowed, and how peers learn it's been <b>revoked</b>. The current direction keeps the envelope small and puts the token's real meaning inside the pCID-defined payload \u2014 not in one generic cross-app promise card."
     ],
     analogy:"A named, signed permit with conditions and an expiry \u2014 not a \u201cwhoever holds this paper wins\u201d coupon. Who issued it, what it allows, and when it dies are all explicit.",
     q:"How should an app treat a capability token?",
@@ -264,29 +270,29 @@ const LESSONS = [
   },
   {
     tag:"Disputes", icon:"\u2696\uFE0F",
-    title:"Break-witnesses are evidence, not verdicts",
-    plain:"A claim that a promise broke is assessable evidence \u2014 receiving one isn't an auto guilty verdict.",
+    title:"Broken-promise reports are local records, not verdicts",
+    plain:"A promise that a promise broke is an assessable local record \u2014 receiving one isn't an auto guilty verdict.",
     body:[
-      "If a protocol lets participants say a promise wasn't kept, that <b>break-witness</b> is its own artifact with lifecycle questions: who may emit it, what evidence it must cite, how receivers record it, and how it's weighed against other evidence.",
+      "If a protocol lets participants say a promise wasn't kept, that <b>broken-promise report</b> is its own artifact with lifecycle questions: which agents promise to issue it, which local records it should reference, how receivers record it, and how it's weighed against other local records.",
       "Emitting one isn't just \u201cpeer said bad thing happened\u201d \u2014 preserve what was allegedly broken, when, by whom, under which conditions. And receiving one <b>shouldn't collapse into instant guilt</b>: trust stays local and per-burden, so a witness can matter a lot, a little, or not at all depending on source, context, and corroboration."
     ],
-    analogy:"A witness statement in a case file, not a conviction. It's logged, weighed against other evidence, and judged in context \u2014 never an automatic sentence.",
-    q:"Your app receives a break-witness about a peer. What's the right posture?",
+    analogy:"A witness statement in a case file, not a conviction. It's logged, weighed against other local records, and judged in context \u2014 never an automatic sentence.",
+    q:"Your app receives a broken-promise report about a peer. What's the right posture?",
     opts:["Immediately mark the peer untrustworthy everywhere",
-      "Ignore it \u2014 only a central authority decides",
-      "Record it as assessable evidence and weigh it locally by context and corroboration",
+      "Ignore it \u2014 only a central registry decides",
+      "Record it as an assessable local record and weigh it locally by context and corroboration",
       "Forward it to everyone as proven fact"],
     correct:2,
-    why:"Right \u2014 it's <b>evidence to weigh locally</b>, not a universal verdict. Trust here is per-burden and contextual.",
-    nudge:"A witness is a claim, not a court ruling. Log it, weigh it in context \u2014 don't let one report auto-convict."
+    why:"Right \u2014 it's <b>a local record to weigh locally</b>, not a universal verdict. Trust here is per-burden and contextual.",
+    nudge:"A broken-promise report is a promise, not a court ruling. Log it, weigh it in context \u2014 don't let one report auto-convict."
   },
   {
     tag:"Identity", icon:"\uD83D\uDD11",
     title:"Identity lives in the signing key",
-    plain:"Durable authority = the signing key and its rotation history. Names and avatars are hints.",
+    plain:"Durable identity anchor = the signing key and its rotation history. Names and avatars are hints.",
     body:[
-      "The durable anchor of identity is the <b>signing key</b>, not a registry entry, hostname, or project label. So <b>key rotation is a normal lifecycle event</b>, not a protocol reset \u2014 authority continues through current keys and their replacement history.",
-      "Expect <b>two identity layers</b>: durable authority (keys) and user-facing presentation (names, handles, avatars). Presentation can travel between clients for human continuity, but <b>portability isn't authority</b> \u2014 a friendly From: label is a hint, never proof of who's really speaking. And don't hardcode one crypto algorithm forever; a primitive aging out is a lifecycle event to handle."
+      "The durable anchor of identity is the <b>signing key</b>, not a registry entry, hostname, or project label. So <b>key rotation is a normal lifecycle event</b>, not a protocol reset \u2014 identity continuity follows current keys and their replacement history.",
+      "Expect <b>two identity layers</b>: durable identity anchor (keys) and user-facing presentation (names, handles, avatars). Presentation can travel between clients for human continuity, but <b>portability isn't identity proof</b> \u2014 a friendly From: label is a hint, never proof of who's really speaking. And don't hardcode one crypto algorithm forever; a primitive aging out is a lifecycle event to handle."
     ],
     analogy:"A signature you can re-issue, not a username. If your handwriting changes you note the change \u2014 you don't become a different legal person. The display name is just the label on the mailbox.",
     q:"What's the durable anchor of identity in PromiseGrid?",
@@ -295,8 +301,8 @@ const LESSONS = [
       "The signing key and its rotation history",
       "The hostname the app runs on"],
     correct:2,
-    why:"Yes. Keys (and their replacement history) carry durable authority. Names and avatars are presentation hints only.",
-    nudge:"Two layers \u2014 keys (authority) and labels (presentation). The durable one is the key, which can rotate without resetting identity."
+    why:"Yes. Keys (and their replacement history) carry durable identity anchor. Names and avatars are presentation hints only.",
+    nudge:"Two layers \u2014 keys (identity continuity) and labels (presentation). The durable one is the key, which can rotate without resetting identity."
   },
   {
     tag:"Trust", icon:"\uD83D\uDCD2",
@@ -304,9 +310,9 @@ const LESSONS = [
     plain:"No global reputation score. Track kept/broken/open promises locally, per kind of promise.",
     body:[
       "Don't model trust as one global scalar attached to identity. A peer can be <b>reliable for one kind of promise and unreliable for another</b>.",
-      "Keep a <b>local trust ledger</b> of kept, broken, and still-open promise evidence, organized by burden and context. PromiseGrid trust is \u201cwhat has this peer done, in this context\u201d \u2014 not a universal \u201cgood node\u201d badge handed down from anywhere."
+      "Keep a <b>local trust ledger</b> of kept, broken, and still-open promise records, organized by burden and context. PromiseGrid trust is \u201cwhat has this peer done, in this context\u201d \u2014 not a universal \u201cgood node\u201d badge handed down from anywhere."
     ],
-    analogy:"Your own notes on which contractors are great at plumbing but flaky on deadlines \u2014 kept per skill, from your own experience. There's no city-wide rating that decides it for you.",
+    analogy:"Your own notes on which people are great at plumbing but unreliable on deadlines \u2014 kept per skill, from your own experience. There's no city-wide rating that decides it for you.",
     q:"How should an app model peer trust?",
     opts:["One global reputation score per identity",
       "A local ledger of kept/broken/open promises, tracked per promise type",
@@ -319,38 +325,38 @@ const LESSONS = [
   {
     tag:"Discovery", icon:"\uD83D\uDDFA\uFE0F",
     title:"There's no central registry",
-    plain:"Build a local view from the specs you hold, the conformance claims you've seen, and peers you trust.",
+    plain:"Build a local view from the specs you hold, your local pCID registrations, and peers you trust.",
     body:[
-      "Don't expect a central registry to tell your app what every pCID means or which peers are authoritative. Each app builds a <b>local view</b> from the specs it holds, the conformance claims it's seen, and the peers it trusts enough to import.",
-      "The system can converge on shared understanding through <b>exchanged evidence</b> \u2014 but that's made of local pCID knowledge and local trust, not one global directory. And bootstrap/rendezvous (how peers first find each other) are spec- and host-dependent: don't improvise discovery and then quietly call it PromiseGrid."
+      "Don't expect a central registry to tell your app what every pCID means or which peers are trusted. Each app builds a <b>local view</b> from the specs it holds, the pCIDs its roles register with the local kernel, and the peers it trusts enough to learn from.",
+      "The system can converge on shared understanding through <b>exchanged promise history</b> \u2014 but that's made of local pCID knowledge and local trust, not one global directory. How or whether apps publish supported pCIDs beyond local registration is still unresolved, so don't improvise discovery and then quietly call it PromiseGrid."
     ],
     analogy:"Word-of-mouth and your own address book, not a phone directory run by one company. Everyone's map is built from who they've actually dealt with.",
     q:"Where does an app learn what pCIDs mean and which peers to trust?",
     opts:["A global registry every app queries",
-      "Locally \u2014 from specs it holds, conformance claims it's seen, and peers it trusts",
+      "Locally \u2014 from specs it holds, pCIDs registered with its local kernel, and peers it trusts",
       "From the kernel's built-in directory",
       "It's assigned at install time"],
     correct:1,
-    why:"Yes \u2014 it's a <b>local view</b>, converging through exchanged evidence rather than one authoritative directory.",
-    nudge:"No central directory exists. Each app assembles its own picture from specs, claims, and trusted peers."
+    why:"Yes \u2014 it's a <b>local view</b>, converging through exchanged promise history rather than one single trusted directory.",
+    nudge:"No central directory exists. Each app assembles its own picture from specs, local pCID registrations, and trusted peers."
   },
   {
     tag:"Architecture", icon:"\uD83E\uDDF1",
-    title:"Draw the boundary cleanly",
-    plain:"The PromiseGrid-facing part claims a spec. The rest is ordinary internal code you can change freely.",
+    title:"Draw the responsibility split cleanly",
+    plain:"The PromiseGrid-facing part implements named specs and registers handled pCIDs. The rest is ordinary internal code.",
     body:[
-      "Resist rebranding your whole app as \u201cPromiseGrid.\u201d The <b>PG-facing side</b> is the part that claims a named spec, interprets payloads by that spec's rules, honors its capability/witness logic, and publishes conformance claims. The <b>internal side</b> \u2014 engine, cache shape, UI, scheduling, helper processes \u2014 you can change without touching the contract.",
-      "Also: one app may need <b>several protocols</b>. Sync, presence, access control, and publication don't have to collapse into one pCID just because one product surface exposes them together. If they have different payloads, authority, or lifecycles, name them as separate protocols and explain how you combine them."
+      "Resist rebranding your whole app as \u201cPromiseGrid.\u201d The <b>PG-facing side</b> is the part that implements a named spec, interprets payloads by that spec's rules, honors its capability and broken-promise-report logic, and registers handled pCIDs with the local kernel. The <b>internal side</b> \u2014 engine, cache shape, UI, scheduling, helper processes \u2014 you can change without changing the shared spec-facing behavior.",
+      "Also: one app may need <b>several protocols</b>. Sync, presence, access control, and publication don't have to collapse into one pCID just because one product surface exposes them together. If they have different payloads, identity rules, or lifecycles, name them as separate protocols and explain how you combine them."
     ],
-    analogy:"A building's load-bearing walls vs. the furniture. The spec-facing contract is structural and shared; your internal plumbing is furniture you can rearrange anytime.",
+    analogy:"A building's load-bearing walls vs. the furniture. The spec-facing behavior is structural and shared; your internal plumbing is furniture you can rearrange anytime.",
     q:"Which part of your app is the \u201cPromiseGrid-facing\u201d side?",
     opts:["Everything \u2014 the whole app must become PromiseGrid",
-      "Only the part that claims a named spec, interprets its payloads, and publishes conformance",
+      "Only the part that implements a named spec, interprets its payloads, and registers handled pCIDs locally",
       "Just the user interface",
       "The database"],
     correct:1,
-    why:"Right. Keep the contract boundary explicit; leave purely local machinery local \u2014 and split distinct concerns into distinct pCIDs.",
-    nudge:"Only the spec-claiming, payload-interpreting, conformance-publishing part is PG-facing. The rest stays ordinary code."
+    why:"Right. Keep the spec-facing responsibility explicit; leave purely local machinery local \u2014 and split distinct concerns into distinct pCIDs.",
+    nudge:"Only the spec-implementing, payload-interpreting, locally registered part is PG-facing. The rest stays ordinary code."
   },
   {
     tag:"Persistence", icon:"\uD83D\uDDC3\uFE0F",
@@ -371,22 +377,22 @@ const LESSONS = [
     nudge:"History is append-only. Improve by adding superseding artifacts; never edit old bytes to pretend they meant something new."
   },
   {
-    tag:"Conformance", icon:"\uD83D\uDCDD",
-    title:"Say what you speak",
-    plain:"Your CHANGELOG.md names the spec doc-CIDs you implement, the scope, and whether anything broke.",
+    tag:"Local Registration", icon:"\uD83D\uDCDD",
+    title:"Register what you handle",
+    plain:"Your app registers the pCIDs it handles with the local kernel; public support publication is unresolved.",
     body:[
-      "Conformance claims are how your implementation tells adopters what it believes it speaks. Put them in your <b>CHANGELOG.md</b>, naming the upstream spec <b>doc-CIDs</b> you claim to conform to \u2014 so others can check whether your code matches the frozen spec they intend to use.",
-      "The current entry shape: <span class='term'>claim</span> (implements / partially-implements / extends / deprecates), <span class='term'>spec</span> (the doc-CID), <span class='term'>scope</span> (full / partial), <span class='term'>breaking-change</span> (true/false), and <span class='term'>notes</span>. If your app has several components, claim per component \u2014 don't hide different pieces behind one vague app-wide label."
+      "The concrete mechanism today is local: when an app or protocol role registers with the kernel, it registers the <b>pCIDs it handles</b>. That is how the local kernel knows which role should receive messages for a named protocol.",
+      "There is currently <b>no settled plan</b> for whether or how a node or app explicitly publishes the pCIDs it supports to others. Keep compatibility claims tied to frozen specs by pCID, but don't teach any public support-publication mechanism as settled."
     ],
-    analogy:"A nutrition label that names exactly which standard it's measured against. Adopters can verify the claim instead of trusting the brand name.",
-    q:"How do you declare which spec your implementation follows?",
-    opts:["A conformance claim in CHANGELOG.md naming the spec doc-CID, scope, and breaking-change status",
+    analogy:"A building directory at the front desk: locally it says which office handles which kind of mail. It is useful for routing inside the building, but it is not a public standards registry.",
+    q:"How do you declare which protocol messages your local role handles?",
+    opts:["Register the handled pCIDs when the app or protocol role registers with the local kernel",
       "A comment in the source code",
-      "By registering with a central authority",
+      "By registering with a central registry",
       "You don't \u2014 peers infer it from your behavior"],
     correct:0,
-    why:"Yes. A <b>CHANGELOG conformance entry</b> makes compatibility auditable instead of leaving it implicit in a branch name or vibe.",
-    nudge:"It's a published claim, not an inference. The CHANGELOG names the doc-CID, the scope, and whether compatibility changed."
+    why:"Yes. The concrete mechanism today is <b>local kernel registration</b> for handled pCIDs; public support publication remains an unresolved design question.",
+    nudge:"Stay local. The role tells its own kernel which pCIDs it handles."
   },
   {
     tag:"Robustness", icon:"\uD83D\uDEE1\uFE0F",
@@ -394,7 +400,7 @@ const LESSONS = [
     plain:"Test beyond the happy path. Reject malformed input locally. Don't assume synced clocks.",
     body:[
       "PromiseGrid assumes hostile, lazy, or unreliable peers are <b>part of the environment</b>. Test against peers that drop obligations, send unsupported material, or validate sloppily \u2014 happy-path tests aren't enough when every new protocol surface adds attack surface and a trust burden.",
-      "Concretely: if bytes don't parse, fail verification, or violate the spec, <b>reject or quarantine them locally</b> \u2014 never silently reinterpret into \u201cclose enough.\u201d Don't assume a global clock (check what clock-bound rules the spec actually names). And keep <b>conformance-critical logic deterministic</b>; reserve randomness for explicitly optional strategies."
+      "Concretely: if bytes don't parse, fail verification, or violate the spec, <b>reject or quarantine them locally</b> \u2014 never silently reinterpret into \u201cclose enough.\u201d Don't assume a global clock (check what clock-bound rules the spec actually names). And keep <b>support-critical logic deterministic</b>; reserve randomness for explicitly optional strategies."
     ],
     analogy:"Designing a stadium gate assuming some people will push, sneak, or carry the wrong ticket \u2014 not assuming everyone queues politely.",
     q:"How should your app handle bytes that don't parse or violate the spec?",
@@ -530,16 +536,16 @@ function render(){
 const TERMS=[
   ["grid(...)","the envelope","Outer CBOR wrapper around every message (tag 0x67726964). Slot 0 names the protocol."],
   ["42(pCID)","the selector","Slot 0: a tagged pCID saying which protocol spec this message speaks."],
-  ["pCID","spec fingerprint","Content-addressed ID of a protocol spec. Same frozen pCID = same contract."],
+  ["pCID","spec fingerprint","Content-addressed ID of a protocol spec. Same frozen pCID = same spec."],
   ["doc-CID","document fingerprint","Content-addressed ID of one exact frozen document; cite it forever."],
   ["CBOR","the encoding","Concise Binary Object Representation \u2014 the binary format the envelope uses."],
   ["slot","a position","An ordered position in the grid vector. Slot 0 = selector; 1+ are spec-defined."],
   ["payload","the body","The protocol-defined content, anchored by default at slot 1."],
-  ["conformance claim","'I follow this'","Published statement (in CHANGELOG.md) of which spec doc-CID your code implements."],
+  ["handled pCID registration","'I handle this'","Local-kernel registration saying this app or protocol role handles messages for a pCID."],
   ["capability token","a promise to allow","A promise-bearing artifact with mint/redeem/revoke rules \u2014 not a bearer password."],
-  ["break-witness","broken-promise evidence","An assessable claim a promise wasn't kept; weighed locally, never an auto-verdict."],
-  ["signing key","identity anchor","The durable root of authority. Rotation is normal and doesn't reset identity."],
-  ["handler","protocol code","The unit that implements a protocol's rules for incoming/outgoing work."],
+  ["broken-promise report","broken-promise history","An assessable promise a promise wasn't kept; weighed locally, never an auto-verdict."],
+  ["signing key","identity anchor","The durable root of identity continuity. Rotation is normal and doesn't reset identity."],
+  ["protocol role","protocol code","The unit that implements a protocol's rules for incoming/outgoing work."],
   ["agent-ref","a participant ref","How a payload points at an agent (promiser/promisee) inside a promise."],
   ["DR-tuhaz","an open question","The upstream app-dev decision still open \u2014 why much here stays \u201cprovisional.\u201d"]
 ];
@@ -550,8 +556,8 @@ function renderDecoder(){
     <div class="card decoder">
       ${mastered?`<div class="finale" style="padding-top:8px">
           <div class="big">All thirteen rings \uD83C\uDF33</div>
-          <p>You can now write against PromiseGrid the way the guide intends: choose a spec, speak it by pCID, treat messages as promises with evidence, and publish what you conform to.</p>
-          <div class="next"><b>One honest reminder:</b> the App Dev section leans on <b>DR-tuhaz</b> being open \u2014 no frozen SDK, ABI, or universal message API yet. Treat the envelope shapes and token mechanics here as the current direction, not settled contract.<br><br><b>Last level:</b> <b>Kernel Devs</b> \u2014 porting the infrastructure itself (layered binding/session/message model, CAS, ingress). Want that trainer next?</div>
+          <p>You can now write against PromiseGrid the way the guide intends: choose a spec, speak it by pCID, treat messages as promises with local records, and register handled pCIDs with the local kernel.</p>
+          <div class="next"><b>One honest reminder:</b> the App Dev section leans on <b>DR-tuhaz</b> being open \u2014 no frozen SDK, ABI, or universal message API yet. Treat the envelope shapes and token mechanics here as the current direction, not settled protocol.<br><br><b>Last level:</b> <b>Kernel Devs</b> \u2014 porting the infrastructure itself (layered transport-adapter/session/message model, CAS, ingress). Want that trainer next?</div>
         </div>`:''}
       <h3>Jargon decoder</h3>
       <p class="sub">Tap any term to flip it into plain words. These are the app-dev ones the full guide leans on.</p>

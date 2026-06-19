@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pg-note/v0 — receive &amp; dispatch</title>
+<title>pg-note/v0 — receive &amp; recognize</title>
 <style>
   :root{
     --ground:#0e1419; --panel:#141c24; --panel2:#0b1116;
@@ -83,11 +83,14 @@
   .why .fp{font-family:var(--mono);color:var(--reject);word-break:break-all}
   .ev{font-size:11px;color:var(--faint);margin-top:6px}
 </style>
+<script src="shared/site-header.js"></script>
+<script src="shared/cbor-diagnostics.js"></script>
 </head>
 <body>
+<pg-site-header></pg-site-header>
 <div class="wrap">
-  <h1>pg-note/v0 · receive &amp; dispatch</h1>
-  <p class="sub">Spec section 4, running. Slot 0 carries the protocol fingerprint; the receiver routes on it.</p>
+  <h1>pg-note/v0 · receive &amp; recognize</h1>
+  <p class="sub">Spec section 4, running. Slot 0 carries the protocol fingerprint; the receiver recognizes it.</p>
 
   <div class="strip">
     <div class="row"><span class="k">protocol</span><span class="v">pg-note/v0</span></div>
@@ -115,15 +118,16 @@
       <span class="lgf">framing</span><span class="lg0">slot 0 · pCID</span><span class="lg1">slot 1 · note</span>
     </div>
   </div>
+  <div id="diagnostics"></div>
 
   <div class="log">
-    <div class="cap">dispatch log · incoming</div>
+    <div class="cap">recognition log · incoming</div>
     <div id="log"><div class="empty">No messages yet. Send one, or open a second tab.</div></div>
   </div>
 </div>
 
 <script>
-/* ---------- minimal CBOR for [ tag42(bstr cid), {from,body} ] ---------- */
+/* ---------- minimal CBOR for grid([ tag42(bstr cid), {from,body} ]) ---------- */
 function hdr(m,n){const t=m<<5;
   if(n<24)return[t|n]; if(n<256)return[t|24,n];
   if(n<65536)return[t|25,(n>>8)&255,n&255];
@@ -133,8 +137,9 @@ const encBytes=u=>[...hdr(2,u.length),...u];
 const encTag=(t,inner)=>[...hdr(6,t),...inner];
 const encMap=p=>{let o=hdr(5,p.length);for(const[k,v]of p)o=o.concat(encText(k),encText(v));return o;};
 const encArr=it=>{let o=hdr(4,it.length);for(const x of it)o=o.concat(x);return o;};
+const GRID_TAG = 0x67726964; // decimal 1735551332: CBOR tag for grid(...).
 function buildEnvelope(cid,from,body){
-  return new Uint8Array(encArr([ encTag(42,encBytes(cid)), encMap([["from",from],["body",body]]) ]));
+  return new Uint8Array(encTag(GRID_TAG, encArr([ encTag(42,encBytes(cid)), encMap([["from",from],["body",body]]) ])));
 }
 function decode(u8){let i=0;
   function head(){const b=u8[i++],m=b>>5,a=b&31;let n;
@@ -182,6 +187,7 @@ function send(){
   const cid  = document.getElementById("corrupt").checked ? WRONG : CID;
   const env  = buildEnvelope(cid, ME, body);
   renderWire(env);
+  renderDiagnostics(env);
   if(bc) bc.postMessage(env);            // other tabs receive; this tab does not hear itself
 }
 function loopback(){
@@ -189,21 +195,23 @@ function loopback(){
   const cid  = document.getElementById("corrupt").checked ? WRONG : CID;
   const env  = buildEnvelope(cid, ME, body);
   renderWire(env);
+  renderDiagnostics(env);
   handleIncoming(env, "loopback");        // feed straight into our own receiver
 }
 
-/* ---------- receive & dispatch  (spec section 4) ---------- */
+/* ---------- receive & recognize  (spec section 4) ---------- */
 function handleIncoming(u8, via){
-  let env;
-  try { env = decode(u8); } catch(e){ return logReject(null, "could not decode envelope", via); }
+  let wrapped;
+  try { wrapped = decode(u8); } catch(e){ return logReject(null, "could not decode envelope", via); }
 
-  // shape check: array[2], slot0 = tag 42 wrapping bytes
+  // shape check: grid tag wrapping array[2], slot0 = tag 42 wrapping bytes
+  const env = wrapped && wrapped.__tag === GRID_TAG ? wrapped.value : null;
   const slot0 = env && env[0];
   if(!Array.isArray(env) || env.length!==2 || !slot0 || slot0.__tag!==42){
-    return logReject(null, "not a pg envelope (slot 0 is not tag 42)", via);
+    return logReject(null, "not a grid envelope (grid tag plus slot 0 tag 42)", via);
   }
-  const seenCid = slot0.value;            // 1. read slot 0
-  if(eqBytes(seenCid, CID)){              // 2. matches this protocol's pCID -> dispatch
+  const seenCid = slot0.value;            // 1. read slot 0 inside grid([...])
+  if(eqBytes(seenCid, CID)){              // 2. matches this protocol's pCID -> recognition
     logDeliver(env[1], via);
   } else {                                // 3. otherwise ignore
     logReject(pcidOf(seenCid), "unknown protocol", via);
@@ -212,11 +220,17 @@ function handleIncoming(u8, via){
 
 /* ---------- rendering ---------- */
 function renderWire(u8){
-  // 0:1 array header | 1:5 slot0 framing | 5:41 cid bytes | 41: slot1
+  // 0:5 grid tag | 5:6 array header | 6:10 slot0 framing | 10:46 cid bytes | 46: slot1
   const seg=(from,to,cls)=>{let s="";for(let k=from;k<to&&k<u8.length;k++)
     s+=`<span class="b ${cls}">${u8[k].toString(16).padStart(2,"0")}</span>`;return s;};
   document.getElementById("wire").innerHTML =
-    seg(0,1,"seg-frame")+seg(1,5,"seg-frame")+seg(5,41,"seg-slot0")+seg(41,u8.length,"seg-slot1");
+    seg(0,6,"seg-frame")+seg(6,10,"seg-frame")+seg(10,46,"seg-slot0")+seg(46,u8.length,"seg-slot1");
+}
+function renderDiagnostics(u8){
+  // Intent: Keep the live envelope display paired with a decoded CBOR
+  // explanation for whichever envelope this node most recently observed.
+  // Source: DI-motuf
+  PGCBOR.render(document.getElementById("diagnostics"), u8, { pcidOf });
 }
 function logRow(html){
   const log=document.getElementById("log");
@@ -229,17 +243,22 @@ function logDeliver(note, via){
   logRow(
     `<div class="verdict v-match">&#10003; delivered &middot; pCID matched</div>`+
     `<div class="note"><span class="from">${esc(note.from)} &rarr;</span> ${esc(note.body)}</div>`+
-    `<div class="ev">recorded as evidence &middot; via ${via}</div>`);
+    `<div class="ev">recorded as a local event &middot; via ${via}</div>`);
 }
 function logReject(seenPcid, why, via){
   logRow(
     `<div class="verdict v-reject">&#10005; ignored &middot; ${esc(why)}</div>`+
     (seenPcid?`<div class="why">slot 0 carried <span class="fp">${esc(seenPcid)}</span></div>`:"")+
-    `<div class="ev">no dispatch &middot; via ${via}</div>`);
+    `<div class="ev">no recognition &middot; via ${via}</div>`);
 }
 
 /* ---------- wiring ---------- */
-if(bc) bc.onmessage = e => handleIncoming(new Uint8Array(e.data), "grid");
+if(bc) bc.onmessage = e => {
+  const incoming = new Uint8Array(e.data);
+  renderWire(incoming);
+  renderDiagnostics(incoming);
+  handleIncoming(incoming, "grid");
+};
 document.getElementById("send").onclick = send;
 document.getElementById("loop").onclick = loopback;
 document.getElementById("body").addEventListener("keydown", e=>{ if(e.key==="Enter") send(); });

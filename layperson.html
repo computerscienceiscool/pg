@@ -165,6 +165,9 @@
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
 </style>
 
+<script src="shared/site-header.js"></script>
+<pg-site-header></pg-site-header>
+
 <div class="wrap">
   <header>
     <div class="rings" id="rings" aria-hidden="true"></div>
@@ -241,12 +244,12 @@ const LESSONS = [
     title:"No one in charge of everything",
     plain:"No single company, server, or permanent boss is required to keep the group alive.",
     body:[
-      "\u201cNo central authority\u201d means the system isn't supposed to depend on one company, one server, one registry, or one permanent leadership seat to keep going.",
+      "\u201cNo central registry\u201d means the system isn't supposed to depend on one company, one server, one registry, or one permanent leadership seat to keep going.",
       "It does <b>not</b> mean conflict disappears. It means disagreements, mistakes, and leadership changes have to be <b>survivable</b> — without everyone losing the shared record when the center wobbles."
     ],
     icon:"🕸️",
     analogy:"A potluck instead of a restaurant. There's no single kitchen that, if it closes, ends dinner forever. Everyone holds a piece, so no one closure ends the meal.",
-    q:"\u201cNo central authority\u201d mainly means…",
+    q:"\u201cNo central registry\u201d mainly means…",
     opts:[
       "There are no rules at all",
       "Conflict never happens",
@@ -271,7 +274,7 @@ const LESSONS = [
     opts:[
       "A bug that corrupts the data",
       "A normal, traceable way for a community to split and both sides continue",
-      "Something only the central authority can approve",
+      "Something only the central registry can approve",
       "A permanent ban on the losing side"
     ],
     correct:1,
@@ -323,22 +326,22 @@ const LESSONS = [
   {
     tag:"How things talk",
     title:"Promises, not just commands",
-    plain:"The system tracks promises and the evidence around them — not just 'do this now.'",
+    plain:"The system tracks promises and their kept/broken history — not just 'do this now.'",
     body:[
-      "Ordinary software mostly does request-and-reply: call a function, get an answer, done. PromiseGrid is shaped differently. Participants make, receive, and <b>assess promises</b>, and keep the evidence about whether those promises were kept.",
+      "Ordinary software mostly does request-and-reply: call a function, get an answer, done. PromiseGrid is shaped differently. Participants make, receive, and <b>assess promises</b>, and keep local records about whether those promises were kept.",
       "So a message can matter <b>long after</b> it arrives — it might become part of a later dispute, an audit, or a trust judgment. The question isn't only 'did it work right now?' but 'what was promised, under what conditions, and what happened?'"
     ],
     icon:"📜",
-    analogy:"A signed IOU versus shouting 'give me $5!' The IOU can be checked, disputed, and weighed as evidence months later. The shout vanishes the moment it's heard.",
+    analogy:"A signed IOU versus shouting 'give me $5!' The IOU can be checked, disputed, and weighed as local records months later. The shout vanishes the moment it's heard.",
     q:"How is PromiseGrid's model different from ordinary request/reply?",
     opts:[
       "It's faster",
-      "It's about making and later assessing promises, keeping evidence over time",
+      "It's about making and later assessing promises, keeping kept/broken history over time",
       "It doesn't use messages at all",
       "It only works offline"
     ],
     correct:1,
-    why:"Right. Think <b>obligations + evidence over time</b>, not just instant call-and-response. This is the bridge into the App Dev mindset.",
+    why:"Right. Think <b>promises + kept/broken history over time</b>, not just instant call-and-response. This is the bridge into the App Dev mindset.",
     nudge:"The key shift is time. A promise (and the proof around it) can still matter long after the moment it was made."
   },
   {
@@ -347,11 +350,11 @@ const LESSONS = [
     plain:"Records keep a stable identity; leadership can rotate or be inherited without confusing everyone.",
     body:[
       "Some things must stay recognizable even when a website, vendor, or file location changes. And someone has to be able to <b>hand off</b> responsibility without making the whole history ambiguous.",
-      "PromiseGrid is built so records keep a durable identity and authority can <b>rotate, continue, or be inherited</b> in a way that stays legible to everyone who depends on it."
+      "PromiseGrid is built so records keep a durable identity and responsibility can <b>rotate, continue, or be inherited</b> in a way that stays legible to everyone who depends on it."
     ],
     icon:"🏃",
     analogy:"A relay race. The runners change hands, but the baton — and the continuity of the race — doesn't drop. The handoff is the whole skill.",
-    q:"What does 'durable identity and handoff of authority' protect?",
+    q:"What does 'durable identity and handoff of responsibility' protect?",
     opts:[
       "The ability to change leadership without losing a clear, continuous history",
       "The founder's right to stay in charge forever",
@@ -368,19 +371,19 @@ const LESSONS = [
     plain:"Trust the 'frozen' specs. Treat everything else as orientation, not gospel.",
     body:[
       "Big chunks of PromiseGrid are still being figured out. The guide is careful to separate two things: <span class='term'>frozen</span> specs (stable, citable by their pCID fingerprint) versus <span class='term'>draft</span> work — experiments, simulations, thought experiments, TODOs.",
-      "The rule for a reader: <b>frozen specs are the authority</b> for the protocol they name. Drafts and simulations are useful background and direction — but never treat them as a settled contract."
+      "The rule for a reader: <b>frozen specs are the source of truth</b> for the protocol they name. Drafts and simulations are useful background and direction — but never treat them as a settled protocol."
     ],
     icon:"🧊",
     analogy:"A passed law versus a bill still being debated. You can build on the law and cite it. The working draft is just where the thinking is happening — don't quote it as if it's final.",
     q:"When the guide shows a simulation or draft, you should…",
     opts:[
-      "Treat it as the final, binding rule",
+      "Treat it as the final, transport adapter rule",
       "Ignore it completely",
       "Read it as provisional orientation, and rely on frozen specs for what's actually settled",
       "Assume it's a mistake"
     ],
     correct:2,
-    why:"Perfect. <b>Frozen = authority, draft = orientation.</b> Knowing which is which is half of reading this guide well.",
+    why:"Perfect. <b>Frozen = source of truth, draft = orientation.</b> Knowing which is which is half of reading this guide well.",
     nudge:"Two buckets: frozen (cite it, build on it) and draft (learn from it, don't lean on it). Drafts aren't wrong — just not final."
   }
 ];
@@ -535,21 +538,23 @@ function render(){
 }
 
 /* ---------- decoder ---------- */
+// Intent: Keep plain-language glossary aligned with local handled-pCID
+// registration; public pCID support publication is unresolved. Source: DI-piput
 const TERMS=[
   ["pCID","spec fingerprint","The content-based ID of a protocol spec. Same fingerprint = same exact spec."],
   ["doc-CID","document fingerprint","The content-based ID of one exact frozen document."],
   ["agent","a participant","Someone or something that can make, receive, or judge promises."],
-  ["promise","a trackable claim","A protocol-governed commitment that can be checked later."],
+  ["promise","a trackable promise","A protocol-governed commitment that can be checked later."],
   ["fork","a peaceful split","A sibling path when a group disagrees — traceable, not a failure."],
-  ["kernel","the host engine","The infrastructure that runs the protocol handlers underneath apps."],
+  ["kernel","the host engine","The infrastructure that runs the protocol roles underneath apps."],
   ["port","a build of the engine","An implementation of that infrastructure on a specific platform."],
   ["CAS","content store","Content-addressed storage: data is filed and found by its own bytes."],
   ["chunk","a stored piece","One content-addressed piece of message data inside CAS."],
-  ["conformance claim","an 'I follow this' note","An implementation's explicit statement of which spec it obeys."],
+  ["handled pCID registration","an 'I handle this' note","A local-kernel record saying which pCID an app or protocol role handles."],
   ["feed","a delivery lane","A lower layer that moves authenticated messages over some channel."],
   ["substrate","the ground it runs on","The underlying host or transport a feed depends on."],
-  ["ingress","the front door","The path by which messages first enter the host that routes them."],
-  ["frozen vs draft","final vs working","Frozen = stable, citable authority. Draft = experiment / orientation."]
+  ["ingress","the front door","The path by which messages first enter the host that hands off them."],
+  ["frozen vs draft","final vs working","Frozen = stable, citable source of truth. Draft = experiment / orientation."]
 ];
 function renderDecoder(){
   const stage=document.getElementById('stage');

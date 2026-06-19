@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The dispatch — pg-note/v0</title>
+<title>Protocol recognition — pg-note/v0</title>
 <style>
   :root{
     --ground:#0e1419; --panel:#141c24; --panel2:#0b1116;
@@ -93,10 +93,13 @@
   .note-aside{font-size:12.5px;color:var(--faint);margin-top:26px;border-top:1px solid var(--line);
     padding-top:16px}
 </style>
+<script src="shared/site-header.js"></script>
+<script src="shared/cbor-diagnostics.js"></script>
 </head>
 <body>
+<pg-site-header></pg-site-header>
 <div class="wrap">
-  <h1>The dispatch</h1>
+  <h1>Protocol recognition</h1>
   <p class="sub">What a pg-note/v0 node does the moment bytes land on the wire. This is spec section 4, in plain terms.</p>
 
   <div class="strip">
@@ -113,10 +116,11 @@
     </div>
   </div>
   <p style="font-size:13px;color:var(--dim);margin:10px 2px 0">
-    Every message is a two-part envelope. The dispatcher cares about <b style="color:var(--slot0)">slot 0</b> first — it decides whether slot 1 is even worth reading.
+    Every message is a <code>grid(...)</code>-tagged envelope whose value is a two-part array. The pCID recognizer cares about <b style="color:var(--slot0)">slot 0</b> first — it decides whether slot 1 is even worth reading.
   </p>
+  <div id="diagnostics"></div>
 
-  <h2>The dispatch, step by step</h2>
+  <h2>Protocol recognition, step by step</h2>
   <ol class="steps">
     <li>
       <div class="st-h">Decode the bytes</div>
@@ -124,19 +128,19 @@
     </li>
     <li>
       <div class="st-h">Check the shape</div>
-      <div class="st-b">A real envelope is a two-element array whose <code>slot 0</code> is CBOR tag&nbsp;42 wrapping a byte string. Anything else isn't this protocol's envelope, so it's set aside.</div>
+      <div class="st-b">A real envelope is CBOR tag <code>grid</code> wrapping a two-element array whose <code>slot 0</code> is CBOR tag&nbsp;42 wrapping a byte string. Anything else isn't this protocol's envelope, so it's set aside.</div>
     </li>
     <li>
       <div class="st-h">Read slot 0</div>
-      <div class="st-b">The byte string inside tag&nbsp;42 is a pCID — a content fingerprint. This is the only field routing depends on. The note in slot&nbsp;1 has still not been looked at.</div>
+      <div class="st-b">The byte string inside tag&nbsp;42 is a pCID — a content fingerprint. This is the only field protocol recognition depends on. The note in slot&nbsp;1 has still not been looked at.</div>
     </li>
     <li>
       <div class="st-h">Compare the fingerprint</div>
-      <div class="st-b">Does slot 0's pCID equal this protocol's own pCID — the frozen hash of <code>pg-note-v0.md</code>? It's a plain byte-for-byte match against a constant the node already holds. No lookup, no registry, no authority consulted.</div>
+      <div class="st-b">Does slot 0's pCID equal this protocol's own pCID — the frozen hash of <code>pg-note-v0.md</code>? It's a plain byte-for-byte match against a constant the node already holds. No lookup, no registry, no outside service consulted.</div>
       <div class="fork">
         <div class="outcome match">
           <div class="lead">Equal &rarr; deliver</div>
-          <div class="d">Hand slot 1 to the note handler, and record the delivery as evidence.</div>
+          <div class="d">Hand slot 1 to the note protocol role, and record a local delivery event.</div>
         </div>
         <div class="outcome ignore">
           <div class="lead">Different &rarr; ignore</div>
@@ -145,7 +149,7 @@
       </div>
     </li>
   </ol>
-  <p style="font-size:13.5px;color:#c3d2db;margin:4px 2px 0">That's the entire dispatcher. It routes on the fingerprint, not the content.</p>
+  <p style="font-size:13.5px;color:#c3d2db;margin:4px 2px 0">That's the entire pCID recognizer. It recognizes the protocol fingerprint, not the content.</p>
 
   <h2>The three things you'll see in the log</h2>
   <div class="verdicts">
@@ -156,32 +160,33 @@
 
   <h2>Why it's shaped this way</h2>
   <div class="why">
-    <div class="item"><b>Fingerprint first.</b><span>Slot 1 is never interpreted until slot 0 has earned it. A node acts only on contracts it recognizes.</span></div>
-    <div class="item"><b>Ignore, don't crash.</b><span>An unrecognized protocol is a quiet non-event, not an error. Unknown or hostile traffic simply doesn't route.</span></div>
-    <div class="item"><b>Everything leaves a trace.</b><span>Delivered or ignored, each outcome is recorded as evidence — an append-only record you can read back later.</span></div>
-    <div class="item"><b>No central authority.</b><span>The decision is local: a byte comparison against a constant. Nobody is asked for permission; no registry says what's valid.</span></div>
+    <div class="item"><b>Fingerprint first.</b><span>Slot 1 is never interpreted until slot 0 has earned it. A node acts only on protocol specs it recognizes.</span></div>
+    <div class="item"><b>Ignore, don't crash.</b><span>An unrecognized protocol is a quiet non-event, not an error. Unknown or hostile traffic is simply set aside.</span></div>
+    <div class="item"><b>Everything leaves a trace.</b><span>Delivered or ignored, each outcome is recorded as a local event — an append-only record you can read back later.</span></div>
+    <div class="item"><b>No central registry.</b><span>The decision is local: a byte comparison against a constant. No registry or outside service says what is valid.</span></div>
   </div>
 
   <div class="cta">
     <h3>See it run</h3>
-    <p>The dispatcher above is live in the demo — watch slot 0 decide routing in real time.</p>
+    <p>The pCID recognizer above is live in the demo — watch slot 0 decide protocol handoff in real time.</p>
     <a class="open" href="pg-note-dispatch.html" target="_blank" rel="noopener">Open the live demo &rarr;</a>
     <ul class="try">
       <li><span class="n">1</span><span>Hit <b>Loopback once</b> — feed an envelope into the node's own receiver and watch it deliver.</span></li>
       <li><span class="n">2</span><span>Tick <b>corrupt the pCID</b>, then loopback again — slot 0 no longer matches, and the message is ignored.</span></li>
-      <li><span class="n">3</span><span>Open the demo in <b>two browser tabs</b> — each is its own node; send from one and watch the other dispatch it.</span></li>
+      <li><span class="n">3</span><span>Open the demo in <b>two browser tabs</b> — each is its own node; send from one and watch the other recognize it.</span></li>
     </ul>
   </div>
 
   <p class="note-aside">
-    What the dispatch deliberately doesn't decide yet: <i>who</i> sent the note. The <code>from</code> field is just a label anyone could claim. Judging a sender — signatures, promises, broken-promise evidence — is the next layer, and it sits on top of exactly this routing step.
+    What the recognition deliberately doesn't decide yet: <i>who</i> sent the note. The <code>from</code> field is just a label anyone could write. Judging a sender — signatures, promises, broken-promise history — is the next layer, and it sits on top of exactly this protocol handoff step.
   </p>
 </div>
 
 <script>
-  // render the verified sample envelope, slot 0 lit:
-  // 82 | d82a5824 | <36 cid bytes> | a2 <note map>
+  // render the verified sample grid envelope, slot 0 lit:
+  // da67726964 | 82 | d82a5824 | <36 cid bytes> | a2 <note map>
   const segs = [
+    ["da67726964","seg-frame"],
     ["82","seg-frame"],
     ["d82a5824","seg-frame"],
     ["015512203f673d0570d4f0667047dc5ef131ca51a567ada5cd03fa5b82ce4ea860d31f43","seg-slot0"],
@@ -190,6 +195,12 @@
   document.getElementById("sample").innerHTML = segs.map(([h,c])=>
     h.match(/../g).map(b=>`<span class="b ${c}">${b}</span>`).join("")
   ).join("");
+  // Intent: Pair the static wire sample with a byte-level CBOR explanation so
+  // readers can connect each encoded byte to its decoded role. Source: DI-motuf
+  const sampleHex = segs.map(([h])=>h).join("");
+  const sampleBytes = new Uint8Array(sampleHex.match(/../g).map(h=>parseInt(h,16)));
+  const samplePcid = "bafkreib7m46qk4gu6bthar64l3ytdssruvt23jonap5fxawoj2ugbuy7im";
+  PGCBOR.render(document.getElementById("diagnostics"), sampleBytes, { pcidOf: () => samplePcid });
 </script>
 </body>
 </html>

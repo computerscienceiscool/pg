@@ -81,6 +81,9 @@
   @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
 </style>
 
+<script src="shared/site-header.js"></script>
+<pg-site-header current="home"></pg-site-header>
+
 <div class="wrap">
   <div class="hero">
     <svg class="emblem" width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
@@ -107,15 +110,17 @@
       <div class="lv-rail"></div>
       <div class="lv-top"><span class="lv-num">LEVEL 1 · LAYPERSON</span><span class="lv-count">9 concepts</span></div>
       <h2 class="lv-title">The plain-English picture</h2>
-      <p class="lv-desc">What PromiseGrid is and why a community would want it — no jargon. The big idea, the 100-year horizon, no central authority, forking, content-addressed identity, and trust.</p>
+      <p class="lv-desc">What PromiseGrid is and why a community would want it — no jargon. The big idea, the 100-year horizon, no central registry, forking, content-addressed identity, and trust.</p>
       <span class="lv-go">Start here →</span>
     </a>
 
+    <!-- Intent: Keep Level 2 summary aligned with local handled-pCID registration;
+         there is no settled public pCID support-publication mechanism. Source: DI-piput -->
     <a class="level" href="app-dev.html">
       <div class="lv-rail"></div>
       <div class="lv-top"><span class="lv-num">LEVEL 2 · APP DEV</span><span class="lv-count">13 concepts</span></div>
       <h2 class="lv-title">Building grid apps</h2>
-      <p class="lv-desc">Writing against PromiseGrid: the grid envelope, promises vs. RPC, pCIDs, capability tokens, break-witnesses, signing-key identity, conformance claims, and building for hostile peers.</p>
+      <p class="lv-desc">Writing against PromiseGrid: the grid envelope, promises vs. RPC, pCIDs, capability tokens, broken-promise reports, signing-key identity, local handled-pCID registration, and building for hostile peers.</p>
       <span class="lv-go">Open Level 2 →</span>
     </a>
 
@@ -123,7 +128,7 @@
       <div class="lv-rail"></div>
       <div class="lv-top"><span class="lv-num">LEVEL 3 · KERNEL DEV</span><span class="lv-count">13 concepts</span></div>
       <h2 class="lv-title">Porting the grid</h2>
-      <p class="lv-desc">Hosting PromiseGrid on a new platform: the kernel as a role, the layered model, binding, CAS, ingress, the bytes-vs-judgment boundary, and stating your port's envelope honestly.</p>
+      <p class="lv-desc">Hosting PromiseGrid on a new platform: the kernel as a role, the layered model, transport adapter, CAS, ingress, the bytes-vs-judgment boundary, and stating your port's envelope honestly.</p>
       <span class="lv-go">Open Level 3 →</span>
     </a>
   </div>
@@ -132,7 +137,7 @@
     <b>New to this?</b> Start at Level 1 even if you're a developer — Level 2 leans on the layperson concepts
     (especially "promises, not commands"). Each level tracks its own progress and saves it in your browser.
     Much of the App Dev and Kernel Dev material is still provisional upstream (<code>DR-tuhaz</code>, <code>DR-davod</code>),
-    so treat the deeper levels as orientation, not frozen contract.
+    so treat the deeper levels as orientation, not frozen protocol.
   </div>
 
   <div class="section">
@@ -143,6 +148,12 @@
         <h2 class="mini-t">On the spot</h2>
         <p class="mini-d">Cold questions across all 35 concepts. Say your answer out loud before the reveal — the ones you blank on come back sooner.</p>
         <span class="mini-go">Drill it →</span>
+      </a>
+      <a class="mini" href="layperson-on-the-spot.html">
+        <div class="mini-k">Layperson recall</div>
+        <h2 class="mini-t">Plain-English drill</h2>
+        <p class="mini-d">Nine cold prompts for the Level 1 concepts only. Practice the explanation before moving into the app and kernel layers.</p>
+        <span class="mini-go">Practice Level 1 →</span>
       </a>
       <a class="mini" href="on-the-spot-audio.html">
         <div class="mini-k">Hands-free audio</div>
@@ -156,16 +167,16 @@
   <div class="section build">
     <div class="section-label">See it run · the build experiment</div>
     <div class="duo">
-      <a class="mini build" href="dispatch.html">
+      <a class="mini build" href="recognition.html">
         <div class="mini-k">Explainer</div>
-        <h2 class="mini-t">The dispatch</h2>
-        <p class="mini-d">How a node routes a message on its content fingerprint — the receive logic, spec section 4, in plain terms.</p>
+        <h2 class="mini-t">Protocol recognition</h2>
+        <p class="mini-d">How a node hands off a message on its content fingerprint — the receive logic, spec section 4, in plain terms.</p>
         <span class="mini-go">Read it →</span>
       </a>
       <a class="mini build" href="pg-note-dispatch.html">
         <div class="mini-k">Live demo</div>
         <h2 class="mini-t">Two tabs, one envelope</h2>
-        <p class="mini-d">Trade a real grid envelope between browser tabs and watch slot 0 decide routing in real time.</p>
+        <p class="mini-d">Trade a real grid envelope between browser tabs and watch slot 0 decide protocol handoff in real time.</p>
         <span class="mini-go">Open the demo →</span>
       </a>
     </div>

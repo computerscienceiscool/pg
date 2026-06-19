@@ -1,6 +1,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PromiseGrid — On the Spot</title>
+<title>PromiseGrid — Layperson On the Spot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -105,23 +105,17 @@
 <div class="wrap">
   <div class="top">
     <div>
-      <span class="pill">RECALL DRILL · SAY IT OUT LOUD</span>
-      <h1>On the <em>spot</em></h1>
-      <p class="sub">Someone just asked you, cold. Answer out loud before you reveal the model. The ones you blank on come back sooner.</p>
+      <span class="pill">LAYPERSON RECALL · SAY IT OUT LOUD</span>
+      <h1>Plain-English <em>drill</em></h1>
+      <p class="sub">Practice the nine Level 1 explanations cold. Answer out loud before you reveal the model.</p>
     </div>
     <div class="solid">
-      <span id="solidTxt">solid 0/35</span>
+      <span id="solidTxt">solid 0/9</span>
       <div class="bar"><i id="solidBar" style="width:0%"></i></div>
     </div>
   </div>
 
   <div class="controls">
-    <div class="seg" id="seg" role="group" aria-label="Filter by level">
-      <button data-f="all" class="on">All 35</button>
-      <button data-f="1">Layperson</button>
-      <button data-f="2">App Dev</button>
-      <button data-f="3">Kernel</button>
-    </div>
     <label class="toggle"><input type="checkbox" id="pressure" checked> pressure timer</label>
   </div>
 
@@ -129,13 +123,13 @@
 
   <div class="footer">
     Tip: actually speak the answer — even mutter it. Saying it is a different skill from knowing it.<br>
-    35 prompts across all three levels · <button class="reset" id="reset">reset my progress</button>
+    9 layperson prompts · <button class="reset" id="reset">reset my progress</button>
   </div>
 </div>
 
 <script>
 // lvl: 1=Layperson, 2=App Dev, 3=Kernel Dev
-// Intent: Keep quick-answer prompts aligned with the current support declaration
+// Intent: Keep copied prompt data aligned with the current support declaration
 // model: roles register handled pCIDs with the local kernel, while public pCID
 // support publication remains unresolved. Source: DI-piput
 const CONCEPTS = [
@@ -255,9 +249,11 @@ const LVL = {1:"Layperson",2:"App Dev",3:"Kernel Dev"};
 const N = CONCEPTS.length;
 const SOLID = 3;          // box >= SOLID counts as "solid"
 const MAXBOX = 4;
-const KEY = "pg_onthespot_v1";
+const KEY = "pg_layperson_onthespot_v1";
 let state = { boxes:{}, nailStreak:0 };
-let filter = "all";
+// Intent: Keep this page dedicated to Level 1 recall while preserving the
+// proven spacing and grading mechanics from the all-level drill. Source: DI-jizul
+let filter = "1";
 let pressure = true;
 let lastIdx = -1, curIdx = -1, revealed = false, timerId = null;
 let mem = {};
@@ -380,16 +376,6 @@ function grade(g){
   render();
 }
 
-// controls
-document.querySelectorAll('#seg button').forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));
-    btn.classList.add('on');
-    filter = btn.dataset.f;
-    lastIdx = -1;
-    render();
-  };
-});
 document.getElementById('pressure').onchange = e=>{
   pressure = e.target.checked;
   if(!revealed) render();

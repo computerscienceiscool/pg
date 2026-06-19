@@ -115,6 +115,9 @@
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
 </style>
 
+<script src="shared/site-header.js"></script>
+<pg-site-header></pg-site-header>
+
 <div class="wrap">
   <header>
     <div class="rings" id="rings" aria-hidden="true"></div>
@@ -141,38 +144,41 @@
 </div>
 
 <script>
+// Intent: Keep kernel-dev guidance aligned with the current support declaration
+// model: ports register handled pCIDs locally and do not rely on a settled
+// public support-publication mechanism. Source: DI-piput
 const LESSONS = [
   {
     tag:"Reframe", icon:"\uD83E\uDDE9",
     title:"\u201cKernel\u201d is a role, not a binary",
-    plain:"It's the infrastructure role that hosts the protocol stack and dispatches to handlers \u2014 not a program or an OS kernel.",
+    plain:"It's the infrastructure role that hosts the protocol stack and hands work to protocol-specific local roles \u2014 not a program or an OS kernel.",
     body:[
-      "Forget the OS-kernel image. In PromiseGrid, <b>kernel</b> means the infrastructure <i>role</i> that hosts the protocol stack, accepts the binding, session, and message responsibilities your port claims, and dispatches work to the handlers that implement those protocols.",
+      "Forget the OS-kernel image. In PromiseGrid, <b>kernel</b> means the infrastructure <i>role</i> that hosts the protocol stack, accepts transport-adapter, session, and message responsibilities your port promises, and hands protocol work to the protocol roles that implement those protocols.",
       "Any runtime that can carry those responsibilities coherently can play the role. So the kernel is best understood as a <b>porting boundary and a hosting responsibility</b> \u2014 not one mandatory binary, and not one fixed machine shape."
     ],
-    analogy:"Like \u201cthe host\u201d of an event \u2014 it's a job (greet, route guests, keep things running), not a specific person. Anyone who does the job is the host.",
+    analogy:"Like \u201cthe host\u201d of an event \u2014 it's a job (greet, guide guests, keep things running), not a specific person. Anyone who does the job is the host.",
     q:"In PromiseGrid, what is the \u201ckernel\u201d?",
     opts:["A specific wire-lab program you must run","An operating-system kernel",
-      "The hosting role that runs the protocol stack and dispatches to handlers","A central server everyone connects to"],
+      "The hosting role that runs the protocol stack and hands work to protocol-specific roles","A central server everyone connects to"],
     correct:2,
     why:"Right \u2014 it's a <b>role and a boundary</b>, not a binary. Any runtime that carries the responsibilities coherently can be the kernel.",
-    nudge:"Drop the OS image. It's a job description \u2014 host the stack, dispatch to handlers \u2014 that many runtimes could fill."
+    nudge:"Drop the OS image. It's a job description \u2014 host the stack, hand work to protocol-specific local roles \u2014 that many runtimes could fill."
   },
   {
     tag:"The target", icon:"\uD83C\uDFAF",
-    title:"Don't clone wire-lab \u2014 satisfy the contracts",
+    title:"Don't clone wire-lab \u2014 satisfy the named specs",
     plain:"The porting target is the layers and frozen specs, not the wire-lab directory tree.",
     body:[
-      "The wrong question is \u201chow do I reproduce the exact wire-lab tree?\u201d The right one is <b>\u201cwhich PromiseGrid layers and contracts must this platform satisfy?\u201d</b> wire-lab is where boundaries are <i>studied</i> \u2014 apparatus and specimens \u2014 not the thing to clone literally.",
-      "So conformance is tested against <b>frozen specs by pCID</b>, not against whatever the harness happened to do in one run. Your port should name which binding, session, and message specs it implements, exercise itself against those frozen contracts, and record those conformance claims. Specimens and traces are evidence, never a substitute for naming the exact specs."
+      "The wrong question is \u201chow do I reproduce the exact wire-lab tree?\u201d The right one is <b>\u201cwhich PromiseGrid layers and promises must this platform satisfy?\u201d</b> wire-lab is where boundaries are <i>studied</i> \u2014 apparatus and specimens \u2014 not the thing to clone literally.",
+      "So support is tested against <b>frozen specs by pCID</b>, not against whatever the harness happened to do in one run. Your port should name which transport-adapter, session, and message specs it implements, exercise itself against those frozen specs, and record which pCIDs local roles register to handle. Specimens and traces are local records, never a substitute for naming the exact specs."
     ],
-    analogy:"Building a bridge to the engineering spec \u2014 not by photographing someone else's bridge and copying every bolt. The spec is the contract; their bridge was just one build.",
+    analogy:"Building a bridge to the engineering spec \u2014 not by photographing someone else's bridge and copying every bolt. The spec is the shared reference; their bridge was just one build.",
     q:"What's the actual porting target for a kernel dev?",
     opts:["Reproducing the wire-lab directory tree exactly",
       "Satisfying the PromiseGrid layers and frozen specs, tested by pCID",
       "Matching one harness run's behavior","Copying the latest POC code"],
     correct:1,
-    why:"Yes \u2014 satisfy the <b>contracts</b> (layers + frozen specs by pCID) and record conformance claims. wire-lab is a lab, not a blueprint to clone.",
+    why:"Yes \u2014 satisfy the <b>named layers and frozen specs</b> by pCID and record local handled-pCID registrations. wire-lab is a lab, not a blueprint to clone.",
     nudge:"Don't chase the directory tree. Ask which layers and frozen specs your platform must satisfy \u2014 that's the target."
   },
   {
@@ -180,48 +186,48 @@ const LESSONS = [
     title:"Keep the layers straight",
     plain:"Substrate, feed, group, CAS, session, message \u2014 each is a distinct obligation. Don't collapse them into one vague \u201ckernel support.\u201d",
     body:[
-      "The upstream direction is a <b>layered model</b> that separates substrate/binding concerns from session and message semantics, with protocol handlers owning the interpretation of their own data. The labels \u2014 substrate, feed, group, CAS, session, message \u2014 each point at a different obligation a port may need to satisfy.",
-      "The discipline: <b>don't collapse all of that into one vague \u201ckernel support\u201d claim.</b> A careful port says which layer assumptions it actually fulfills, which it delegates, and where one level's guarantees stop before the next level's protocol rules begin."
+      "The upstream direction is a <b>layered model</b> that separates substrate/transport-adapter concerns from session and message semantics, with protocol roles owning the interpretation of their own data. The labels \u2014 substrate, feed, group, CAS, session, message \u2014 each point at a different obligation a port may need to satisfy.",
+      "The discipline: <b>don't collapse all of that into one vague \u201ckernel support\u201d promise.</b> A careful port says which layer assumptions it actually fulfills, which it delegates, and where one level's guarantees stop before the next level's protocol rules begin."
     ],
     analogy:"A postal system has distinct layers \u2014 roads, trucks, sorting centers, addresses, the letter itself. \u201cWe do mail\u201d hides which parts you actually run. Name the layers.",
     q:"What's the discipline around PromiseGrid's layers?",
     opts:["Bundle them all into one \u201ckernel support\u201d feature","Implement only the message layer",
       "Say which layers you fulfill, which you delegate, and where each layer's guarantees stop","Ignore layering \u2014 it isn't frozen yet"],
     correct:2,
-    why:"Right \u2014 make the layer boundaries <b>legible</b>. Each is a distinct obligation; don't smear them into one vague claim.",
+    why:"Right \u2014 make the layer boundaries <b>legible</b>. Each is a distinct obligation; don't smear them into one vague promise.",
     nudge:"Layers = separate obligations. The job is to say which ones you host, which you delegate, and where each stops."
   },
   {
-    tag:"Binding", icon:"\uD83D\uDD0C",
-    title:"Binding turns raw transport into clean sessions",
-    plain:"A transport carrying bytes isn't a session yet \u2014 binding bridges transport behavior to the session assumptions handlers expect.",
+    tag:"Transport adapter", icon:"\uD83D\uDD0C",
+    title:"Transport adapter turns raw transport into clean sessions",
+    plain:"A transport carrying bytes isn't a session yet \u2014 transport adapter bridges transport behavior to the session assumptions protocol roles expect.",
     body:[
-      "A real transport \u2014 UDP, TCP, a file-backed feed, some host channel \u2014 does <b>not</b> become a PromiseGrid session just by carrying bytes. Something in your port has to <b>bind</b> that transport behavior to the session assumptions the hosted protocols rely on.",
-      "That means deciding where transport quirks, addressing, delivery boundaries, and connection lifecycle end, and where session semantics begin. The exact contract is still open, so <span class='term'>L4</span> isn't a frozen label \u2014 but the orientation holds: binding is the bridge that turns messy real-world transport into the clean session context your handlers expect, explicit enough that conformance claims don't quietly depend on transport folklore."
+      "A real transport \u2014 UDP, TCP, a file-backed feed, some host channel \u2014 does <b>not</b> become a PromiseGrid session just by carrying bytes. Something in your port has to <b>adapt</b> that transport behavior to the session assumptions the hosted protocols rely on.",
+      "That means deciding where transport quirks, addressing, delivery responsibilities, and connection lifecycle end, and where session semantics begin. The exact responsibility split is still open, so <span class='term'>L4</span> isn't a frozen label \u2014 but the orientation holds: transport adapter is the bridge that turns messy real-world transport into the clean session context your protocol roles expect, explicit enough that local registrations and docs don't quietly depend on transport folklore."
     ],
-    analogy:"A power adapter between the wall and your laptop. The wall has raw, messy voltage; the adapter delivers the clean, predictable supply your device assumes. Binding is that adapter.",
-    q:"What's the job of the binding layer?",
-    opts:["To encrypt all traffic","To bridge raw transport behavior into the clean session assumptions handlers expect",
+    analogy:"A power adapter between the wall and your laptop. The wall has raw, messy voltage; the adapter delivers the clean, predictable supply your device assumes. Transport adapter is that adapter.",
+    q:"What's the job of the transport-adapter layer?",
+    opts:["To encrypt all traffic","To bridge raw transport behavior into the clean session assumptions protocol roles expect",
       "To store messages permanently","To assign global addresses"],
     correct:1,
-    why:"Yes \u2014 carrying bytes isn't a session. Binding is the <b>bridge</b> from transport quirks to clean session semantics.",
-    nudge:"Think adapter. Raw transport in, clean session context out \u2014 that conversion is what binding does."
+    why:"Yes \u2014 carrying bytes isn't a session. Transport adapter is the <b>bridge</b> from transport quirks to clean session semantics.",
+    nudge:"Think adapter. Raw transport in, clean session context out \u2014 that conversion is what transport adapter does."
   },
   {
     tag:"CAS layer", icon:"\uD83D\uDDC4\uFE0F",
-    title:"Content storage is a contract, not a side cache",
+    title:"Content storage is a promise discipline, not a side cache",
     plain:"Chunks live by their bytes under a named CAS protocol \u2014 uniform, not \u201csmall inline, big in storage.\u201d",
     body:[
       "Content-addressed storage isn't \u201csome cache off to the side.\u201d It's where chunks live under a named CAS protocol, typically shaped like <span class='term'>cas/&lt;cas-pCID&gt;/&lt;chunk-cid&gt;</span> \u2014 addressed by their bytes, under that protocol's rules.",
-      "Preserve the CAS discipline the chosen layer claims: don't quietly make some payloads content-addressed and others just convenient local files. Once the <span class='term'>L6</span> CAS layer is in force, the tree shape and pointer indirection should be <b>uniform</b>, not split into \u201csmall messages inline, large messages in CAS.\u201d Treat the CAS subtree as a real contract boundary, not a per-host implementation detail."
+      "Preserve the CAS discipline the chosen layer promises: don't quietly make some payloads content-addressed and others just convenient local files. Once the <span class='term'>L6</span> CAS layer is in force, the tree shape and pointer indirection should be <b>uniform</b>, not split into \u201csmall messages inline, large messages in CAS.\u201d Treat the CAS subtree as a real responsibility split, not a per-host implementation detail."
     ],
     analogy:"A library where every book is filed by a fingerprint of its exact contents \u2014 not \u201cthin pamphlets on this shelf, thick ones in the basement.\u201d One consistent filing rule for everything.",
     q:"How should a port treat the CAS layer?",
     opts:["As an optional cache it can vary per host",
-      "As a real contract: chunks addressed by their bytes under a named protocol, with a uniform shape",
+      "As a real promise discipline: chunks addressed by their bytes under a named protocol, with a uniform shape",
       "Only for large files; small ones go inline","As app-private storage the kernel ignores"],
     correct:1,
-    why:"Right \u2014 CAS is a <b>contract boundary</b>. Uniform, content-addressed, named by protocol \u2014 not a special-cased local cache.",
+    why:"Right \u2014 CAS is a <b>promised content-addressing discipline</b>. Uniform, content-addressed, named by protocol \u2014 not a special-cased local cache.",
     nudge:"It's not a cache you can vary. Everything is addressed by its bytes under the named CAS protocol, with one uniform shape."
   },
   {
@@ -229,13 +235,13 @@ const LESSONS = [
     title:"Make your ingress assumptions explicit",
     plain:"Different hosts admit work differently \u2014 that choice decides buffering, trust, and what crashes together.",
     body:[
-      "Ports face meaningfully different ingress situations: one model hands work to handlers inside a more centralized host boundary, another exposes a thinner or more distributed path, another assumes there's effectively no heavyweight kernel at all.",
-      "Those differences change <b>where buffering lives, where trust is placed, what crashes can take down together, and how much context the runtime has before dispatch</b>. The <span class='term'>K1\u2013K5</span> taxonomy isn't five frozen commandments \u2014 but the point stands: a port must make its ingress assumptions explicit, because they shape the real responsibility boundary the hosted protocols depend on."
+      "Ports face meaningfully different ingress situations: one model hands work to protocol-specific local roles inside a more centralized host responsibility split, another exposes a thinner or more distributed path, another assumes there's effectively no heavyweight kernel at all.",
+      "Those differences change <b>where buffering lives, where trust is placed, what crashes can take down together, and how much context the runtime has before recognition</b>. The <span class='term'>K1\u2013K5</span> taxonomy isn't five frozen commandments \u2014 but the point stands: a port must make its ingress assumptions explicit, because they shape the real responsibility boundary the hosted protocols depend on."
     ],
     analogy:"A building's entrance design \u2014 one guarded lobby, many side doors, or no doors at all \u2014 decides where security sits, where crowds queue, and what a break-in reaches. Same for how messages enter your port.",
     q:"Why does the ingress shape matter for a port?",
     opts:["It sets the app's color scheme",
-      "It decides buffering, where trust sits, what crashes together, and context before dispatch",
+      "It decides buffering, where trust sits, what crashes together, and context before recognition",
       "It must be exactly K3","It only affects performance, nothing else"],
     correct:1,
     why:"Right \u2014 ingress shapes the <b>responsibility boundary</b>. There's no frozen menu, but you must state your assumptions.",
@@ -244,44 +250,44 @@ const LESSONS = [
   {
     tag:"Runtime surface", icon:"\u2699\uFE0F",
     title:"Model the responsibility shape, not a fixed ABI",
-    plain:"A port needs a way to accept work, route to handlers, give them context, and return effects \u2014 but there's no frozen ABI.",
+    plain:"A port needs a way to accept work, hand to protocol-specific roles, give them context, and return effects \u2014 but there's no frozen ABI.",
     body:[
-      "A port needs some host-facing way to <b>accept incoming work, route it to the right protocol handlers, give those handlers the context they require, and return or persist the resulting effects</b>.",
-      "But that does <b>not</b> imply one frozen handler ABI, one callback signature, or one mandatory hosting API for every platform. What matters today is the <i>responsibility shape</i>: make dispatch, context, and effect boundaries explicit enough that your port can say what it hosts and how those handlers satisfy the named specs. Model it clearly; don't copy an interface verbatim out of wire-lab."
+      "A port needs some host-facing way to <b>accept incoming work, hand it to a promised local role to the right protocol roles, give those protocol roles the context they require, and return or persist the resulting effects</b>.",
+      "But that does <b>not</b> imply one frozen protocol role ABI, one callback signature, or one mandatory hosting API for every platform. What matters today is the <i>responsibility shape</i>: make recognition, context, and effect boundaries explicit enough that your port can say what it hosts and how those protocol roles satisfy the named specs. Model it clearly; don't copy an interface verbatim out of wire-lab."
     ],
-    analogy:"A restaurant kitchen needs a way to take orders, route them to stations, give cooks what they need, and send out dishes. The roles are universal; the exact layout isn't standardized across kitchens.",
+    analogy:"A restaurant kitchen needs a way to take orders, send them to stations, give cooks what they need, and send out dishes. The roles are universal; the exact layout isn't standardized across kitchens.",
     q:"What does the runtime surface require today?",
-    opts:["A single frozen handler ABI copied from wire-lab",
-      "Clear dispatch, context, and effect boundaries \u2014 the responsibility shape, not a fixed interface",
+    opts:["A single frozen protocol role ABI copied from wire-lab",
+      "Clear recognition, context, and effect boundaries \u2014 the responsibility shape, not a fixed interface",
       "No structure at all","One mandatory callback signature for all platforms"],
     correct:1,
-    why:"Yes \u2014 model the <b>responsibility shape</b> (dispatch / context / effects). The exact ABI isn't frozen yet.",
-    nudge:"There's no official ABI to copy. Nail the boundaries \u2014 how work dispatches, what context handlers get, where effects go."
+    why:"Yes \u2014 model the <b>responsibility shape</b> (recognition / context / effects). The exact ABI isn't frozen yet.",
+    nudge:"There's no official ABI to copy. Nail the boundaries \u2014 how work hands protocol work, what context protocol roles get, where effects go."
   },
   {
     tag:"The core boundary", icon:"\uD83D\uDCEC",
-    title:"The kernel moves bytes; apps judge promises",
-    plain:"A kernel receives, routes, or refuses envelopes and records that. Whether a promise was kept is the app's call.",
+    title:"The local infrastructure carries bytes; apps judge promises",
+    plain:"A kernel receives, hands off, or refuses envelopes and records that. Whether a promise was kept is the app's call.",
     body:[
-      "This is the load-bearing distinction. <b>Kernel-local evidence</b> is about kernel actions \u2014 receiving, routing, or refusing bytes. <b>Keep-or-break judgment</b> on an application-level promise belongs to the promisee <b>app</b>.",
-      "Concretely (from the POC evidence): the kernel parses <b>slot 0</b>, remembers which apps registered receive-promises for which pCIDs, forwards the <b>exact bytes</b>, and records delivery / non-delivery evidence. It does <i>not</i> decide whether Alice, Bob, or Carol kept their promise. Workflow state, trust updates, and keep/break verdicts live in the apps, outside the kernel."
+      "This is the load-bearing distinction. <b>Kernel-local records</b> is about kernel actions \u2014 receiving, protocol handoff, or refusing bytes. <b>Keep-or-break judgment</b> on an application-level promise belongs to the promisee <b>app</b>.",
+      "Concretely (as a durable design principle): the transport role recognizes <b>slot 0</b>, remembers which apps registered handlers for which pCIDs, forwards the <b>exact bytes</b>, and records delivery / non-delivery events. It does <i>not</i> decide whether Alice, Bob, or Carol kept their promise. Workflow state, trust updates, and keep/break verdicts live in the apps, outside the kernel."
     ],
     analogy:"The postal service delivers your letter and can log that it arrived or bounced \u2014 but it doesn't rule on whether you kept the promise written inside. That's between you and the recipient.",
     q:"Who decides whether an application-level promise was kept?",
-    opts:["The kernel, when it routes the message",
-      "The promisee app \u2014 the kernel only moves bytes and records delivery",
-      "A central authority","Whichever peer has the higher trust score"],
+    opts:["The kernel, when it hands off the message",
+      "The promisee app \u2014 the local infrastructure only carries bytes and records delivery",
+      "A central registry","Whichever peer has the higher trust score"],
     correct:1,
-    why:"Exactly. Kernel = receive / route / refuse + delivery evidence. <b>Keep/break is the app's judgment</b>, not the kernel's.",
-    nudge:"Split it: the kernel handles bytes (route, refuse, log delivery). Whether a promise held is the app's call."
+    why:"Exactly. Kernel role = receive / recognize / decline + delivery events. <b>Keep/break is the app's judgment</b>, not the kernel's.",
+    nudge:"Split it: the kernel handles bytes (receive, hand off, decline, and record local delivery events). Whether a promise held is the app's call."
   },
   {
     tag:"What it isn't", icon:"\uD83D\uDEA6",
-    title:"The kernel isn't a router, registry, or RPC authority",
-    plain:"Each kernel is a local app/kernel boundary. Relay apps own their own hop promises \u2014 the kernel isn't the network's brain.",
+    title:"The local infrastructure is not a network brain, registry, or RPC controller",
+    plain:"Each kernel is a local app/kernel responsibility split. Relay apps own their own hop promises \u2014 the kernel isn't the network's brain.",
     body:[
-      "It's tempting to grow the kernel into a router, service registry, or RPC authority. Resist it. Each kernel is a <b>local app/kernel promise boundary</b> \u2014 and across containers, each relay <b>app</b> owns its own neighbor transport and hop promises.",
-      "App promisees judge results (hello, compute, storage, echo) locally. The kernel and relays only carry bytes and record their own observations. The kernel is deliberately <i>not</i> the place where global routing, discovery, or authorization decisions get centralized."
+      "It's tempting to grow the kernel into a router, service registry, or RPC controller. Resist it. Each kernel is a <b>local app/kernel responsibility split</b> \u2014 and across containers, each relay <b>app</b> owns its own neighbor transport and hop promises.",
+      "App promisees judge results (hello, compute, storage, echo) locally. The kernel and relays only carry bytes and record their own local events. The kernel is deliberately <i>not</i> the place where global protocol handoff, discovery, or local acceptance decisions get centralized."
     ],
     analogy:"A mail carrier isn't the phone directory, the switchboard, or the judge. They carry mail on their route. Routing decisions and disputes live elsewhere.",
     q:"Across multiple containers, who owns neighbor transport and hop promises?",
@@ -289,25 +295,25 @@ const LESSONS = [
       "Each relay app owns its own hop promises; the kernel just carries bytes",
       "A global service registry","Whichever kernel has the most uptime"],
     correct:1,
-    why:"Right \u2014 relay <b>apps</b> own hops. The kernel stays a local boundary, not a router / registry / RPC authority.",
-    nudge:"Don't centralize routing in the kernel. Relay apps own their hops; the kernel just moves and observes bytes."
+    why:"Right \u2014 relay <b>apps</b> own hops. The kernel stays a local responsibility split, not a router / registry / RPC controller.",
+    nudge:"Don't centralize protocol handoff in the kernel. Relay apps own their hops; the local infrastructure just carries and observes bytes."
   },
   {
     tag:"Trust", icon:"\uD83D\uDEAB",
     title:"The kernel holds no global trust score",
-    plain:"Record local promise-accounting evidence \u2014 but never hardcode one cross-context reputation number.",
+    plain:"Record local promise-history records \u2014 but never hardcode one cross-context reputation number.",
     body:[
       "A port must <b>not</b> introduce one global trust score for peers, operators, or runtimes. Trust is local and per-burden: a peer can be reliable for one promise type and unreliable for another, and each agent or community keeps its own accounting.",
-      "A port may help record and expose <b>local</b> promise-accounting evidence, but it shouldn't act as one authoritative trust ledger. Related rules: local <b>resource exhaustion is local app evidence, not peer-trust evidence</b>, and negative ACKs \u2014 broken, malformed, refusal, cache miss, price/capacity refusal, unsupported variant \u2014 stay evidence records <i>without</i> increasing local trust."
+      "A port may help record and expose <b>local</b> promise-history records, but it shouldn't act as one global trust ledger. Related rules: local <b>resource exhaustion is local app state, not peer-trust local records</b>, and negative ACKs \u2014 broken, malformed, refusal, cache miss, price/capacity refusal, unsupported variant \u2014 stay local event records <i>without</i> increasing local trust."
     ],
     analogy:"A credit bureau handing everyone one universal score is exactly what this avoids. Instead, each party keeps their own notes on who's reliable, and for what.",
     q:"What's the kernel's role in trust?",
     opts:["Compute and publish one global reputation score",
-      "Record local promise-accounting evidence without being an authoritative trust ledger",
+      "Record local promise-history records without being a global trust ledger",
       "Ban peers below a trust threshold","Inherit trust scores from the network"],
     correct:1,
-    why:"Right \u2014 <b>local evidence, no global score</b>. And resource exhaustion or a negative ACK is evidence, not a trust penalty by itself.",
-    nudge:"No universal score lives in the kernel. It can record local evidence; it can't be the one authoritative ledger."
+    why:"Right \u2014 <b>local records, no global score</b>. And resource exhaustion or a negative ACK is local state, not a trust penalty by itself.",
+    nudge:"No universal score lives in the kernel. It can record local records; it can't be the one global ledger."
   },
   {
     tag:"Signing", icon:"\uD83D\uDD11",
@@ -331,12 +337,12 @@ const LESSONS = [
     plain:"The minimum credible port is the smallest honest one \u2014 declare what you host, what's delegated, what's out of scope.",
     body:[
       "Ports live under wildly different constraints \u2014 a browser tab, an MCU-class device, bare metal, a JS-on-server host \u2014 each forcing different storage, scheduling, connectivity, and memory choices. There's no fixed menu of approved targets.",
-      "So the minimum credible port is the <b>smallest honest port, not the smallest demo</b>. Host the handlers you claim, name the frozen specs they conform to, exercise against those contracts, and be explicit about what's out of scope, delegated, or host-dependent. Be ready to declare: the app-facing promises you make, your host/runtime assumptions, unsupported features, which pCIDs you cover, what evidence you emit, and what <b>profile</b> you're claiming. No hand-waving \u2014 if transport setup, storage durability, signing, or companion processes are required, say so."
+      "So the minimum credible port is the <b>smallest honest port, not the smallest demo</b>. Host the protocol roles you register, name the frozen specs they are built to satisfy, exercise against those specs, and be explicit about what's out of scope, delegated, or host-dependent. Be ready to declare: the app-facing promises you make, your host/runtime assumptions, unsupported features, which pCIDs local roles handle, what local records you emit, and what <b>profile</b> you're promising. No hand-waving \u2014 if transport setup, storage durability, signing, or companion processes are required, say so."
     ],
-    analogy:"An honest contractor's bid lists exactly what's included, what's subcontracted, and what's not covered \u2014 instead of a vague \u201cwe do everything.\u201d That honesty is the deliverable here.",
+    analogy:"An honest builder's proposal lists exactly what's included, what's delegated, and what's not covered \u2014 instead of a vague \u201cwe do everything.\u201d That honesty is the deliverable here.",
     q:"What is a \u201cminimum credible port\u201d?",
     opts:["The smallest possible demo that runs once",
-      "The smallest honest port: hosts what it claims, names its specs, and states what's delegated or out of scope",
+      "The smallest honest port: hosts what it promises, names its specs, and states what's delegated or out of scope",
       "A port that implements every layer fully","Whatever passes one harness run"],
     correct:1,
     why:"Right \u2014 smallest <b>honest</b> port. Declare your promises, assumptions, unsupported features, pCID coverage, and profile. No hand-waving.",
@@ -345,14 +351,14 @@ const LESSONS = [
   {
     tag:"Guardrails", icon:"\uD83E\uDDED",
     title:"Borrow ideas, not assumptions",
-    plain:"Prior art (Plan 9, Hurd, Amoeba, V) can inspire \u2014 but don't import their global namespaces or permissions as PromiseGrid rules.",
+    plain:"Prior art (Plan 9, Hurd, Amoeba, V) can inspire \u2014 but don't import their global namespaces or capability promises as PromiseGrid rules.",
     body:[
-      "Prior systems \u2014 V, Amoeba, Plan 9 / 9P, GNU Hurd \u2014 can be useful comparisons, but <b>don't import their transparency, global-permission, or filesystem-authority assumptions as if they were already PromiseGrid requirements</b>.",
+      "Prior systems \u2014 V, Amoeba, Plan 9 / 9P, GNU Hurd \u2014 can be useful comparisons, but <b>don't import their transparency, global-capability promise, or filesystem-control assumptions as if they were already PromiseGrid requirements</b>.",
       "\u201cDecentralized mainframe\u201d or file-like language is only safe if it preserves <b>local, trust-filtered views</b> and distinguishes imposed universal namespaces from <b>voluntary group-consensus namespaces</b>. Alice's pathname stays local; Bob consumes a CID-rooted, promise-bound reference through <i>his own</i> view or a voluntary group namespace maintained by reciprocal promises \u2014 not one global namespace handed down by the infrastructure."
     ],
     analogy:"You can admire another city's subway map for ideas without assuming its fares and zoning laws apply to yours. Take the design insight; leave the baked-in assumptions.",
     q:"How should a port use prior art like Plan 9 or Hurd?",
-    opts:["Adopt their global namespaces and permission models as PromiseGrid requirements",
+    opts:["Adopt their global namespaces and capability promise models as PromiseGrid requirements",
       "Borrow useful ideas, but keep local trust-filtered views and voluntary (not imposed) namespaces",
       "Ignore all prior art completely","Replace pCIDs with their filesystem paths"],
     correct:1,
@@ -475,19 +481,19 @@ function render(){
   stage.querySelector('#next').onclick=()=>{ current++; render(); };
 }
 const TERMS=[
-  ["kernel","the host role","The infrastructure role that hosts the protocol stack and dispatches to handlers. Not a binary."],
+  ["kernel","the host role","The infrastructure role that hosts the protocol stack and hands work to protocol-specific local roles. Not a binary."],
   ["port","a build of the role","An implementation of the kernel role on a specific platform or runtime."],
-  ["binding / L4","transport \u2192 session","Turns raw transport behavior into the clean session context handlers expect."],
+  ["transport adapter","transport \u2192 session","Turns raw transport behavior into the clean session context protocol roles expect."],
   ["session","interaction context","The layer holding ongoing state, membership, and sequencing assumptions."],
   ["substrate","the ground it runs on","The underlying host or transport a feed or port relies on."],
   ["feed / L5","delivery lane","Moves authenticated chunks or messages over some substrate."],
   ["CAS / L6","content store","Content-addressed storage: chunks filed and found by their bytes, under a named protocol."],
   ["chunk","a stored piece","One content-addressed unit of message data inside CAS."],
-  ["handler","protocol code","The unit that implements a protocol's rules for incoming and outgoing work."],
-  ["dispatch","routing to handlers","Inspecting slot 0's pCID and handing the work to the matching handler."],
-  ["ingress / K1\u2013K5","the front door","How and where work enters the host that will dispatch it."],
-  ["profile","what a port claims","A port's honest declaration of which layers, specs, and features it hosts."],
-  ["receive-promise","'send me these'","An app registering with the kernel to receive messages for a given pCID."],
+  ["protocol role","protocol code","The unit that implements a protocol's rules for incoming and outgoing work."],
+  ["recognition","handoff to protocol-specific roles","Inspecting slot 0's pCID and handing the work to the matching protocol role."],
+  ["ingress / K1\u2013K5","the front door","How and where work enters the host that will recognize it."],
+  ["profile","what a port promises","A port's honest declaration of which layers, specs, and features it hosts."],
+  ["receive registration","'send me these'","An app registering with the kernel to receive messages for a given pCID."],
   ["DR-davod","the open question","The upstream kernel decision still open \u2014 why porting instructions aren't final."]
 ];
 function renderDecoder(){
@@ -498,7 +504,7 @@ function renderDecoder(){
       ${mastered?`<div class="finale" style="padding-top:8px">
           <div class="big">All three levels \uD83C\uDF33\uD83C\uDF33\uD83C\uDF33</div>
           <p>Layperson, App Dev, and now Kernel Dev. You can follow PromiseGrid from \u201cwhy a community would want this\u201d all the way down to \u201cwhat a port must honestly host.\u201d</p>
-          <div class="next"><b>The honest caveat for this level:</b> the Kernel Dev section is the <i>most</i> provisional in the guide \u2014 it says plainly that porting is <b>still blocked</b> while <b>DR-davod</b> is open. There's no frozen kernel boundary, required runtime surface, or conformance checklist yet. Treat everything here as orientation about the boundary, not a porting contract. When you actually port, work from frozen specs by pCID and state your profile honestly.</div>
+          <div class="next"><b>The honest caveat for this level:</b> the Kernel Dev section is the <i>most</i> provisional in the guide \u2014 it says plainly that porting is <b>still blocked</b> while <b>DR-davod</b> is open. There's no frozen kernel responsibility split, required runtime surface, or public pCID support-publication mechanism yet. Treat everything here as orientation about the responsibility split, not a porting promise. When you actually port, work from frozen specs by pCID and state your profile honestly.</div>
         </div>`:''}
       <h3>Jargon decoder</h3>
       <p class="sub">Tap any term to flip it into plain words. These are the kernel-dev ones the full guide leans on.</p>

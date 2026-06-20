@@ -5,6 +5,8 @@ proquint handles minted by `tools/mint-handle`; do not add numbered TODO IDs.
 
 | Handle | Mint date | Title | Status |
 |---|---|---|---|
+| [TODO-lival](./TODO-lival-public-status-copy.md) | 2026-06-20 | Remove internal DR references from public status copy | implemented |
+| [TODO-tozoh](./TODO-tozoh-dispatch-broadcastchannel-fallback.md) | 2026-06-20 | Make the live dispatch demo explicit about BroadcastChannel support | pending |
 | [TODO-saviz](./TODO-saviz-on-the-spot-pressure-timer.md) | 2026-06-19 | Fix the broken pressure timer on On the Spot | pending |
 | [TODO-mumop](./TODO-mumop-home-build-link-to-dispatch.md) | 2026-06-19 | Point the home build card at dispatch instead of recognition | pending |
 | [TODO-gimuh](./TODO-gimuh-layperson-drill-copy-count.md) | 2026-06-19 | Make the plain-English drill export only its 9 prompts | pending |

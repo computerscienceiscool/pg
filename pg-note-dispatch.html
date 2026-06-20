@@ -44,12 +44,14 @@
     cursor:pointer;border:1px solid transparent;transition:.12s}
   .send{background:var(--match);color:#06231d;border-color:var(--match)}
   .send:hover{filter:brightness(1.08)}
+  .send:disabled{cursor:not-allowed;filter:none;opacity:.55}
   .ghost{background:transparent;color:var(--ink);border-color:var(--line)}
   .ghost:hover{border-color:var(--dim)}
   .toggle{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;
     color:var(--dim);cursor:pointer;user-select:none}
   .toggle input{accent-color:var(--reject)}
   .hint{font-size:11.5px;color:var(--faint);margin-top:11px}
+  .hint.warn{color:var(--reject)}
 
   .wire{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
     padding:15px;margin-bottom:14px;min-height:54px}
@@ -108,6 +110,7 @@
       <button class="ghost" id="loop">Loopback once</button>
       <label class="toggle"><input type="checkbox" id="corrupt">corrupt the pCID</label>
     </div>
+    <p class="hint warn" id="bcNote" hidden>Two-tab send is not available in this browser. Use Loopback once instead.</p>
     <p class="hint">Open this file in a second tab to watch the two nodes trade envelopes over the grid channel. No second tab? <b>Loopback</b> feeds an envelope straight into this node's own receive path.</p>
   </div>
 
@@ -262,12 +265,23 @@ function logReject(seenPcid, why, via){
 }
 
 /* ---------- wiring ---------- */
+// Intent: Never let unsupported two-tab transport fail silently; keep the
+// always-available loopback path visible and disable the unsupported action.
+// Source: DI-fubud
+function applyBroadcastChannelAvailability(){
+  const sendBtn = document.getElementById("send");
+  const note = document.getElementById("bcNote");
+  const supported = !!bc;
+  sendBtn.disabled = !supported;
+  note.hidden = supported;
+}
 if(bc) bc.onmessage = e => {
   const incoming = new Uint8Array(e.data);
   renderWire(incoming);
   renderDiagnostics(incoming);
   handleIncoming(incoming, "grid");
 };
+applyBroadcastChannelAvailability();
 document.getElementById("send").onclick = send;
 document.getElementById("loop").onclick = loopback;
 document.getElementById("body").addEventListener("keydown", e=>{ if(e.key==="Enter") send(); });

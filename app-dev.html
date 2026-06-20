@@ -171,7 +171,7 @@
   <div id="stage"></div>
 
   <div class="footer">
-    App Dev primer for the PromiseGrid dev guide · much here is provisional (DR-tuhaz) ·
+    App Dev primer for the PromiseGrid dev guide · this section is still evolving ·
     <button class="tool" id="copySheet">copy answer sheet</button> ·
     <button class="reset" id="reset">reset my progress</button>
     <span class="tool-status" id="copyStatus" aria-live="polite"></span>
@@ -188,7 +188,7 @@ const LESSONS = [
     title:"There's no SDK. There's a discipline.",
     plain:"Pick a spec, use its pCID when frozen, let it define your payloads, and register handled pCIDs locally.",
     body:[
-      "If you're waiting for an official PromiseGrid SDK, a stable protocol role ABI, or a universal app message API \u2014 there isn't one yet, and the guide says so plainly (the question is still open under <span class='term'>DR-tuhaz</span>). What exists today is a discipline, not a library.",
+      "If you're waiting for an official PromiseGrid SDK, a stable protocol role ABI, or a universal app message API \u2014 there isn't one yet. What exists today is a discipline, not a library.",
       "The whole app-dev discipline fits in one line: <b>choose an explicit protocol spec, name it by its pCID once it's frozen, let that spec define your payload and protocol role rules, and register the pCIDs your app handles with the local kernel</b> \u2014 instead of pointing people at a branch or a demo."
     ],
     analogy:"Like building to a published file-format standard rather than against one vendor's library. The standard is the shared reference; your code promises to follow it.",
@@ -552,7 +552,7 @@ const TERMS=[
   ["signing key","identity anchor","The durable root of identity continuity. Rotation is normal and doesn't reset identity."],
   ["protocol role","protocol code","The unit that implements a protocol's rules for incoming/outgoing work."],
   ["agent-ref","a participant ref","How a payload points at an agent (promiser/promisee) inside a promise."],
-  ["DR-tuhaz","an open question","The upstream app-dev decision still open \u2014 why much here stays \u201cprovisional.\u201d"]
+  ["open upstream question","a moving area","Some app-dev details are still evolving upstream, which is why this section should be read as current guidance rather than frozen protocol."]
 ];
 function renderDecoder(){
   const stage=document.getElementById('stage');

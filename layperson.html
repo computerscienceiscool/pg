@@ -181,7 +181,7 @@
     <div class="rings" id="rings" aria-hidden="true"></div>
     <div class="titles">
       <h1>PromiseGrid, <em>in plain English</em></h1>
-      <p>Nine small ideas. One at a time. No jargon ambushes.</p>
+      <p>Nine small ideas. One at a time. No jargon ambushes. Start with this: <b>Promise Chain</b> means linked promises across time, not blockchain mechanics.</p>
       <div class="xp" id="xp">0 XP · 0 concepts mastered</div>
     </div>
   </header>
@@ -568,6 +568,7 @@ function render(){
 // Intent: Keep plain-language glossary aligned with local handled-pCID
 // registration; public pCID support publication is unresolved. Source: DI-piput
 const TERMS=[
+  ["Promise Chain","linked promises across time","A teaching concept for following how promises and outcomes connect across time, without implying blockchain mechanics."],
   ["pCID","spec fingerprint","The content-based ID of a protocol spec. Same fingerprint = same exact spec."],
   ["doc-CID","document fingerprint","The content-based ID of one exact frozen document."],
   ["agent","a participant","Someone or something that can make, receive, or assess promises."],
@@ -617,7 +618,7 @@ function flattenHtml(html){
 }
 
 function buildAnswerSheet(){
-  const lines = [`${document.title} Answer Sheet`, "", `Questions: ${N}`, ""];
+  const lines = [`${document.title} Answer Sheet`, "", `Questions: ${N}`, "", `Key teaching concept: Promise Chain means linked promises across time, not blockchain mechanics.`, ""];
   LESSONS.forEach((lesson, idx)=>{
     lines.push(`${idx+1}. ${lesson.q}`);
     lines.push(`Answer: ${lesson.opts[lesson.correct]}`);

@@ -4,6 +4,8 @@ This repo is a standalone static PromiseGrid learning site. It is organized as a
 
 The site is meant to be readable page-by-page. Level 1 is layperson framing, Level 2 is app-dev framing, Level 3 is kernel-porting framing, and the drill/demo pages reinforce the same ideas in different ways.
 
+One teaching concept now used across the site is `Promise Chain`: linked promises across time, not blockchain mechanics. It is meant as a calming bridge term inside PromiseGrid, not as a rename of the project.
+
 ## What Teammates Should Know
 
 - This is a static site. There is no build step for the HTML pages.

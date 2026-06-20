@@ -154,6 +154,7 @@
 <body>
 
 <script src="shared/site-header.js"></script>
+<script src="shared/promisegrid-terms.js?v=2"></script>
 <pg-site-header></pg-site-header>
 
 <div class="wrap">
@@ -561,22 +562,7 @@ function render(){
   stage.querySelector('#next').onclick=()=>{ current++; render(); };
 }
 
-const TERMS=[
-  ["grid(...)","the envelope","Outer CBOR wrapper around every message (tag 0x67726964). Slot 0 names the protocol."],
-  ["42(pCID)","the selector","Slot 0: a tagged pCID saying which protocol spec this message speaks."],
-  ["pCID","spec fingerprint","Content-addressed ID of a protocol spec. Same frozen pCID = same spec."],
-  ["doc-CID","document fingerprint","Content-addressed ID of one exact frozen document; cite it forever."],
-  ["CBOR","the encoding","Concise Binary Object Representation \u2014 the binary format the envelope uses."],
-  ["slot","a position","An ordered position in the grid vector. Slot 0 = selector; 1+ are spec-defined."],
-  ["payload","the body","The protocol-defined content, anchored by default at slot 1."],
-  ["handled pCID registration","'I handle this'","Local-kernel registration saying this app or protocol role handles messages for a pCID."],
-  ["capability token","a promise to allow","A promise-bearing artifact with mint/redeem/revoke rules \u2014 not a bearer password."],
-  ["broken-promise report","broken-promise history","An assessable promise a promise wasn't kept; weighed locally, never an automatic ruling."],
-  ["signing key","identity anchor","The durable root of identity continuity. Rotation is normal and doesn't reset identity."],
-  ["protocol role","protocol code","The unit that implements a protocol's rules for incoming/outgoing work."],
-  ["agent-ref","a participant ref","How a payload points at an agent (promiser/promisee) inside a promise."],
-  ["open upstream question","a moving area","Some app-dev details are still evolving upstream, which is why this section should be read as current guidance rather than frozen protocol."]
-];
+const TERMS = window.PGTerms.cardsFor("app");
 function renderDecoder(){
   const stage=document.getElementById('stage');
   const mastered = Object.keys(state.done).length===N;

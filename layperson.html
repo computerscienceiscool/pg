@@ -174,6 +174,7 @@
 <body>
 
 <script src="shared/site-header.js"></script>
+<script src="shared/promisegrid-terms.js?v=2"></script>
 <pg-site-header></pg-site-header>
 
 <div class="wrap">
@@ -181,7 +182,7 @@
     <div class="rings" id="rings" aria-hidden="true"></div>
     <div class="titles">
       <h1>PromiseGrid, <em>in plain English</em></h1>
-      <p>Nine small ideas. One at a time. No jargon ambushes. Start with this: <b>Promise Chain</b> means linked promises across time, not blockchain mechanics.</p>
+      <p>Nine small ideas. One at a time. No jargon ambushes. Start with this: <b>Promise Chain</b> means linked promises across time.</p>
       <div class="xp" id="xp">0 XP · 0 concepts mastered</div>
     </div>
   </header>
@@ -567,23 +568,7 @@ function render(){
 /* ---------- decoder ---------- */
 // Intent: Keep plain-language glossary aligned with local handled-pCID
 // registration; public pCID support publication is unresolved. Source: DI-piput
-const TERMS=[
-  ["Promise Chain","linked promises across time","A teaching concept for following how promises and outcomes connect across time, without implying blockchain mechanics."],
-  ["pCID","spec fingerprint","The content-based ID of a protocol spec. Same fingerprint = same exact spec."],
-  ["doc-CID","document fingerprint","The content-based ID of one exact frozen document."],
-  ["agent","a participant","Someone or something that can make, receive, or assess promises."],
-  ["promise","a trackable promise","A protocol-governed commitment that can be checked later."],
-  ["fork","a peaceful split","A sibling path when a group disagrees — traceable, not a failure."],
-  ["kernel","the host engine","The infrastructure that runs the protocol roles underneath apps."],
-  ["port","a build of the engine","An implementation of that infrastructure on a specific platform."],
-  ["CAS","content store","Content-addressed storage: data is filed and found by its own bytes."],
-  ["chunk","a stored piece","One content-addressed piece of message data inside CAS."],
-  ["handled pCID registration","an 'I handle this' note","A local-kernel record saying which pCID an app or protocol role handles."],
-  ["feed","a delivery lane","A lower layer that moves authenticated messages over some channel."],
-  ["substrate","the ground it runs on","The underlying host or transport a feed depends on."],
-  ["ingress","the front door","The path by which messages first enter the host that hands off them."],
-  ["frozen vs draft","final vs working","Frozen = stable, citable source of truth. Draft = experiment / orientation."]
-];
+const TERMS = window.PGTerms.cardsFor("layperson");
 function renderDecoder(){
   const stage=document.getElementById('stage');
   const mastered = Object.keys(state.done).length===N;
@@ -618,7 +603,7 @@ function flattenHtml(html){
 }
 
 function buildAnswerSheet(){
-  const lines = [`${document.title} Answer Sheet`, "", `Questions: ${N}`, "", `Key teaching concept: Promise Chain means linked promises across time, not blockchain mechanics.`, ""];
+  const lines = [`${document.title} Answer Sheet`, "", `Questions: ${N}`, "", `Key teaching concept: Promise Chain means linked promises across time.`, ""];
   LESSONS.forEach((lesson, idx)=>{
     lines.push(`${idx+1}. ${lesson.q}`);
     lines.push(`Answer: ${lesson.opts[lesson.correct]}`);

@@ -93,6 +93,9 @@
   .footer{margin-top:26px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);line-height:1.7}
   .reset{background:none;border:0;color:var(--text-faint);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
   .reset:hover{color:var(--coral)}
+  .tool{background:none;border:0;color:var(--gold);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+  .tool:hover{color:var(--gold-soft)}
+  .tool-status{display:block;margin-top:8px;min-height:1.2em}
 
   @media (max-width:480px){ .bubble{font-size:18px} .solid{font-size:11px} }
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
@@ -107,7 +110,7 @@
     <div>
       <span class="pill">LAYPERSON RECALL · SAY IT OUT LOUD</span>
       <h1>Plain-English <em>drill</em></h1>
-      <p class="sub">Practice the nine Level 1 explanations cold. Answer out loud before you reveal the model.</p>
+      <p class="sub">Practice the nine Level 1 explanations cold. Think about the answer before you reveal the model.</p>
     </div>
     <div class="solid">
       <span id="solidTxt">solid 0/9</span>
@@ -123,7 +126,8 @@
 
   <div class="footer">
     Tip: actually speak the answer — even mutter it. Saying it is a different skill from knowing it.<br>
-    9 layperson prompts · <button class="reset" id="reset">reset my progress</button>
+    9 layperson prompts · <button class="tool" id="copySheet">copy answer sheet</button> · <button class="reset" id="reset">reset my progress</button>
+    <span class="tool-status" id="copyStatus" aria-live="polite"></span>
   </div>
 </div>
 
@@ -273,9 +277,52 @@ async function save(){
     else mem[KEY] = state;
   }catch(e){ mem[KEY] = state; }
 }
+function buildAnswerSheet(){
+  const indices = scopedConceptIndices();
+  const lines = [`${document.title} Answer Sheet`, "", `Prompts: ${indices.length}`, ""];
+  indices.forEach((idx, row)=>{
+    const concept = CONCEPTS[idx];
+    lines.push(`${row+1}. ${concept.q}`);
+    lines.push(`Answer: ${concept.model}`);
+    lines.push(`Pocket answer: ${concept.pocket}`);
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+// Intent: Keep drill-page answer-sheet export available under `file://` and
+// browsers without the async Clipboard API by falling back to execCommand.
+// Source: DI-gotih
+async function copyAnswerSheet(){
+  const text = buildAnswerSheet();
+  const count = scopedConceptIndices().length;
+  try{
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta=document.createElement('textarea');
+      ta.value=text;
+      ta.setAttribute('readonly','');
+      ta.style.position='fixed';
+      ta.style.left='-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(!ok) throw new Error('copy failed');
+    }
+    document.getElementById('copyStatus').textContent = `Copied ${count} prompts and answers.`;
+  }catch(e){
+    document.getElementById('copyStatus').textContent = 'Could not copy here. Try a browser with clipboard support.';
+  }
+}
 const box = i => state.boxes[i] ?? 0;
 
-function poolIdx(){ return CONCEPTS.map((c,i)=>i).filter(i=> filter==="all" || c.lvl===Number(filter)); }
+function scopedConceptIndices(){
+  return CONCEPTS.flatMap((concept, idx)=>
+    filter==="all" || concept.lvl===Number(filter) ? [idx] : []);
+}
+function poolIdx(){ return scopedConceptIndices(); }
 function solidCount(scope){
   const pool = scope==="all" ? CONCEPTS.map((c,i)=>i) : poolIdx();
   return pool.filter(i=> box(i)>=SOLID).length;
@@ -314,11 +361,11 @@ function render(){
         <div class="avatar">\uD83D\uDDE3\uFE0F</div>
         <div class="bubble">${c.q}</div>
       </div>
-      <div class="cue" id="cue"><span class="dot"></span><span>Say your answer out loud\u2026</span> <span class="timer" id="timer"></span></div>
+      <div class="cue" id="cue"><span class="dot"></span><span>Think about the answer.</span> <span class="timer" id="timer"></span></div>
       <div class="spacer"></div>
       <div id="revealZone">
-        <button class="reveal-btn" id="revealBtn">I've answered \u2014 show the model</button>
-        <p class="reveal-hint">no peeking till you've said it \uD83D\uDD0A</p>
+        <button class="reveal-btn" id="revealBtn">I've thought it through \u2014 show the model</button>
+        <p class="reveal-hint">no peeking till you've got your version \uD83D\uDD0A</p>
       </div>
     </div>`;
   document.getElementById('revealBtn').onclick = reveal;
@@ -355,7 +402,7 @@ function reveal(){
       <p class="a-label">Say it like this</p>
       <p class="model">${c.model}</p>
       <div class="pocket"><span class="pl">Pocket answer \u2014 memorize this line</span><span class="pt">${c.pocket}</span></div>
-      <p class="grade-q">How'd you do, out loud?</p>
+      <p class="grade-q">How'd you do?</p>
       <div class="grades">
         <button class="grade nail" data-g="nail">Nailed it<small>+retention</small></button>
         <button class="grade close" data-g="close">Close<small>say again</small></button>
@@ -380,6 +427,7 @@ document.getElementById('pressure').onchange = e=>{
   pressure = e.target.checked;
   if(!revealed) render();
 };
+document.getElementById('copySheet').onclick = ()=>{ copyAnswerSheet(); };
 document.getElementById('reset').onclick = async ()=>{
   state = { boxes:{}, nailStreak:0 }; lastIdx=-1; await save(); render();
 };

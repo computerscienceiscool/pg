@@ -170,7 +170,8 @@ const eqBytes=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
 const CID = new Uint8Array("015512203f673d0570d4f0667047dc5ef131ca51a567ada5cd03fa5b82ce4ea860d31f43"
   .match(/../g).map(h=>parseInt(h,16)));
 const PCID = pcidOf(CID);                 // bafkrei...
-const WRONG = (()=>{const c=CID.slice();c[c.length-1]^=0x01;return c;})(); // one byte off
+const SLOT0_CID_OFFSET = 10;              // grid tag + array/tag42 framing = start of CID bytes
+const SLOT0_DIGEST_OFFSET = SLOT0_CID_OFFSET + 4; // keep CID shape valid; alter only digest bytes
 
 /* ---------- node identity (skeleton: just a random id, no signing yet) ---------- */
 const ME = "node-"+Math.floor(Math.random()*0xffff).toString(16).padStart(4,"0");
@@ -184,19 +185,27 @@ document.getElementById("me").textContent = ME;
 /* ---------- send ---------- */
 function send(){
   const body = document.getElementById("body").value || "(empty)";
-  const cid  = document.getElementById("corrupt").checked ? WRONG : CID;
-  const env  = buildEnvelope(cid, ME, body);
+  const env  = buildOutboundEnvelope(ME, body);
   renderWire(env);
   renderDiagnostics(env);
   if(bc) bc.postMessage(env);            // other tabs receive; this tab does not hear itself
 }
 function loopback(){
   const body = document.getElementById("body").value || "(empty)";
-  const cid  = document.getElementById("corrupt").checked ? WRONG : CID;
-  const env  = buildEnvelope(cid, ME, body);
+  const env  = buildOutboundEnvelope(ME, body);
   renderWire(env);
   renderDiagnostics(env);
   handleIncoming(env, "loopback");        // feed straight into our own receiver
+}
+// Intent: Mutate slot 0 directly inside the outbound envelope so the demo shows
+// a definite pCID mismatch while keeping the rest of the envelope decodable.
+// Source: DI-runad
+function buildOutboundEnvelope(from, body){
+  const env = buildEnvelope(CID, from, body);
+  if(document.getElementById("corrupt").checked){
+    env[SLOT0_DIGEST_OFFSET] ^= 0x01;
+  }
+  return env;
 }
 
 /* ---------- receive & recognize  (spec section 4) ---------- */

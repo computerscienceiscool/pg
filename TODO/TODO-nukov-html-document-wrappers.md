@@ -21,6 +21,6 @@ Affects: `index.html`; `layperson.html`; `app-dev.html`; `kernel-dev.html`; `on-
 
 ## Subtasks
 
-- [ ] nukov.1 Add `<!DOCTYPE html>` and normal `<html>`, `<head>`, and `<body>` wrappers to the remaining fragment-style pages.
-- [ ] nukov.2 Verify the shared header and inline scripts still mount correctly after the wrapper change.
-- [ ] nukov.3 Recheck browser layout on desktop and mobile after the wrapper pass.
+- [x] nukov.1 Add `<!DOCTYPE html>` and normal `<html>`, `<head>`, and `<body>` wrappers to the remaining fragment-style pages.
+- [x] nukov.2 Verify the shared header and inline scripts still mount correctly after the wrapper change.
+- [x] nukov.3 Recheck browser layout on desktop and mobile after the wrapper pass.

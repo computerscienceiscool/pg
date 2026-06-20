@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PromiseGrid for Kernel Devs</title>
@@ -117,6 +120,8 @@
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
 </style>
+</head>
+<body>
 
 <script src="shared/site-header.js"></script>
 <pg-site-header></pg-site-header>
@@ -378,20 +383,38 @@ let state = { done:{}, xp:0, streak:0, best:0 };
 let current = 0;
 let memoryFallback = {};
 
+// Intent: Persist lesson progress on a normal static host instead of losing it
+// on reload when the nonstandard outer storage API is absent. Source: DI-tozoz
+function loadLocalFallback(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ state = JSON.parse(raw); return true; }
+  }catch(e){}
+  return false;
+}
 async function load(){
   try{
     if(window.storage && window.storage.get){
       const r = await window.storage.get(KEY);
-      if(r && r.value) state = JSON.parse(r.value);
-    } else if(memoryFallback[KEY]){ state = memoryFallback[KEY]; }
+      if(r && r.value){ state = JSON.parse(r.value); }
+      else if(!loadLocalFallback() && memoryFallback[KEY]){ state = memoryFallback[KEY]; }
+    } else if(!loadLocalFallback() && memoryFallback[KEY]){ state = memoryFallback[KEY]; }
   }catch(e){}
   if(!state.done) state = { done:{}, xp:0, streak:0, best:0 };
 }
 async function save(){
+  const serialized = JSON.stringify(state);
   try{
-    if(window.storage && window.storage.set){ await window.storage.set(KEY, JSON.stringify(state)); }
-    else { memoryFallback[KEY] = state; }
-  }catch(e){ memoryFallback[KEY] = state; }
+    if(window.storage && window.storage.set){
+      await window.storage.set(KEY, serialized);
+      return;
+    }
+  }catch(e){}
+  try{
+    localStorage.setItem(KEY, serialized);
+    return;
+  }catch(e){}
+  memoryFallback[KEY] = state;
 }
 function drawRings(){
   const size=92, cx=size/2, cy=size/2;
@@ -576,3 +599,5 @@ document.getElementById('copySheet').onclick=()=>{ copyAnswerSheet(); };
 document.getElementById('reset').onclick=async()=>{ state={done:{},xp:0,streak:0,best:0}; current=0; await save(); render(); };
 (async()=>{ await load(); render(); })();
 </script>
+</body>
+</html>

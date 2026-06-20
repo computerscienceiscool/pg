@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PromiseGrid — On the Spot</title>
@@ -101,6 +104,8 @@
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
 </style>
+</head>
+<body>
 
 <script src="shared/site-header.js"></script>
 <pg-site-header></pg-site-header>
@@ -266,20 +271,38 @@ let pressure = true;
 let lastIdx = -1, curIdx = -1, revealed = false, timerId = null;
 let mem = {};
 
+// Intent: Persist drill progress on a normal static host instead of losing it
+// on reload when the nonstandard outer storage API is absent. Source: DI-tozoz
+function loadLocalFallback(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ state = JSON.parse(raw); return true; }
+  }catch(e){}
+  return false;
+}
 async function load(){
   try{
     if(window.storage && window.storage.get){
       const r = await window.storage.get(KEY);
-      if(r && r.value) state = JSON.parse(r.value);
-    } else if(mem[KEY]) state = mem[KEY];
+      if(r && r.value){ state = JSON.parse(r.value); }
+      else if(!loadLocalFallback() && mem[KEY]) state = mem[KEY];
+    } else if(!loadLocalFallback() && mem[KEY]) state = mem[KEY];
   }catch(e){}
   if(!state.boxes) state = { boxes:{}, nailStreak:0 };
 }
 async function save(){
+  const serialized = JSON.stringify(state);
   try{
-    if(window.storage && window.storage.set) await window.storage.set(KEY, JSON.stringify(state));
-    else mem[KEY] = state;
-  }catch(e){ mem[KEY] = state; }
+    if(window.storage && window.storage.set){
+      await window.storage.set(KEY, serialized);
+      return;
+    }
+  }catch(e){}
+  try{
+    localStorage.setItem(KEY, serialized);
+    return;
+  }catch(e){}
+  mem[KEY] = state;
 }
 function buildAnswerSheet(){
   const indices = scopedConceptIndices();
@@ -478,3 +501,5 @@ document.getElementById('reset').onclick = async ()=>{
 
 (async()=>{ await load(); render(); })();
 </script>
+</body>
+</html>

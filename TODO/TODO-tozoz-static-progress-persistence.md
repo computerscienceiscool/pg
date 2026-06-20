@@ -22,7 +22,7 @@ Affects: `layperson.html`; `app-dev.html`; `kernel-dev.html`; `on-the-spot.html`
 
 ## Subtasks
 
-- [ ] tozoz.1 Inventory each page's current persistence key and state shape.
-- [ ] tozoz.2 Replace the in-memory fallback with standard browser-local persistence.
-- [ ] tozoz.3 Verify reload persistence on the three lesson pages and the two manual drill pages.
-- [ ] tozoz.4 Recheck the home-page wording so it matches the implemented behavior exactly.
+- [x] tozoz.1 Inventory each page's current persistence key and state shape.
+- [x] tozoz.2 Replace the in-memory fallback with standard browser-local persistence.
+- [x] tozoz.3 Verify reload persistence on the three lesson pages and the two manual drill pages.
+- [x] tozoz.4 Recheck the home-page wording so it matches the implemented behavior exactly.

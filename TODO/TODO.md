@@ -5,8 +5,8 @@ proquint handles minted by `tools/mint-handle`; do not add numbered TODO IDs.
 
 | Handle | Mint date | Title | Status |
 |---|---|---|---|
-| [TODO-tozoz](./TODO-tozoz-static-progress-persistence.md) | 2026-06-20 | Make lesson and drill progress persist on a normal static host | pending |
-| [TODO-nukov](./TODO-nukov-html-document-wrappers.md) | 2026-06-20 | Add full HTML document wrappers to the static site pages | pending |
+| [TODO-tozoz](./TODO-tozoz-static-progress-persistence.md) | 2026-06-20 | Make lesson and drill progress persist on a normal static host | implemented |
+| [TODO-nukov](./TODO-nukov-html-document-wrappers.md) | 2026-06-20 | Add full HTML document wrappers to the static site pages | implemented |
 | [TODO-lival](./TODO-lival-public-status-copy.md) | 2026-06-20 | Remove internal DR references from public status copy | implemented |
 | [TODO-tozoh](./TODO-tozoh-dispatch-broadcastchannel-fallback.md) | 2026-06-20 | Make the live dispatch demo explicit about BroadcastChannel support | implemented |
 | [TODO-saviz](./TODO-saviz-on-the-spot-pressure-timer.md) | 2026-06-19 | Fix the broken pressure timer on On the Spot | implemented |

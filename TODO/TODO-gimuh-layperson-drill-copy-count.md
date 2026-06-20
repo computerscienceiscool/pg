@@ -30,6 +30,6 @@ Affects: `layperson-on-the-spot.html`; `on-the-spot.html`; `on-the-spot-audio.ht
 
 ## Subtasks
 
-- [ ] gimuh.1 Reproduce the copied output and confirm whether all 35 prompts are exported.
-- [ ] gimuh.2 Fix the export to respect the layperson-only scope instead of the raw full `CONCEPTS` length.
-- [ ] gimuh.3 Verify the other drill exports still copy the intended scope after the fix.
+- [x] gimuh.1 Reproduce the copied output and confirm whether all 35 prompts are exported.
+- [x] gimuh.2 Fix the export to respect the layperson-only scope instead of the raw full `CONCEPTS` length.
+- [x] gimuh.3 Verify the other drill exports still copy the intended scope after the fix.

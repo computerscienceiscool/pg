@@ -29,6 +29,6 @@ Affects: `index.html`.
 
 ## Subtasks
 
-- [ ] mumop.1 Confirm whether the build card should link to `dispatch.html` or `pg-note-dispatch.html`.
-- [ ] mumop.2 Update the home-page card target and any nearby copy that describes the destination.
-- [ ] mumop.3 Verify the remaining build card still points to the other intended artifact, so the two cards are not redundant or swapped accidentally.
+- [x] mumop.1 Confirm whether the build card should link to `dispatch.html` or `pg-note-dispatch.html`.
+- [x] mumop.2 Update the home-page card target and any nearby copy that describes the destination.
+- [x] mumop.3 Verify the remaining build card still points to the other intended artifact, so the two cards are not redundant or swapped accidentally.

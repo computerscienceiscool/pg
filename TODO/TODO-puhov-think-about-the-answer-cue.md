@@ -29,7 +29,7 @@ Affects: `on-the-spot.html`; `layperson-on-the-spot.html`; `index.html`.
 
 ## Subtasks
 
-- [ ] puhov.1 Replace the cue copy on `on-the-spot.html`.
-- [ ] puhov.2 Replace the cue copy on `layperson-on-the-spot.html`.
-- [ ] puhov.3 Review any home-page drill descriptions that still imply nonexistent microphone capture.
-- [ ] puhov.4 Verify the shorter cue still reads cleanly with and without the countdown timer.
+- [x] puhov.1 Replace the cue copy on `on-the-spot.html`.
+- [x] puhov.2 Replace the cue copy on `layperson-on-the-spot.html`.
+- [x] puhov.3 Review any home-page drill descriptions that still imply nonexistent microphone capture.
+- [x] puhov.4 Verify the shorter cue still reads cleanly with and without the countdown timer.

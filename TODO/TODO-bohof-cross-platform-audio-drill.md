@@ -37,7 +37,7 @@ Affects: `on-the-spot-audio.html`; `index.html`.
 
 ## Subtasks
 
-- [ ] bohof.1 Reproduce the current behavior matrix across major browsers and at least one non-Windows platform.
-- [ ] bohof.2 Decide whether the product goal is "best effort with fallback," "fully supported cross-platform," or "experimental and hidden."
-- [ ] bohof.3 Update capability detection and user-facing warnings to match the chosen support model.
-- [ ] bohof.4 Verify the index copy does not over-promise beyond what the page can actually do.
+- [x] bohof.1 Reproduce the current behavior matrix across major browsers and at least one non-Windows platform.
+- [x] bohof.2 Decide whether the product goal is "best effort with fallback," "fully supported cross-platform," or "experimental and hidden."
+- [x] bohof.3 Update capability detection and user-facing warnings to match the chosen support model.
+- [x] bohof.4 Verify the index copy does not over-promise beyond what the page can actually do.

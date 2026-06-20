@@ -31,4 +31,4 @@ feature-detects it and should fail clearly rather than silently when absent.
 
 - [x] tozoh.1 Detect the unsupported-`BroadcastChannel` case and surface it in the demo UI.
 - [x] tozoh.2 Decide whether `send to grid` should be disabled, downgraded to loopback, or accompanied by a note when unsupported.
-- [ ] tozoh.3 Update the explainer text if the live-demo path depends on `BroadcastChannel` support.
+- [x] tozoh.3 Update the explainer text if the live-demo path depends on `BroadcastChannel` support.

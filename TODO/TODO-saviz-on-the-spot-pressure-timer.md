@@ -36,7 +36,7 @@ Affects: `on-the-spot.html`; `layperson-on-the-spot.html`.
 
 ## Subtasks
 
-- [ ] saviz.1 Reproduce exactly how the timer is failing: not starting, not counting down, not disabling, or not affecting the cue state.
-- [ ] saviz.2 Trace the `pressure` toggle, `startTimer()`, and rerender flow on `on-the-spot.html`.
-- [ ] saviz.3 Fix the timer behavior without breaking retention scheduling or reveal flow.
-- [ ] saviz.4 Verify the timer both on initial load and after changing level filters.
+- [x] saviz.1 Reproduce exactly how the timer is failing: not starting, not counting down, not disabling, or not affecting the cue state.
+- [x] saviz.2 Trace the `pressure` toggle, `startTimer()`, and rerender flow on `on-the-spot.html`.
+- [x] saviz.3 Fix the timer behavior without breaking retention scheduling or reveal flow.
+- [x] saviz.4 Verify the timer both on initial load and after changing level filters.

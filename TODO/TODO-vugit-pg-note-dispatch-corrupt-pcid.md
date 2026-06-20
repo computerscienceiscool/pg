@@ -30,7 +30,7 @@ Affects: `pg-note-dispatch.html`.
 
 ## Subtasks
 
-- [ ] vugit.1 Reproduce the corrupt-pCID path in `pg-note-dispatch.html`.
-- [ ] vugit.2 Compare the intended behavior described on `dispatch.html` with the live demo's slot-0 mutation logic.
-- [ ] vugit.3 Fix the corruption path so the demo emits the expected ignored outcome and local trace.
-- [ ] vugit.4 Verify the normal non-corrupt loopback path still dispatches correctly.
+- [x] vugit.1 Reproduce the corrupt-pCID path in `pg-note-dispatch.html`.
+- [x] vugit.2 Compare the intended behavior described on `dispatch.html` with the live demo's slot-0 mutation logic.
+- [x] vugit.3 Fix the corruption path so the demo emits the expected ignored outcome and local trace.
+- [x] vugit.4 Verify the normal non-corrupt loopback path still dispatches correctly.

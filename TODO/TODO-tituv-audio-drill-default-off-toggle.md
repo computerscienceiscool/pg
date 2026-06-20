@@ -38,7 +38,7 @@ Affects: `index.html`; `on-the-spot-audio.html`.
 
 ## Subtasks
 
-- [ ] tituv.1 Choose the toggle surface: hidden card, disabled card, interstitial, or URL/local-storage gate.
-- [ ] tituv.2 Define where the enabled state lives locally and how it behaves under `file://`.
-- [ ] tituv.3 Update navigation and copy so the default-off state is obvious instead of feeling broken.
-- [ ] tituv.4 Verify that direct links and the Home path behave consistently when the feature is off.
+- [x] tituv.1 Choose the toggle surface: hidden card, disabled card, interstitial, or URL/local-storage gate.
+- [x] tituv.2 Define where the enabled state lives locally and how it behaves under `file://`.
+- [x] tituv.3 Update navigation and copy so the default-off state is obvious instead of feeling broken.
+- [x] tituv.4 Verify that direct links and the Home path behave consistently when the feature is off.

@@ -42,3 +42,5 @@ Affects: `on-the-spot.html`; `layperson-on-the-spot.html`; `on-the-spot-audio.ht
 - [x] duvik.2 Inventory the quiz data already available on each page and identify any gaps in the current structures.
 - [x] duvik.3 Choose whether the feature should live inline per page or in a shared helper.
 - [x] duvik.4 Define how explanations, correct options, and page titles appear in the exported result.
+- [x] duvik.5 Add the copy-answer-sheet action to the lesson pages.
+- [x] duvik.6 Extend the copy-answer-sheet action to the drill pages.

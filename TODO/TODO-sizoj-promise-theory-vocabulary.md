@@ -54,10 +54,10 @@ Affects: `index.html`; `promise-language.html`; `TODO/TODO-sizoj-promise-theory-
 
 ## Subtasks
 
-- [ ] sizoj.1 Build a precise HTML vocabulary inventory with file/line references and classify each occurrence as `replace`, `keep`, or `needs design wording`.
+- [x] sizoj.1 Build a precise HTML vocabulary inventory with file/line references and classify each occurrence as `replace`, `keep`, or `needs design wording`.
 - [x] sizoj.2 Draft a Promise Theory house style note for learner-facing copy, including allowed technical exceptions.
-- [ ] sizoj.3 Rewrite `layperson.html` and `index.html` first, because those set the tone for non-specialist readers.
-- [ ] sizoj.4 Rewrite `app-dev.html` and copied Level 2 prompt data in `on-the-spot.html`, `on-the-spot-audio.html`, and `layperson-on-the-spot.html`.
-- [ ] sizoj.5 Rewrite `kernel-dev.html` and copied Level 3 prompt data, preserving necessary precision about hosted roles and protocol boundaries.
-- [ ] sizoj.6 Review `dispatch.html` and `pg-note-dispatch.html` UI labels for punitive words such as verdict/reject/hostile.
-- [ ] sizoj.7 Run a post-edit vocabulary scan and document any intentional remaining terms with rationale.
+- [x] sizoj.3 Rewrite `layperson.html` and `index.html` first, because those set the tone for non-specialist readers.
+- [x] sizoj.4 Rewrite `app-dev.html` and copied Level 2 prompt data in `on-the-spot.html`, `on-the-spot-audio.html`, and `layperson-on-the-spot.html`.
+- [x] sizoj.5 Rewrite `kernel-dev.html` and copied Level 3 prompt data, preserving necessary precision about hosted roles and protocol boundaries.
+- [x] sizoj.6 Review `dispatch.html` and `pg-note-dispatch.html` UI labels for punitive words such as verdict/reject/hostile.
+- [x] sizoj.7 Run a post-edit vocabulary scan and document any intentional remaining terms with rationale.

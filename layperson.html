@@ -312,12 +312,12 @@ const LESSONS = [
     title:"Trust is local — and fixable",
     plain:"Trust is earned per relationship and per task, and it can be rebuilt after a break.",
     body:[
-      "Trust here isn't a global score handed out once by a central referee. It's <b>local</b> and <b>per burden</b> — meaning you trust a specific person for a specific kind of thing.",
+      "Trust here isn't a global score handed out once by a central referee. It's <b>local</b> and tied to <b>context</b> — meaning you trust a specific person for a specific kind of thing.",
       "And it's <b>repairable</b>. Relationships break and get rebuilt. The system expects communities to update who they rely on and continue after breaks, rather than depending on one always-right center to settle everything forever."
     ],
     icon:"🤝",
-    analogy:"You trust your mechanic with your car, not your taxes — and if they botch one job, trust can be rebuilt over time. There's no central judge issuing a permanent 'trustworthy' stamp.",
-    q:"\u201cTrust is local and per burden\u201d means…",
+    analogy:"You trust your mechanic with your car, not your taxes — and if they botch one job, trust can be rebuilt over time. There's no central office issuing a permanent 'trustworthy' stamp.",
+    q:"\u201cTrust is local and tied to context\u201d means…",
     opts:[
       "One central score decides who's trustworthy for everything",
       "You trust specific people for specific things, and trust can be repaired",
@@ -325,16 +325,16 @@ const LESSONS = [
       "Everyone is trusted equally by default"
     ],
     correct:1,
-    why:"Exactly — trust is <b>contextual and rebuildable</b>, never a single permanent global verdict.",
-    nudge:"Notice the two words: local (who, for what) and repairable (it can come back). No central, permanent verdict."
+    why:"Exactly — trust is <b>contextual and rebuildable</b>, never a single permanent global score.",
+    nudge:"Notice the two words: local (who, for what) and repairable (it can come back). No central, permanent score."
   },
   {
     tag:"How things talk",
-    title:"Promises, not just commands",
+    title:"Promises, not just requests",
     plain:"The system tracks promises and their kept/broken history — not just 'do this now.'",
     body:[
       "Ordinary software mostly does request-and-reply: call a function, get an answer, done. PromiseGrid is shaped differently. Participants make, receive, and <b>assess promises</b>, and keep local records about whether those promises were kept.",
-      "So a message can matter <b>long after</b> it arrives — it might become part of a later dispute, an audit, or a trust judgment. The question isn't only 'did it work right now?' but 'what was promised, under what conditions, and what happened?'"
+      "So a message can matter <b>long after</b> it arrives — it might become part of a later dispute, an audit, or a later trust assessment. The question isn't only 'did it work right now?' but 'what was promised, under what conditions, and what happened?'"
     ],
     icon:"📜",
     analogy:"A signed IOU versus shouting 'give me $5!' The IOU can be checked, disputed, and weighed as local records months later. The shout vanishes the moment it's heard.",
@@ -347,7 +347,7 @@ const LESSONS = [
     ],
     correct:1,
     why:"Right. Think <b>promises + kept/broken history over time</b>, not just instant call-and-response. This is the bridge into the App Dev mindset.",
-    nudge:"The key shift is time. A promise (and the proof around it) can still matter long after the moment it was made."
+    nudge:"The key shift is time. A promise (and the record around it) can still matter long after the moment it was made."
   },
   {
     tag:"Continuity",
@@ -355,11 +355,11 @@ const LESSONS = [
     plain:"Records keep a stable identity; leadership can rotate or be inherited without confusing everyone.",
     body:[
       "Some things must stay recognizable even when a website, vendor, or file location changes. And someone has to be able to <b>hand off</b> responsibility without making the whole history ambiguous.",
-      "PromiseGrid is built so records keep a durable identity and responsibility can <b>rotate, continue, or be inherited</b> in a way that stays legible to everyone who depends on it."
+      "PromiseGrid is built so records keep a durable identity and roles can <b>rotate, continue, or be inherited</b> in a way that stays legible to everyone who depends on them."
     ],
     icon:"🏃",
     analogy:"A relay race. The runners change hands, but the baton — and the continuity of the race — doesn't drop. The handoff is the whole skill.",
-    q:"What does 'durable identity and handoff of responsibility' protect?",
+    q:"What does 'durable identity and handoff of roles' protect?",
     opts:[
       "The ability to change leadership without losing a clear, continuous history",
       "The founder's right to stay in charge forever",
@@ -548,7 +548,7 @@ function render(){
 const TERMS=[
   ["pCID","spec fingerprint","The content-based ID of a protocol spec. Same fingerprint = same exact spec."],
   ["doc-CID","document fingerprint","The content-based ID of one exact frozen document."],
-  ["agent","a participant","Someone or something that can make, receive, or judge promises."],
+  ["agent","a participant","Someone or something that can make, receive, or assess promises."],
   ["promise","a trackable promise","A protocol-governed commitment that can be checked later."],
   ["fork","a peaceful split","A sibling path when a group disagrees — traceable, not a failure."],
   ["kernel","the host engine","The infrastructure that runs the protocol roles underneath apps."],

@@ -6,8 +6,8 @@
   const byId = {
     promise_chain: {
       term: "Promise Chain",
-      short: "linked promises across time",
-      long: "Promises and outcomes linked across time.",
+      short: "promises across time",
+      long: "Linked promises across time.",
       tags: ["teaching", "core"]
     },
     agent: {

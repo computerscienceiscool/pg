@@ -1,0 +1,221 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromiseGrid — Promise Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1d1b;--ink-2:#0a1614;--panel:#162824;--panel-2:#1d332e;--line:#2a463f;
+    --text:#efe7d8;--text-dim:#b9c4ba;--text-faint:#7f9189;
+    --gold:#f0b35e;--gold-soft:#caa066;--green:#62cf94;--coral:#e8896b;--blue:#7fb6c9;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #143029 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #11231f 0%, transparent 55%),
+      linear-gradient(160deg,var(--ink) 0%, var(--ink-2) 100%);
+    min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:980px;margin:0 auto;padding:34px 20px 80px}
+  .hero{display:grid;gap:18px;margin:18px 0 24px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-soft)}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,7vw,50px);line-height:1;margin:0}
+  h1 em{font-style:italic;color:var(--gold);font-weight:500}
+  .intro{max-width:62ch;color:var(--text-dim);font-size:16px;margin:0}
+  .lede{margin:0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;background:var(--panel);font-size:15px;color:var(--text-dim)}
+  .lede b{color:var(--text)}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin:26px 0}
+  .panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px 20px 18px;
+    box-shadow:0 18px 50px -34px rgba(0,0,0,.8)}
+  .panel h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 8px}
+  .panel p{margin:0;color:var(--text-dim);font-size:14.5px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--panel-2);color:var(--text-dim)}
+  .terms{display:grid;gap:14px;margin-top:16px}
+  .term{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(29,51,46,.9),rgba(22,40,36,.98));padding:16px}
+  .top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .match{font-family:var(--mono);font-size:18px;color:var(--gold)}
+  .meta{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--text-faint)}
+  .pill.high{border-color:rgba(232,137,107,.45);color:var(--coral)}
+  .pill.medium{border-color:rgba(240,179,94,.45);color:var(--gold-soft)}
+  .term p{margin:0 0 10px;color:var(--text-dim);font-size:14px}
+  .term p:last-child{margin-bottom:0}
+  .label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px}
+  ul.inline{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+  ul.inline li{border:1px solid var(--line);border-radius:9px;background:var(--ink-2);padding:7px 9px;font-size:13px;color:var(--text)}
+  .aside-list{display:grid;gap:10px;margin-top:14px}
+  .aside-item{border-top:1px solid var(--line);padding-top:10px}
+  .aside-item:first-child{border-top:0;padding-top:0}
+  .aside-item b{display:block;color:var(--text);margin-bottom:3px}
+  .footer{margin-top:28px;font-family:var(--mono);font-size:11.5px;color:var(--text-faint)}
+  .tool{background:none;border:0;color:var(--gold);font:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer}
+  .tool:hover{color:var(--gold-soft)}
+  .tool-status{display:block;margin-top:8px;min-height:1.2em}
+  @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+</style>
+
+<script src="shared/site-header.js"></script>
+<pg-site-header></pg-site-header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Promise Theory House Style</div>
+    <div>
+      <h1>Promise <em>language</em></h1>
+      <p class="intro">A compact vocabulary reference for PromiseGrid writing. These are the words the Promise Lens rules flag, the softer or more precise replacements they suggest, and the places where a flagged term is still acceptable.</p>
+    </div>
+    <p class="lede"><b>Source:</b> this page is derived from the PromiseLens repo, <code>https://github.com/ciwg/promise-lens</code>. That repo contains both a Chrome extension and a CLI for flagging language that drifts away from Promise Theory framing. The authored source and runtime rule files currently agree, so this page presents one merged rule list for human review.</p>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>How to use it</h2>
+      <p>Flagged words are not automatically forbidden. They are hotspots for review. Keep them when the page is intentionally contrasting centralized or punitive framing, or when a technical exception is necessary for precision.</p>
+      <div class="chips">
+        <span class="chip">Prefer promises, offers, acceptance, local assessment, trust, credibility</span>
+        <span class="chip">Use exceptions deliberately, not by habit</span>
+        <span class="chip">Treat the rule list as editorial guidance, not blind search-replace</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Built-in exceptions</h2>
+      <p>Some rules already ship with explicit exceptions. Those should not be flagged by the scanner, and they are safe to keep when they mean exactly what they say.</p>
+      <div class="aside-list">
+        <div class="aside-item">
+          <b>`control`</b>
+          <p>`version control`, `access control`, `control loop`, `control-loop`</p>
+        </div>
+        <div class="aside-item">
+          <b>`proof`</b>
+          <p>`proof-of-concept`, `future-proof`</p>
+        </div>
+        <div class="aside-item">
+          <b>Contrast note</b>
+          <p>`authority` and `central authority` may still be useful when the page is explicitly naming centralized models as a contrast or risk.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel">
+    <h2>Flagged vocabulary</h2>
+    <p>Each entry below comes from the Promise Lens rule set. Severity and category are included so editors can quickly see which phrases are strongest candidates for revision.</p>
+    <div class="terms" id="terms"></div>
+  </section>
+
+  <div class="footer">
+    PromiseGrid editorial reference page for learner-facing copy ·
+    <button class="tool" id="copySheet">copy this page</button>
+    <span class="tool-status" id="copyStatus" aria-live="polite"></span>
+  </div>
+</div>
+
+<script>
+const RULES = [
+  {match:"authority", category:"control", severity:"medium", suggestions:["local policy", "source of an offer", "shared language"], notes:"Flag centralized control framing unless the text is intentionally contrasting it."},
+  {match:"burden", category:"promise-scope", severity:"medium", suggestions:["promise body", "promise scope", "trust context"]},
+  {match:"central authority", category:"control", severity:"medium", suggestions:["shared coordination", "local policy", "distributed cooperation"], notes:"Often useful as contrast, but still worth surfacing for review."},
+  {match:"command", category:"control", severity:"high", suggestions:["signal", "offer", "coordinate"]},
+  {match:"compliance", category:"conformance", severity:"high", suggestions:["matches the named spec", "keeps the declared promise", "compatible with the promised behavior"]},
+  {match:"comply", category:"conformance", severity:"medium", suggestions:["align with the promised behavior", "keep the declared promise"]},
+  {match:"conformance", category:"conformance", severity:"medium", suggestions:["matches the named spec", "aligns with the pCID spec"]},
+  {match:"control", category:"control", severity:"high", suggestions:["coordinate", "signal", "accept"], exceptions:["version control", "access control", "control loop", "control-loop"]},
+  {match:"convict", category:"adjudication", severity:"high", suggestions:["assess locally", "record a not-kept promise", "update credibility"]},
+  {match:"guilty", category:"adjudication", severity:"high", suggestions:["not-kept promise", "credibility concern", "trust update"]},
+  {match:"hostile", category:"adversarial-tone", severity:"medium", suggestions:["unreliable", "unsupported", "malformed", "untrusted"]},
+  {match:"hostile traffic", category:"adversarial-tone", severity:"medium", suggestions:["unsupported traffic", "malformed traffic", "untrusted traffic"]},
+  {match:"judge", category:"adjudication", severity:"high", suggestions:["assess", "weigh locally", "observe"]},
+  {match:"judgment", category:"adjudication", severity:"high", suggestions:["local assessment", "trust update", "credibility update"]},
+  {match:"must", category:"obligation", severity:"medium", suggestions:["the spec says", "promises to", "chooses to"]},
+  {match:"obligation", category:"obligation", severity:"high", suggestions:["promise", "chosen commitment", "hosted capability"]},
+  {match:"proof", category:"evidence", severity:"medium", suggestions:["record", "receipt", "observation", "evidence record"], exceptions:["proof-of-concept", "future-proof"]},
+  {match:"refuse", category:"decline", severity:"medium", suggestions:["decline", "not handle", "not accept", "set aside"]},
+  {match:"reject", category:"decline", severity:"high", suggestions:["decline", "not accept", "set aside", "quarantine locally"]},
+  {match:"required", category:"obligation", severity:"medium", suggestions:["expected by the spec", "part of the promise", "assumed locally"]},
+  {match:"responsibility", category:"obligation", severity:"high", suggestions:["role", "promise", "hosted capability"]},
+  {match:"verdict", category:"adjudication", severity:"high", suggestions:["local assessment", "credibility update", "trust update"]}
+];
+
+const terms = document.getElementById("terms");
+terms.innerHTML = RULES.map(rule => `
+  <article class="term">
+    <div class="top">
+      <div class="match">\`${rule.match}\`</div>
+      <div class="meta">
+        <span class="pill ${rule.severity}">${rule.severity}</span>
+        <span class="pill">${rule.category}</span>
+      </div>
+    </div>
+    <p><span class="label">Use instead</span></p>
+    <ul class="inline">
+      ${rule.suggestions.map(s => `<li>${s}</li>`).join("")}
+    </ul>
+    ${rule.exceptions && rule.exceptions.length ? `
+      <p style="margin-top:12px"><span class="label">Exceptions</span></p>
+      <ul class="inline">
+        ${rule.exceptions.map(s => `<li>${s}</li>`).join("")}
+      </ul>` : ``}
+    ${rule.notes ? `<p style="margin-top:12px"><span class="label">Review note</span>${rule.notes}</p>` : ``}
+  </article>`).join("");
+
+function buildCopyText(){
+  const lines = [
+    document.title,
+    "",
+    "Flagged Promise Theory vocabulary, suggested replacements, and exceptions.",
+    ""
+  ];
+  RULES.forEach((rule, idx)=>{
+    lines.push(`${idx+1}. ${rule.match}`);
+    lines.push(`Category: ${rule.category}`);
+    lines.push(`Severity: ${rule.severity}`);
+    lines.push(`Use instead: ${rule.suggestions.join("; ")}`);
+    if(rule.exceptions && rule.exceptions.length){
+      lines.push(`Exceptions: ${rule.exceptions.join("; ")}`);
+    }
+    if(rule.notes){
+      lines.push(`Note: ${rule.notes}`);
+    }
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+
+// Intent: Keep the public vocabulary reference easy to reuse in docs, chats,
+// and issue threads by offering the same plain-text copy affordance as the
+// other study pages. Source: DI-lufif
+async function copyPage(){
+  const text = buildCopyText();
+  try{
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === "function"){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta=document.createElement("textarea");
+      ta.value=text;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed";
+      ta.style.left="-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok=document.execCommand("copy");
+      document.body.removeChild(ta);
+      if(!ok) throw new Error("copy failed");
+    }
+    document.getElementById("copyStatus").textContent = `Copied ${RULES.length} vocabulary rules.`;
+  }catch(_){
+    document.getElementById("copyStatus").textContent = "Could not copy here. Try a browser with clipboard support.";
+  }
+}
+
+document.getElementById("copySheet").onclick = ()=>{ copyPage(); };
+</script>

@@ -110,7 +110,7 @@
   <h1>Audio drill <em>is disabled</em></h1>
   <div class="gate">
     <p>This browser-voice drill is off by default on purpose. Enable it here only if you want to test the experimental hands-free mode on this browser.</p>
-    <p>Once enabled, the Home page will show the audio-drill card until you turn it off again.</p>
+    <p>Once enabled, this browser can reopen the drill until you turn it off again here.</p>
     <div class="gate-actions">
       <button class="gate-btn" id="enableAudioGate" type="button">Enable audio drill here</button>
       <a class="gate-link" href="index.html">Back to Home</a>
@@ -234,6 +234,7 @@ let segs=[];                  // [{cIdx, phase}]  phase: q|gap|a|p|sep
 let pos=0, playing=false, gapTimer=null, cdTimer=null, voices=[], voice=null;
 const synth = typeof window.speechSynthesis === "object" ? window.speechSynthesis : null;
 const AUDIO_DRILL_KEY = "promisegrid.audioDrillEnabled";
+let audioDrillEnabledForVisit = new URLSearchParams(window.location.search).get("audio")==="1";
 
 const el = id => document.getElementById(id);
 function setWarning(msg){
@@ -280,18 +281,21 @@ async function copyAnswerSheet(){
   }
 }
 function readAudioDrillEnabled(){
-  if(new URLSearchParams(window.location.search).get("audio")==="1") return true;
+  if(audioDrillEnabledForVisit) return true;
   try { return localStorage.getItem(AUDIO_DRILL_KEY) === "1"; }
   catch (_) { return false; }
 }
 function writeAudioDrillEnabled(enabled){
+  audioDrillEnabledForVisit = enabled;
   try {
     if(enabled) localStorage.setItem(AUDIO_DRILL_KEY, "1");
     else localStorage.removeItem(AUDIO_DRILL_KEY);
+    return true;
   } catch (_) {
     // Intent: Keep the audio-drill gate reversible even if browser storage is
-    // unavailable; direct `?audio=1` access can still be used for one-off
-    // local testing. Source: DI-mozuv
+    // unavailable, and still allow page-local enablement for the current visit.
+    // Source: DI-jagal
+    return false;
   }
 }
 function showAudioGate(){
@@ -512,10 +516,21 @@ document.addEventListener('keydown', e=>{
   else if(e.code==="ArrowLeft"){ jumpConcept(-1); }
 });
 el('enableAudioGate').onclick = ()=>{
-  writeAudioDrillEnabled(true);
+  const persisted = writeAudioDrillEnabled(true);
   showAudioApp();
-  if(!synth){ setWarning("Your browser doesn't expose speech synthesis here, so this page cannot play audio. Try Safari, Chrome, or Edge with system text-to-speech enabled."); }
+  // Intent: Enabling the audio drill from this page must still work for the
+  // current visit when browser storage is blocked, without depending on the
+  // home page to expose the feature. Source: DI-jagal
+  if(!synth){
+    setWarning("Your browser doesn't expose speech synthesis here, so this page cannot play audio. Try Safari, Chrome, or Edge with system text-to-speech enabled.");
+    setStatus(!persisted ? "Enabled for this visit only, but audio is unavailable here." : "Audio unavailable.");
+  }
   else { loadVoices(); }
+  if(!synth && !persisted){
+    // status already set above
+  } else if(!persisted){
+    setStatus("Enabled for this visit only. Press play when ready.");
+  }
   rebuild(false);
 };
 el('disableAudioGate').onclick = ()=>{

@@ -14,6 +14,14 @@ Intent: The current text suggests the page is actively listening, but these dril
 Constraints: Do not add microphone APIs. Preserve the basic reveal-after-thought rhythm. Keep the copy short enough to fit the existing cue layout on mobile.
 Affects: `on-the-spot.html`; `layperson-on-the-spot.html`; `index.html`.
 
+ID: DI-gigij
+Date: 2026-06-19 20:43:40
+Status: active
+Decision: Make the manual drill pages consistently frame recall as thinking silently or thinking it through, not speaking aloud, including the pill labels and footer guidance.
+Intent: The learner should not be told that speaking is required on the manual drills. The pages should consistently present silent recall as the default interaction.
+Constraints: Keep the audio drill separate; only the manual reveal drills need this wording shift.
+Affects: `on-the-spot.html`; `layperson-on-the-spot.html`; `index.html`.
+
 ## Notes
 
 - The issue is strongest on the two manual reveal drill pages, where the browser does not speak or listen.

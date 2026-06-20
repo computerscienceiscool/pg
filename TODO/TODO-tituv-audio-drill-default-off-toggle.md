@@ -21,6 +21,14 @@ Intent: The feature should be intentionally opt-in, reversible, and consistent w
 Constraints: Keep the gate static-site friendly and usable under `file://`. Do not require shared build tooling or a server flag. Keep a manual enable path on the audio page itself so local testing is still straightforward.
 Affects: `index.html`; `on-the-spot-audio.html`.
 
+ID: DI-jagal
+Date: 2026-06-19 20:43:40
+Status: active
+Decision: Remove the audio-drill toggle UI from the home page and keep the default-off enable/disable path only on `on-the-spot-audio.html`, while making page-local enablement work for the current visit even if browser storage is unavailable.
+Intent: The home page should stay focused on content navigation instead of feature-flag controls, and the audio page itself should not fail silently when storage writes are blocked.
+Constraints: Preserve the default-off behavior and the direct-link interstitial on the audio page. Keep a reversible on-page disable control.
+Affects: `index.html`; `on-the-spot-audio.html`.
+
 ## Options To Evaluate
 
 - Hide the home-page card entirely unless a local browser setting enables experimental drills.

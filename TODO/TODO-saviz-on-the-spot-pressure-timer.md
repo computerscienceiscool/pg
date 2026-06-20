@@ -21,6 +21,14 @@ Intent: The pressure toggle should have an immediate visible effect on the On th
 Constraints: Preserve the retention-box scheduling and the current reveal/grade flow.
 Affects: `on-the-spot.html`.
 
+ID: DI-zirol
+Date: 2026-06-19 20:43:40
+Status: active
+Decision: When the pressure toggle changes on a manual drill, refresh only the current unrevealed prompt instead of advancing to a new prompt or discarding a revealed answer.
+Intent: Settings changes should not alter study sequence. The timer toggle should affect the active card's timer state, not act like a hidden "next prompt" action.
+Constraints: Preserve retention scoring and filtering behavior, and leave revealed answers in place when the toggle changes after reveal.
+Affects: `on-the-spot.html`; `layperson-on-the-spot.html`.
+
 ## Observed Behavior
 
 - The user reported that the `pressure timer` on the main `On the Spot` page is not working.

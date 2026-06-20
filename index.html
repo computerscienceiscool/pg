@@ -75,14 +75,6 @@
   .mini-go{font-family:var(--mono);font-size:12px;color:var(--gold);display:inline-flex;gap:6px;align-items:center}
   .section.build .mini-go{color:var(--green)}
   a.mini:hover .mini-go{gap:10px}
-  .mini-stack{display:flex;flex-direction:column;gap:8px}
-  .mini.gate{border-style:dashed;background:linear-gradient(180deg,rgba(29,51,46,.92),rgba(22,40,36,.98))}
-  .mini-note{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin:0 0 10px}
-  .mini-btn,.mini-link{font:inherit;font-family:var(--mono);font-size:12px;border-radius:10px;cursor:pointer}
-  .mini-btn{border:1px solid var(--gold-soft);background:linear-gradient(180deg,#26443b,#1c352e);color:var(--gold);padding:9px 12px}
-  .mini-btn:hover{filter:brightness(1.05)}
-  .mini-link{align-self:flex-start;border:0;background:none;color:var(--text-faint);padding:0}
-  .mini-link:hover{color:var(--gold)}
   @media (max-width:520px){ .duo{grid-template-columns:1fr} }
 
   @media (max-width:520px){ .hero{flex-direction:row;gap:14px} .intro{font-size:16px} }
@@ -163,24 +155,12 @@
         <p class="mini-d">Nine cold prompts for the Level 1 concepts only. Practice the explanation before moving into the app and kernel layers.</p>
         <span class="mini-go">Practice Level 1 →</span>
       </a>
-      <div class="mini-stack" id="audioDrillOff">
-        <div class="mini gate">
-          <div class="mini-k">Hands-free audio</div>
-          <h2 class="mini-t">Audio drill is off by default</h2>
-          <p class="mini-d">This experimental browser-voice mode stays hidden until you explicitly enable it on this browser.</p>
-          <p class="mini-note">Support varies by browser, device, and installed system voices.</p>
-          <button class="mini-btn" id="enableAudioDrill" type="button">Enable audio drill</button>
-        </div>
-      </div>
-      <div class="mini-stack" id="audioDrillOn" hidden>
-        <a class="mini" href="on-the-spot-audio.html">
-          <div class="mini-k">Hands-free audio</div>
-          <h2 class="mini-t">On the spot, out loud</h2>
-          <p class="mini-d">Experimental browser-voice drill: press play and answer into the gap. Support varies by browser, device, and installed system voices.</p>
-          <span class="mini-go">Press play →</span>
-        </a>
-        <button class="mini-link" id="disableAudioDrill" type="button">Hide experimental audio drill</button>
-      </div>
+      <a class="mini" href="on-the-spot-audio.html">
+        <div class="mini-k">Hands-free audio</div>
+        <h2 class="mini-t">On the spot, out loud</h2>
+        <p class="mini-d">Experimental browser-voice drill. Open the page to enable it for this browser, then press play and answer into the gap.</p>
+        <span class="mini-go">Open audio drill →</span>
+      </a>
     </div>
   </div>
 
@@ -202,42 +182,17 @@
     </div>
   </div>
 
+  <div class="section">
+    <div class="section-label">Write it clearly</div>
+    <div class="duo">
+      <a class="mini" href="promise-language.html">
+        <div class="mini-k">Promise language</div>
+        <h2 class="mini-t">Flagged words and replacements</h2>
+        <p class="mini-d">A public house-style page listing the Promise Theory vocabulary hotspots, preferred replacements, and explicit exceptions used during the PG cleanup.</p>
+        <span class="mini-go">Open the vocabulary page →</span>
+      </a>
+    </div>
+  </div>
+
   <div class="foot">A layperson-to-kernel primer for the PromiseGrid dev guide.</div>
 </div>
-
-<script>
-const AUDIO_DRILL_KEY = "promisegrid.audioDrillEnabled";
-
-function readAudioDrillEnabled(){
-  try { return localStorage.getItem(AUDIO_DRILL_KEY) === "1"; }
-  catch (_) { return false; }
-}
-
-function writeAudioDrillEnabled(enabled){
-  try {
-    if(enabled) localStorage.setItem(AUDIO_DRILL_KEY, "1");
-    else localStorage.removeItem(AUDIO_DRILL_KEY);
-  } catch (_) {
-    // Intent: Keep the home-page experimental-drill gate usable even when
-    // browser storage is blocked or unavailable. Source: DI-mozuv
-  }
-}
-
-function renderAudioDrillGate(){
-  const enabled = readAudioDrillEnabled();
-  document.getElementById("audioDrillOff").hidden = enabled;
-  document.getElementById("audioDrillOn").hidden = !enabled;
-}
-
-document.getElementById("enableAudioDrill").onclick = ()=>{
-  writeAudioDrillEnabled(true);
-  renderAudioDrillGate();
-};
-
-document.getElementById("disableAudioDrill").onclick = ()=>{
-  writeAudioDrillEnabled(false);
-  renderAudioDrillGate();
-};
-
-renderAudioDrillGate();
-</script>

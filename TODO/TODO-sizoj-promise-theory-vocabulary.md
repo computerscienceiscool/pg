@@ -17,6 +17,14 @@ Intent: The current copy sometimes implies commands, obligations, conformance, j
 Constraints: Do not flatten real safety or parsing behavior: malformed bytes can still be declined, set aside, or quarantined locally. Do not ban every technical occurrence of words such as responsibility or assessment when the concept is genuinely needed. Prefer concrete rewrites over broad search-and-replace.
 Affects: `index.html`; `layperson.html`; `app-dev.html`; `kernel-dev.html`; `on-the-spot.html`; `on-the-spot-audio.html`; `layperson-on-the-spot.html`; `dispatch.html`; `pg-note-dispatch.html`.
 
+ID: DI-lufif
+Date: 2026-06-19 22:31:00
+Status: active
+Decision: Publish a dedicated `promise-language.html` reference page, linked from the home page, that lists the flagged Promise Theory vocabulary, suggested replacements, and explicit exceptions drawn from the Promise Lens rule files.
+Intent: The site should expose a stable, human-readable vocabulary reference so readers and editors can see the house style in one place instead of inferring it from scattered rewrites or internal TODO notes.
+Constraints: Source the page content from the current Promise Lens rule set in `/home/jj/lab/cswg/promise-lens/rules/vocabulary-source.json` and `/home/jj/lab/cswg/promise-lens/rules/rules.json`. Keep it readable as a standalone page for external readers.
+Affects: `index.html`; `promise-language.html`; `TODO/TODO-sizoj-promise-theory-vocabulary.md`.
+
 ## Source Vocabulary Notes
 
 - Promise Theory baseline: no agent can promise on behalf of another agent; each agent expresses only its own intent.
@@ -47,7 +55,7 @@ Affects: `index.html`; `layperson.html`; `app-dev.html`; `kernel-dev.html`; `on-
 ## Subtasks
 
 - [ ] sizoj.1 Build a precise HTML vocabulary inventory with file/line references and classify each occurrence as `replace`, `keep`, or `needs design wording`.
-- [ ] sizoj.2 Draft a Promise Theory house style note for learner-facing copy, including allowed technical exceptions.
+- [x] sizoj.2 Draft a Promise Theory house style note for learner-facing copy, including allowed technical exceptions.
 - [ ] sizoj.3 Rewrite `layperson.html` and `index.html` first, because those set the tone for non-specialist readers.
 - [ ] sizoj.4 Rewrite `app-dev.html` and copied Level 2 prompt data in `on-the-spot.html`, `on-the-spot-audio.html`, and `layperson-on-the-spot.html`.
 - [ ] sizoj.5 Rewrite `kernel-dev.html` and copied Level 3 prompt data, preserving necessary precision about hosted roles and protocol boundaries.

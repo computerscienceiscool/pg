@@ -108,7 +108,7 @@
 <div class="wrap">
   <div class="top">
     <div>
-      <span class="pill">RECALL DRILL · SAY IT OUT LOUD</span>
+      <span class="pill">RECALL DRILL · THINK SILENTLY</span>
       <h1>On the <em>spot</em></h1>
       <p class="sub">Someone just asked you, cold. Think about the answer before you reveal the model. The ones you blank on come back sooner.</p>
     </div>
@@ -131,7 +131,7 @@
   <div id="stage"></div>
 
   <div class="footer">
-    Tip: actually speak the answer — even mutter it. Saying it is a different skill from knowing it.<br>
+    Tip: think it through before you reveal it. Retrieval is a different skill from rereading.<br>
     35 prompts across all three levels · <button class="tool" id="copySheet">copy answer sheet</button> · <button class="reset" id="reset">reset my progress</button>
     <span class="tool-status" id="copyStatus" aria-live="polite"></span>
   </div>
@@ -350,12 +350,26 @@ function pickNext(){
 
 function clearTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
 
-function render(){
+function resetCue(){
+  const timerEl = document.getElementById('timer');
+  const cueText = document.querySelector('#cue span:nth-child(2)');
+  if(timerEl){
+    timerEl.textContent = "";
+    timerEl.classList.remove('calm');
+  }
+  if(cueText) cueText.textContent = "Think about the answer.";
+}
+
+function render(keepCurrent){
   updateSolid();
   clearTimer();
-  revealed = false;
-  curIdx = pickNext();
-  lastIdx = curIdx;
+  const pool = poolIdx();
+  const reuseCurrent = !!keepCurrent && curIdx >= 0 && pool.includes(curIdx);
+  if(!reuseCurrent){
+    revealed = false;
+    curIdx = pickNext();
+    lastIdx = curIdx;
+  }
   const c = CONCEPTS[curIdx];
   const stage = document.getElementById('stage');
   stage.innerHTML = `
@@ -368,18 +382,23 @@ function render(){
       <div class="cue" id="cue"><span class="dot"></span><span>Think about the answer.</span> <span class="timer" id="timer"></span></div>
       <div class="spacer"></div>
       <div id="revealZone">
-        <button class="reveal-btn" id="revealBtn">I've thought it through \u2014 show the model</button>
+        <button class="reveal-btn" id="revealBtn">I've thought it through \u2014 show the answer</button>
         <p class="reveal-hint">no peeking till you've got your version \uD83D\uDD0A</p>
       </div>
     </div>`;
   document.getElementById('revealBtn').onclick = reveal;
   if(pressure) startTimer();
+  else resetCue();
 }
 
 function startTimer(){
+  clearTimer();
   let t = 15;
   const el = document.getElementById('timer');
   const cueText = document.querySelector('#cue span:nth-child(2)');
+  if(!el) return;
+  el.classList.remove('calm');
+  if(cueText) cueText.textContent = "Think about the answer.";
   el.textContent = `${t}s`;
   timerId = setInterval(()=>{
     t--;
@@ -439,9 +458,18 @@ document.querySelectorAll('#seg button').forEach(btn=>{
 });
 document.getElementById('pressure').onchange = e=>{
   pressure = e.target.checked;
-  // Intent: Apply pressure-mode changes immediately so the timer UI always
-  // matches the current toggle state on the active drill page. Source: DI-gidan
-  render();
+  // Intent: Let the pressure toggle affect the active prompt's timer state
+  // without silently advancing the drill or discarding a revealed answer.
+  // Source: DI-zirol
+  if(revealed){
+    clearTimer();
+    return;
+  }
+  if(pressure) startTimer();
+  else{
+    clearTimer();
+    resetCue();
+  }
 };
 document.getElementById('copySheet').onclick = ()=>{ copyAnswerSheet(); };
 document.getElementById('reset').onclick = async ()=>{

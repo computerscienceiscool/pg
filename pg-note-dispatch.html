@@ -4,18 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pg-note/v0 — receive &amp; recognize</title>
+<meta name="theme-color" content="#0e1419">
 <style>
   :root{
     --ground:#0e1419; --panel:#141c24; --panel2:#0b1116;
     --line:#243441; --ink:#dfe9ef; --dim:#7c93a3; --faint:#4d6373;
     --match:#36d6b6; --match-bg:#0c2a26; --reject:#f0a836; --reject-bg:#2a2110;
-    --slot0:#7fd0ff; --slot0-bg:#0d2230; --mono:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+    --slot0:#7fd0ff; --slot0-bg:#0d2230; --banner:#173042; --banner-ink:#d9efff;
+    --theme-chip-bg:rgba(127,208,255,.14); --theme-chip-line:rgba(127,208,255,.35);
+    --mono:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     line-height:1.5;padding:28px 20px 60px;}
   .wrap{max-width:760px;margin:0 auto}
+  .tab-banner{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    background:linear-gradient(135deg,var(--banner),var(--panel));border:1px solid var(--theme-chip-line);
+    border-radius:12px;padding:12px 14px;margin:0 0 16px}
+  .tab-banner-copy{display:flex;align-items:center;gap:10px;min-width:0}
+  .tab-swatch{width:12px;height:12px;border-radius:999px;background:var(--slot0);
+    box-shadow:0 0 0 4px var(--theme-chip-bg)}
+  .tab-banner-text{min-width:0}
+  .tab-banner-text b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--banner-ink)}
+  .tab-banner-text span{display:block;font-size:12.5px;color:var(--ink)}
+  .theme-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .theme-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .theme-select{appearance:none;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:999px;padding:8px 32px 8px 12px;font:inherit;font-size:12.5px}
+  .theme-select:focus{outline:none;border-color:var(--slot0)}
   h1{font-size:15px;font-weight:600;letter-spacing:.02em;margin:0 0 2px}
   .sub{color:var(--dim);font-size:12.5px;margin:0 0 22px}
 
@@ -91,6 +108,24 @@
 <body>
 <pg-site-header></pg-site-header>
 <div class="wrap">
+  <div class="tab-banner">
+    <div class="tab-banner-copy">
+      <span class="tab-swatch" aria-hidden="true"></span>
+      <div class="tab-banner-text">
+        <b>Live Demo Tab</b>
+        <span><span id="themeName">Blue slate</span> theme on <span id="themeNode">this node</span></span>
+      </div>
+    </div>
+    <div class="theme-controls">
+      <span class="theme-label">Tab color</span>
+      <select class="theme-select" id="themeSelect" aria-label="Choose a tab color">
+        <option value="slate">Blue slate</option>
+        <option value="ember">Ember</option>
+        <option value="spruce">Spruce</option>
+        <option value="orchid">Orchid</option>
+      </select>
+    </div>
+  </div>
   <h1>pg-note/v0 · receive &amp; recognize</h1>
   <p class="sub">Spec section 4, running. Slot 0 carries the protocol fingerprint; the receiver recognizes it.</p>
 
@@ -175,15 +210,129 @@ const CID = new Uint8Array("015512203f673d0570d4f0667047dc5ef131ca51a567ada5cd03
 const PCID = pcidOf(CID);                 // bafkrei...
 const SLOT0_CID_OFFSET = 10;              // grid tag + array/tag42 framing = start of CID bytes
 const SLOT0_DIGEST_OFFSET = SLOT0_CID_OFFSET + 4; // keep CID shape valid; alter only digest bytes
+const TAB_THEME_KEY = "pg-note-dispatch-theme";
+const THEME_META = document.querySelector('meta[name="theme-color"]');
+const THEMES = {
+  slate: {
+    label: "Blue slate",
+    title: "Blue Slate",
+    ground: "#0e1419",
+    panel: "#141c24",
+    panel2: "#0b1116",
+    line: "#243441",
+    ink: "#dfe9ef",
+    dim: "#7c93a3",
+    faint: "#4d6373",
+    slot0: "#7fd0ff",
+    slot0Bg: "#0d2230",
+    banner: "#173042",
+    bannerInk: "#d9efff",
+    chipBg: "rgba(127,208,255,.14)",
+    chipLine: "rgba(127,208,255,.35)"
+  },
+  ember: {
+    label: "Ember",
+    title: "Ember",
+    ground: "#19110d",
+    panel: "#241713",
+    panel2: "#140d0a",
+    line: "#4b2b24",
+    ink: "#f3e6df",
+    dim: "#c69d8b",
+    faint: "#8c6457",
+    slot0: "#ff8c5a",
+    slot0Bg: "#3a1d18",
+    banner: "#4a201a",
+    bannerInk: "#ffd8ca",
+    chipBg: "rgba(255,140,90,.16)",
+    chipLine: "rgba(255,140,90,.38)"
+  },
+  spruce: {
+    label: "Spruce",
+    title: "Spruce",
+    ground: "#0d1713",
+    panel: "#13211b",
+    panel2: "#09110d",
+    line: "#234235",
+    ink: "#deefe6",
+    dim: "#8bb8a0",
+    faint: "#5b7d69",
+    slot0: "#6fe0a8",
+    slot0Bg: "#113224",
+    banner: "#173428",
+    bannerInk: "#d7ffeb",
+    chipBg: "rgba(111,224,168,.16)",
+    chipLine: "rgba(111,224,168,.36)"
+  },
+  orchid: {
+    label: "Orchid",
+    title: "Orchid",
+    ground: "#17111b",
+    panel: "#21172a",
+    panel2: "#100b15",
+    line: "#43304f",
+    ink: "#eee2f7",
+    dim: "#b397cd",
+    faint: "#79628f",
+    slot0: "#d39cff",
+    slot0Bg: "#32203f",
+    banner: "#39204a",
+    bannerInk: "#f3defd",
+    chipBg: "rgba(211,156,255,.17)",
+    chipLine: "rgba(211,156,255,.38)"
+  }
+};
 
 /* ---------- node identity (skeleton: just a random id, no signing yet) ---------- */
 const ME = "node-"+Math.floor(Math.random()*0xffff).toString(16).padStart(4,"0");
 const chanName = "pg-"+PCID;
 const bc = ("BroadcastChannel" in self) ? new BroadcastChannel(chanName) : null;
 
+// Intent: Give each browser tab its own visible theme identity so two copies
+// of the live dispatch demo can be told apart at a glance. Source: DI-buvag
+function applyTheme(name){
+  const theme = THEMES[name] || THEMES.slate;
+  const root = document.documentElement.style;
+  root.setProperty("--ground", theme.ground);
+  root.setProperty("--panel", theme.panel);
+  root.setProperty("--panel2", theme.panel2);
+  root.setProperty("--line", theme.line);
+  root.setProperty("--ink", theme.ink);
+  root.setProperty("--dim", theme.dim);
+  root.setProperty("--faint", theme.faint);
+  root.setProperty("--slot0", theme.slot0);
+  root.setProperty("--slot0-bg", theme.slot0Bg);
+  root.setProperty("--banner", theme.banner);
+  root.setProperty("--banner-ink", theme.bannerInk);
+  root.setProperty("--theme-chip-bg", theme.chipBg);
+  root.setProperty("--theme-chip-line", theme.chipLine);
+  document.getElementById("themeSelect").value = name;
+  document.getElementById("themeName").textContent = theme.label;
+  document.title = `LIVE DEMO [${theme.title}] — pg-note/v0 receive & recognize`;
+  if(THEME_META) THEME_META.setAttribute("content", theme.ground);
+}
+
+// Intent: Keep theme selection scoped to this tab so multiple open copies can
+// use different palettes without overwriting one another. Source: DI-buvag
+function initTheme(){
+  let name = "slate";
+  try {
+    const saved = sessionStorage.getItem(TAB_THEME_KEY);
+    if(saved && THEMES[saved]) name = saved;
+  } catch (_) {}
+  applyTheme(name);
+}
+
+function setTheme(name){
+  applyTheme(name);
+  try { sessionStorage.setItem(TAB_THEME_KEY, name); } catch (_) {}
+}
+
+initTheme();
 document.getElementById("pcid").textContent = PCID;
 document.getElementById("chan").textContent = chanName;
 document.getElementById("me").textContent = ME;
+document.getElementById("themeNode").textContent = ME;
 
 /* ---------- send ---------- */
 function send(){
@@ -284,6 +433,7 @@ if(bc) bc.onmessage = e => {
 applyBroadcastChannelAvailability();
 document.getElementById("send").onclick = send;
 document.getElementById("loop").onclick = loopback;
+document.getElementById("themeSelect").addEventListener("change", e => setTheme(e.target.value));
 document.getElementById("body").addEventListener("keydown", e=>{ if(e.key==="Enter") send(); });
 </script>
 </body>

@@ -5,6 +5,7 @@ proquint handles minted by `tools/mint-handle`; do not add numbered TODO IDs.
 
 | Handle | Mint date | Title | Status |
 |---|---|---|---|
+| [TODO-nakal](./TODO-nakal-shared-promisegrid-terms.md) | 2026-06-20 | Create a shared PromiseGrid term source for lesson flash cards | implemented |
 | [TODO-takok](./TODO-takok-promise-chain-term.md) | 2026-06-20 | Explore and coin the term "Promise Chain" | implemented |
 | [TODO-tozoz](./TODO-tozoz-static-progress-persistence.md) | 2026-06-20 | Make lesson and drill progress persist on a normal static host | implemented |
 | [TODO-nukov](./TODO-nukov-html-document-wrappers.md) | 2026-06-20 | Add full HTML document wrappers to the static site pages | implemented |
